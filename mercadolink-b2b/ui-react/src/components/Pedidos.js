@@ -8,6 +8,15 @@ import {
 } from '../utils/pedidos';
 import NuevoPedidoModal from './NuevoPedidoModal';
 
+function logEvento(evento, datos) {
+  const timestamp = new Date().toISOString();
+  const logEntry = { timestamp, evento, datos };
+  const logs = JSON.parse(localStorage.getItem('debug_logs') || '[]');
+  logs.push(logEntry);
+  localStorage.setItem('debug_logs', JSON.stringify(logs.slice(-100)));
+  console.log(`[DEBUG] ${evento}`, datos);
+}
+
 const PUEDE_GESTIONAR_ESTADO = ['VENDEDOR', 'ADMINISTRADOR'];
 const PUEDE_CREAR = ['CLIENTE_MAYORISTA', 'VENDEDOR', 'ADMINISTRADOR'];
 
@@ -22,14 +31,17 @@ export default function Pedidos() {
   const [accionId, setAccionId] = useState(null);
 
   const cargar = useCallback(async () => {
+    logEvento('cargar_pedidos_inicio', {});
     setError('');
     try {
       const { data } = await pedidosAPI.misPedidos();
+      logEvento('cargar_pedidos_exito', { count: data.length });
       setPedidos(data);
       setSelected((prev) =>
         prev ? data.find((p) => p.id === prev.id) || null : null
       );
     } catch (err) {
+      logEvento('cargar_pedidos_error', { error: err.message, stack: err.stack });
       setError(err.message);
     } finally {
       setLoading(false);
@@ -41,15 +53,18 @@ export default function Pedidos() {
   }, [cargar]);
 
   const iniciarPago = async (pedidoId) => {
+    logEvento('iniciar_pago', { pedidoId });
     setAccionId(pedidoId);
     setError('');
     setInfo('');
     try {
       const { data } = await pagosAPI.iniciar(pedidoId);
+      logEvento('iniciar_pago_exito', { orderId: data.orderId, monto: data.monto });
       setInfo(`Pago iniciado: ${data.orderId} — S/ ${Number(data.monto).toFixed(2)}`);
       localStorage.setItem(`pago_${pedidoId}`, data.orderId);
       await cargar();
     } catch (err) {
+      logEvento('iniciar_pago_error', { error: err.message, stack: err.stack });
       setError(err.message);
     } finally {
       setAccionId(null);
@@ -57,6 +72,7 @@ export default function Pedidos() {
   };
 
   const simularPagoAprobado = async (pedido) => {
+    logEvento('simular_pago_inicio', { pedidoId: pedido.id, monto: pedido.montoTotal });
     setAccionId(pedido.id);
     setError('');
     setInfo('');
@@ -64,18 +80,21 @@ export default function Pedidos() {
       let orderId = localStorage.getItem(`pago_${pedido.id}`);
       let monto = pedido.montoTotal;
       if (!orderId) {
+        logEvento('simular_pago_iniciar_sesion', { pedidoId: pedido.id });
         const iniciar = await pagosAPI.iniciar(pedido.id);
         orderId = iniciar.data.orderId;
         monto = iniciar.data.monto;
       }
       const amount = Number(monto).toFixed(2);
       const transactionId = `TX-${Date.now()}`;
+      logEvento('simular_pago_firmar', { orderId, transactionId, amount });
       const firmar = await izipayAPI.firmar({
         orderId,
         transactionId,
         status: 'APROBADO',
         amount,
       });
+      logEvento('simular_pago_webhook', { orderId, transactionId });
       await izipayAPI.webhook({
         orderId,
         transactionId,
@@ -83,9 +102,11 @@ export default function Pedidos() {
         amount,
         signature: firmar.data.signature,
       });
+      logEvento('simular_pago_exito', { pedidoId: pedido.id });
       setInfo('Webhook enviado. El pedido pasará a PAGADO en unos segundos.');
       setTimeout(cargar, 2000);
     } catch (err) {
+      logEvento('simular_pago_error', { error: err.message, stack: err.stack });
       setError(err.message);
     } finally {
       setAccionId(null);
@@ -93,14 +114,17 @@ export default function Pedidos() {
   };
 
   const avanzarEstado = async (pedido, nuevoEstado) => {
+    logEvento('avanzar_estado', { pedidoId: pedido.id, nuevoEstado });
     setAccionId(pedido.id);
     setError('');
     setInfo('');
     try {
       await pedidosAPI.cambiarEstado(pedido.id, nuevoEstado);
+      logEvento('avanzar_estado_exito', { pedidoId: pedido.id, nuevoEstado });
       setInfo(`Estado actualizado: ${labelEstado(nuevoEstado)}`);
       await cargar();
     } catch (err) {
+      logEvento('avanzar_estado_error', { error: err.message, stack: err.stack });
       setError(err.message);
     } finally {
       setAccionId(null);

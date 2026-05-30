@@ -1,5 +1,7 @@
 package pe.aspropa.mercadolink.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.aspropa.mercadolink.domain.Inventario;
@@ -13,13 +15,10 @@ import pe.aspropa.mercadolink.repository.PuestoRepository;
 import java.time.Instant;
 import java.util.List;
 
-/**
- * Servicio de entidad para el inventario. Aplica las reglas INV-001 a INV-005:
- * stock no negativo, reserva atómica via @Version, y validación previa para
- * evitar el conflicto INV-003.
- */
 @Service
 public class InventarioService {
+
+    private static final Logger log = LoggerFactory.getLogger(InventarioService.class);
 
     private final InventarioRepository inventarioRepository;
     private final ProductoRepository productoRepository;
@@ -37,10 +36,12 @@ public class InventarioService {
     }
 
     public List<Inventario> listarPorPuesto(String puestoId) {
+        log.debug("[INVENTARIO] Listando inventario para puesto: {}", puestoId);
         return inventarioRepository.findByPuestoId(puestoId);
     }
 
     public Inventario obtener(String productoId, String puestoId) {
+        log.debug("[INVENTARIO] Obteniendo inventario: productoId={}, puestoId={}", productoId, puestoId);
         return inventarioRepository.findByProductoIdAndPuestoId(productoId, puestoId)
                 .orElseThrow(() -> BusinessException.notFound("CAT-001",
                         "No existe inventario para producto " + productoId +
@@ -50,6 +51,8 @@ public class InventarioService {
     @Transactional
     public Inventario actualizarStock(String productoId, String puestoId,
                                       int cantidadActual, int cantidadMinima) {
+        log.info("[INVENTARIO] Actualizando stock: productoId={}, puestoId={}, cantidad={}, min={}", 
+            productoId, puestoId, cantidadActual, cantidadMinima);
         Inventario inv = inventarioRepository
                 .findByProductoIdAndPuestoId(productoId, puestoId)
                 .orElseGet(() -> nuevoInventario(productoId, puestoId));
@@ -68,11 +71,16 @@ public class InventarioService {
         return saved;
     }
 
-    /** Reserva atómica de stock; usada por la saga de pedido (sección 3.4.4). */
     @Transactional
     public void reservar(String productoId, String puestoId, int cantidad) {
+        log.info("[INVENTARIO] Reservando stock: productoId={}, puestoId={}, cantidad={}", 
+            productoId, puestoId, cantidad);
         Inventario inv = obtener(productoId, puestoId);
+        log.debug("[INVENTARIO] Stock disponible: {} (actual: {}, reservado: {})", 
+            inv.disponible(), inv.getCantidadActual(), inv.getCantidadReservada());
         if (inv.disponible() < cantidad) {
+            log.warn("[INVENTARIO] Stock insuficiente! disponible={} solicitado={}", 
+                inv.disponible(), cantidad);
             throw BusinessException.conflict("INV-001",
                     "Stock insuficiente para producto " + inv.getProducto().getCodigo() +
                             ". Disponible: " + inv.disponible() + ", solicitado: " + cantidad);
@@ -80,13 +88,17 @@ public class InventarioService {
         inv.setCantidadReservada(inv.getCantidadReservada() + cantidad);
         inv.setUltimaActualizacion(Instant.now());
         inventarioRepository.save(inv);
+        log.info("[INVENTARIO] Reserva exitosa. Nueva reserva: {}", inv.getCantidadReservada());
     }
 
-    /** Confirma la reserva: descuenta del stock real (paso commit del saga). */
     @Transactional
     public void confirmarReserva(String productoId, String puestoId, int cantidad) {
+        log.info("[INVENTARIO] Confirmando reserva: productoId={}, puestoId={}, cantidad={}", 
+            productoId, puestoId, cantidad);
         Inventario inv = obtener(productoId, puestoId);
         if (inv.getCantidadReservada() < cantidad) {
+            log.warn("[INVENTARIO] Reserva inconsistente! reservada={} confirmada={}", 
+                inv.getCantidadReservada(), cantidad);
             throw BusinessException.conflict("INV-003",
                     "Reserva inconsistente para " + inv.getProducto().getCodigo());
         }
@@ -94,16 +106,20 @@ public class InventarioService {
         inv.setCantidadActual(inv.getCantidadActual() - cantidad);
         inv.setUltimaActualizacion(Instant.now());
         inventarioRepository.save(inv);
+        log.info("[INVENTARIO] Reserva confirmada. Stock actual: {}, reserva: {}", 
+            inv.getCantidadActual(), inv.getCantidadReservada());
     }
 
-    /** Libera la reserva en caso de fallo del pago (paso rollback del saga). */
     @Transactional
     public void liberarReserva(String productoId, String puestoId, int cantidad) {
+        log.info("[INVENTARIO] Liberando reserva: productoId={}, puestoId={}, cantidad={}", 
+            productoId, puestoId, cantidad);
         Inventario inv = obtener(productoId, puestoId);
         int nueva = Math.max(0, inv.getCantidadReservada() - cantidad);
         inv.setCantidadReservada(nueva);
         inv.setUltimaActualizacion(Instant.now());
         inventarioRepository.save(inv);
+        log.info("[INVENTARIO] Reserva liberada. Nueva reserva: {}", nueva);
     }
 
     private Inventario nuevoInventario(String productoId, String puestoId) {
@@ -116,6 +132,8 @@ public class InventarioService {
         Inventario inv = new Inventario();
         inv.setProducto(producto);
         inv.setPuesto(puesto);
+        log.info("[INVENTARIO] Creando nuevo registro de inventario: producto={}, puesto={}", 
+            producto.getCodigo(), puesto.getId());
         return inv;
     }
 }

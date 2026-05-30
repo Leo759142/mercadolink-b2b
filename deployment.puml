@@ -1,0 +1,62 @@
+@startuml
+' Deployment Diagram for MercadoLink B2B
+' Shows infrastructure components and their relationships
+
+' Skin parameters for better appearance
+skinparam backgroundColor #FDFDFD
+skinparam shadowing false
+skinparam rectangle {
+  BackgroundColor<<Container>> #E8F4FD
+  BorderColor<<Container>> #B4C7E7
+}
+skinparam rectangle <<Volume>> {
+  BackgroundColor #E8F8E8
+  BorderColor #C3E6CB
+}
+skinparam rectangle <<Database>> {
+  BackgroundColor #FFF4E5
+  BorderColor #FFDAB9
+}
+skinparam node {
+  BackgroundColor<<Device>> #FFF0F5
+  BorderColor<<Device>> #FFB6C1
+}
+skinparam artifact {
+  BackgroundColor #F0E68C
+  BorderColor #B8860B
+}
+
+' Nodes
+node "User Device\n(Web Browser)" as userDevice <<Device>> {
+  [Browser\n(React SPA)]
+}
+
+node "Docker Host" as dockerHost {
+  node "Container: mercadolink-b2b" as appContainer <<Container>> {
+    [Spring Boot Application\n(Backend API)] as springApp
+    [Embedded H2 Database\n(/data/mercadolink.mv.db)] as h2db <<Database>>
+  }
+  
+  artifact "mercadolink-b2b.jar" as appJar
+}
+
+node "Persistent Storage" as storage {
+  [Host Volume\nmercadolink-data] as dataVolume <<Volume>>
+}
+
+' Relationships
+appJar --> appContainer : deployed
+appContainer ..> dataVolume : mounts at /data
+springApp ..> h2db : uses for persistence
+
+' Communication
+userDevice --> springApp : HTTPS (port 8080)\n[Serves SPA + REST API]
+
+' External Services (mentioned in code)
+cloud "Izipay Payment Gateway\n(Sandbox/Production)" as izipay {
+  [Izipay API\n/create-payment-session\n/webhook endpoint]
+}
+
+springApp --> izipay : HTTP\n[Payment session creation\nWebhook processing]
+
+@enduml

@@ -1,0 +1,55 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.4)
+
+2026-05-30T11:39:05.481-05:00  INFO 25332 --- [mercadolink-b2b] [           main] p.a.mercadolink.MercadolinkApplication   : Starting MercadolinkApplication v1.0.0 using Java 17.0.12 with PID 25332 (D:\mercadolink-b2b\mercadolink-b2b\target\mercadolink-b2b.jar started by fredd yog in D:\mercadolink-b2b\mercadolink-b2b)
+2026-05-30T11:39:05.485-05:00 DEBUG 25332 --- [mercadolink-b2b] [           main] p.a.mercadolink.MercadolinkApplication   : Running with Spring Boot v3.3.4, Spring v6.1.13
+2026-05-30T11:39:05.487-05:00  INFO 25332 --- [mercadolink-b2b] [           main] p.a.mercadolink.MercadolinkApplication   : No active profile set, falling back to 1 default profile: "default"
+2026-05-30T11:39:08.425-05:00  INFO 25332 --- [mercadolink-b2b] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-30T11:39:08.557-05:00  INFO 25332 --- [mercadolink-b2b] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 115 ms. Found 7 JPA repository interfaces.
+2026-05-30T11:39:10.877-05:00  INFO 25332 --- [mercadolink-b2b] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-05-30T11:39:10.922-05:00  INFO 25332 --- [mercadolink-b2b] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-30T11:39:10.923-05:00  INFO 25332 --- [mercadolink-b2b] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2026-05-30T11:39:11.048-05:00  INFO 25332 --- [mercadolink-b2b] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-05-30T11:39:11.052-05:00  INFO 25332 --- [mercadolink-b2b] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 5458 ms
+2026-05-30T11:39:11.603-05:00  INFO 25332 --- [mercadolink-b2b] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-05-30T11:39:12.223-05:00  INFO 25332 --- [mercadolink-b2b] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:mercadolink user=SA
+2026-05-30T11:39:12.234-05:00  INFO 25332 --- [mercadolink-b2b] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-05-30T11:39:12.277-05:00  INFO 25332 --- [mercadolink-b2b] [           main] o.s.b.a.h2.H2ConsoleAutoConfiguration    : H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:mercadolink'
+2026-05-30T11:39:12.975-05:00 DEBUG 25332 --- [mercadolink-b2b] [           main] p.a.mercadolink.security.JwtAuthFilter   : Filter 'jwtAuthFilter' configured for use
+2026-05-30T11:39:12.976-05:00 DEBUG 25332 --- [mercadolink-b2b] [           main] p.a.mercadolink.web.AppIndexFilter       : Filter 'appIndexFilter' configured for use
+2026-05-30T11:39:13.646-05:00  INFO 25332 --- [mercadolink-b2b] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-30T11:39:14.411-05:00  INFO 25332 --- [mercadolink-b2b] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.3.Final
+2026-05-30T11:39:14.571-05:00  INFO 25332 --- [mercadolink-b2b] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-05-30T11:39:16.273-05:00  INFO 25332 --- [mercadolink-b2b] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-30T11:39:19.087-05:00  INFO 25332 --- [mercadolink-b2b] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-30T11:39:19.243-05:00  INFO 25332 --- [mercadolink-b2b] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-30T11:39:20.467-05:00  INFO 25332 --- [mercadolink-b2b] [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-05-30T11:39:22.541-05:00  WARN 25332 --- [mercadolink-b2b] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 3b396962-f200-4ed4-8dbb-dc1a0e7aef59
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-05-30T11:39:22.571-05:00  INFO 25332 --- [mercadolink-b2b] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-05-30T11:39:22.885-05:00  INFO 25332 --- [mercadolink-b2b] [           main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page template: index
+2026-05-30T11:39:24.082-05:00  INFO 25332 --- [mercadolink-b2b] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-05-30T11:39:25.994-05:00  INFO 25332 --- [mercadolink-b2b] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-05-30T11:39:26.055-05:00  INFO 25332 --- [mercadolink-b2b] [           main] p.a.mercadolink.MercadolinkApplication   : Started MercadolinkApplication in 21.562 seconds (process running for 22.501)
+2026-05-30T11:39:26.430-05:00  INFO 25332 --- [mercadolink-b2b] [           main] p.a.mercadolink.config.DataInitializer   : DataInitializer: cargando datos demo...
+2026-05-30T11:39:26.706-05:00  INFO 25332 --- [mercadolink-b2b] [           main] p.a.mercadolink.config.DataInitializer   : DataInitializer: datos demo listos.
+2026-05-30T11:39:26.706-05:00  INFO 25332 --- [mercadolink-b2b] [           main] p.a.mercadolink.config.DataInitializer   :   Usuarios demo (password = 'password123'):
+2026-05-30T11:39:26.706-05:00  INFO 25332 --- [mercadolink-b2b] [           main] p.a.mercadolink.config.DataInitializer   :     admin@aspropa.pe       (ADMINISTRADOR)
+2026-05-30T11:39:26.707-05:00  INFO 25332 --- [mercadolink-b2b] [           main] p.a.mercadolink.config.DataInitializer   :     proveedor@aspropa.pe   (PROVEEDOR)
+2026-05-30T11:39:26.707-05:00  INFO 25332 --- [mercadolink-b2b] [           main] p.a.mercadolink.config.DataInitializer   :     vendedor@aspropa.pe    (VENDEDOR, puesto=6e3b9744-5e5c-4cae-975b-d191eed9edb7)
+2026-05-30T11:39:26.708-05:00  INFO 25332 --- [mercadolink-b2b] [           main] p.a.mercadolink.config.DataInitializer   :     cliente@aspropa.pe     (CLIENTE_MAYORISTA)
+2026-05-30T11:39:26.708-05:00  INFO 25332 --- [mercadolink-b2b] [           main] p.a.mercadolink.config.DataInitializer   :   Puesto demo: id=6e3b9744-5e5c-4cae-975b-d191eed9edb7 numero=A-12
+2026-05-30T11:39:49.843-05:00  INFO 25332 --- [mercadolink-b2b] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-30T11:39:49.847-05:00  INFO 25332 --- [mercadolink-b2b] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-05-30T11:39:49.854-05:00  INFO 25332 --- [mercadolink-b2b] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 4 ms

@@ -1,0 +1,77 @@
+```plantuml
+@startuml
+' Interaction Diagram for MercadoLink B2B
+' Key user flows
+
+skinparam backgroundColor #FDFDFD
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #B4C7E7
+  LifeLineBorderColor #4682B4
+  LifeLineBackgroundColor #E8F4FD
+  ParticipantBorderColor #4682B4
+  ParticipantBackgroundColor #E8F4FD
+}
+skinparam note {
+  BackgroundColor #FFF4E5
+  BorderColor #FFDAB9
+}
+
+' Participants
+actor "User" as user
+participant "SPA" as spa
+participant "API" as api
+participant "Auth" as auth
+participant "Pedido" as pedido
+participant "Pago" as pago
+participant "Izipay" as izipay
+
+' == Login Flow ==
+note over user, spa: Login
+user -> spa : Enter credentials
+spa -> api : POST /auth/login\n{email, password}
+api -> auth : validate
+auth --> api : JWT
+api --> spa : {token, user}
+spa -> spa : store token
+
+' == Product Catalog ==
+note over spa: Browse Products
+spa -> api : GET /productos\n[Auth: Bearer JWT]
+api --> spa : [Product list]
+spa -> spa : render catalog
+
+' == Create Order ==
+note over spa: Create Order
+spa -> api : POST /pedidos\n{items}\n[Idempotency-Key, Auth]
+api -> pedido : crearPedido()
+pedido -> pedido : validate role\nreserve stock\ncheck minimums
+alt invalid
+  pedido --> api : error
+else valid
+  pedido --> api : {pedidoId, total}
+end
+api --> spa : response
+
+' == Payment Flow ==
+note over spa: Process Payment
+spa -> api : POST /pagos/iniciar/{id}\n[Auth]
+api -> pago : iniciarPago()
+pago -> izipay : createSession\n[sandbox: fake token]
+izipay --> pago : formToken
+pago --> api : {orderId, formToken, etc}
+api --> spa : payment data
+spa -> spa : redirect to Izipay
+spa -> izipay : load widget\n(formToken)
+izipay -> izipay : user pays
+izipay -> izipay : webhook\n/orderId, status, etc
+izipay -> pago : POST /izipay/webhook\n{payload}
+pago -> pago : validate signature\n[async]
+alt approved
+  pago -> pago : confirm stock\nupdate pedido=PAGADO
+else rejected
+  pago -> pago : release stock\nupdate pedido=RECHAZADO
+end
+pago --> izipay : 200 OK
+@enduml
+```

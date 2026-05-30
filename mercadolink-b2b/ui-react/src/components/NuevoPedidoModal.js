@@ -4,6 +4,15 @@ import { pedidosAPI, productosAPI, puestosAPI } from '../api';
 const MIN_UNIDADES = 10;
 const MIN_MONTO = 50;
 
+function logEvento(evento, datos) {
+  const timestamp = new Date().toISOString();
+  const logEntry = { timestamp, evento, datos };
+  const logs = JSON.parse(localStorage.getItem('debug_logs') || '[]');
+  logs.push(logEntry);
+  localStorage.setItem('debug_logs', JSON.stringify(logs.slice(-100)));
+  console.log(`[DEBUG] ${evento}`, datos);
+}
+
 export default function NuevoPedidoModal({ open, onClose, onCreated }) {
   const [productos, setProductos] = useState([]);
   const [puestos, setPuestos] = useState([]);
@@ -20,8 +29,10 @@ export default function NuevoPedidoModal({ open, onClose, onCreated }) {
     setIdempotencyKey(crypto.randomUUID());
     setError('');
     setLoading(true);
+    logEvento('modal_open', { idempotencyKey: crypto.randomUUID() });
     Promise.all([productosAPI.list(), puestosAPI.list()])
       .then(([prodRes, puestosRes]) => {
+        logEvento('catalogo_cargado', { productos: prodRes.data.length, puestos: puestosRes.data.length });
         setProductos(prodRes.data);
         setPuestos(puestosRes.data);
         const stored = localStorage.getItem('puestoId');
@@ -31,7 +42,10 @@ export default function NuevoPedidoModal({ open, onClose, onCreated }) {
             : puestosRes.data[0]?.id || '';
         setPuestoId(initial);
       })
-      .catch((err) => setError(err.message))
+      .catch((err) => {
+        logEvento('catalogo_error', { error: err.message });
+        setError(err.message);
+      })
       .finally(() => setLoading(false));
   }, [open]);
 
@@ -58,6 +72,7 @@ export default function NuevoPedidoModal({ open, onClose, onCreated }) {
   };
 
   const handleSubmit = async () => {
+    logEvento('submit_iniciado', { puestoId, totalUnidades, montoEstimado, itemsCount: itemsCarrito.length });
     setError('');
     if (!puestoId) {
       setError('Selecciona un puesto');
@@ -81,14 +96,17 @@ export default function NuevoPedidoModal({ open, onClose, onCreated }) {
         puestoId: pid,
         cantidad,
       }));
+      logEvento('llamada_api_pedido', { idempotencyKey, items });
       const { data } = await pedidosAPI.crear(
         items,
         observaciones || undefined,
         idempotencyKey
       );
+      logEvento('pedido_creado_exito', { pedidoId: data.id, monto: data.montoTotal });
       onCreated?.(data);
       onClose();
     } catch (err) {
+      logEvento('pedido_error', { error: err.message, stack: err.stack });
       setError(err.message);
     } finally {
       setSubmitting(false);

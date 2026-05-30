@@ -1,0 +1,161 @@
+@startuml
+' Interaction Diagram for MercadoLink B2B
+' Shows key user interactions and internal processing
+
+' Skin parameters
+skinparam backgroundColor #FDFDFD
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #B4C7E7
+  ActorBorderColor #2E8B57
+  LifeLineBorderColor #4682B4
+  LifeLineBackgroundColor #E8F4FD
+  ParticipantBorderColor #4682B4
+  ParticipantBackgroundColor #E8F4FD
+}
+skinparam note {
+  BackgroundColor #FFF4E5
+  BorderColor #FFDAB9
+}
+
+' Participants
+actor "User\n(Browser)" as user
+participant "SPA\n(React App)" as spa
+participant "API Controller\n(Spring Boot)" as controller
+participant "Auth Service" as authService
+participant "Actor Service" as actorService
+participant "Producto Service\n(Repository)" as productoService
+participant "Pedido Service" as pedidoService
+participant "Inventario Service" as inventarioService
+participant "Pago Service" as pagoService
+participant "Izipay Service" as izipayService
+participant "H2 Database" as db
+participant "Izipay Gateway\n(External)" as izipayGW
+
+' == Login Flow ==
+note over user, spa: Login Flow\n1. User enters credentials\n2. SPA sends login request\n3. System validates and returns JWT
+user -> spa : Enter email/password\nand click Login
+spa -> controller : POST /api/v1/auth/login\n{email, password}
+controller -> authService : login(request)
+authService -> actorService : find by email
+actorService -> db : query actor
+db --> actorService : Actor[passwordHash]
+actorService --> authService : Actor
+authService -> authService : verify password\n(JWT generation)
+authService --> controller : LoginResponse[token]
+controller --> spa : 200 OK\n{token, user info}
+spa -> spa : store token in\nlocalStorage
+
+' == Product Catalog Flow ==
+note over user, spa: Product Catalog\n1. SPA loads products\n2. Displays catalog\n3. User selects product
+note right of spa: After login\n(includes JWT in requests)
+spa -> controller : GET /api/v1/productos\n[Authorization: Bearer JWT]
+controller -> productoService : findByActivoTrue()
+productoService -> db : query products
+db --> productoService : List[Producto]
+productoService --> controller : List[Producto]
+controller --> spa : 200 OK\n[Product array]
+spa -> spa : render product catalog
+
+' == Create Order Flow ==
+note over user, spa: Create Order\n1. User adds items to cart\n2. Checkout\n3. System validates and creates order
+spa -> controller : POST /pedidos\n{items, observaciones}\n[Idempotency-Key: UUID, Authorization: Bearer JWT]
+controller -> pedidoService : crearPedido(clienteId, idempotencyKey, request)
+pedidoService -> actorService : get actor by id
+actorService -> db : query actor
+db --> actorService : Actor
+actorService --> pedidoService : Actor[role=CLIENTE_MAYORISTA]
+pedidoService -> productoService : find products by ids
+productoService -> db : query productos
+db --> productoService : List[Producto]
+pedidoService -> puestoService : get puestos by ids
+puestoService -> db : query puestos
+db --> puestoService : List[Puesto]
+pedidoService -> inventarioService : reserve stock\n(for each item)
+inventarioService -> db : update inventory\n(reserva_cantidad)
+db --> inventarioService : success
+pedidoService -> pedidoService : calculate total\nvalidate minimums
+note over pedidoService: If fails: compensate\nreservations (liberar)\nThrow BusinessException
+pedidoService -> pedidoService : set estado = PENDIENTE_PAGO
+pedidoService -> db : save pedido
+db --> pedidoService : Pedido[saved]
+pedidoService -> auditoriaService : registrar auditoría
+pedidoService -> notificacionService : notificar pedido creado
+pedidoService --> controller : Pedido
+controller --> spa : 200 OK\n{pedidoId, montoTotal}
+
+' == Payment Flow ==
+note over user, spa: Payment Process\n1. User clicks \"Pagar\"\n2. Initiate payment with Izipay\n3. Redirect to payment gateway\n4. Process webhook\n5. Update order status
+spa -> controller : POST /pagos/iniciar/{pedidoId}\n[Authorization: Bearer JWT]
+controller -> pagoService : iniciarPago(pedidoId, actorId)
+pagoService -> pedidoService : get pedido
+pedidoService -> db : query pedido
+db --> pedidoService : Pedido
+pagoService -> pagoRepository : find pago by pedidoId
+db --> pagoRepository : Pago[optional]
+alt pago exists
+  pagoRepository --> pagoService : Pago
+else
+  pagoService -> pagoService : create new Pago
+  pagoService -> pagoRepository : save pago
+  db --> pagoRepository : Pago[saved]
+end
+pagoService -> izipayService : createPaymentSession\n(orderId, amount, currency)
+izipayService -> izipayService : [Sandbox mode]\ngenerate fake formToken
+izipayService --> pagoService : PaymentSession[formToken, publicKey]
+pagoService -> pagoRepository : update pago\n(formToken, estado=PENDIENTE)
+db --> pagoRepository : Pago[updated]
+pagoService --> controller : IniciarPagoResult\n{orderId, formToken, publicKey, monto}
+controller --> spa : 200 OK\n{payment data}
+spa -> spa : redirect to Izipay\nwith formToken
+spa -> izipayGW : load Izipay widget\n(formToken, publicKey)
+izipayGW -> izipayGW : user completes payment
+izipayGW -> izipayService : POST /izipay/webhook\n{orderId, transactionId, status, amount, signature}
+izipayService -> izipayService : validate HMAC signature
+alt signature valid
+  izipayService -> pagoService : procesarWebhookAsync(...)
+  pagoService -> pagoRepository : find pago by orderId
+  db --> pagoRepository : Pago
+  alt status = APROBADO
+    pagoService -> pagoService : set estado=APROBADO\nset transactionId
+    pagoService -> pagoRepository : save pago
+    db --> pagoRepository : Pago[updated]
+    pagoService -> inventarioService : confirm reservations\n(convert reserva to real stock)
+    inventarioService -> db : update inventory\n(reserva_cantidad=0, cantidad_real-=reservada)
+    db --> inventarioService : success
+    pagoService -> pedidoService : set pedido estado=PAGADO
+    pedidoService -> pedidoRepository : save pedido
+    db --> pedidoRepository : Pedido[updated]
+    pagoService -> auditoriaService : registrar pago aprobado
+    pagoService -> notificacionService : notificar pago aprobado
+  else status = RECHAZADO
+    pagoService -> pagoService : set estado=RECHAZADO\nset transactionId
+    pagoService -> pagoRepository : save pago
+    db --> pagoRepository : Pago[updated]
+    pagoService -> inventarioService : liberar reservas
+    inventarioService -> db : update inventory\n(reserva_cantidad=0)
+    db --> inventarioService : success
+    pagoService -> pedidoService : set pedido estado=RECHAZADO
+    pedidoService -> pedidoRepository : save pedido
+    db --> pedidoRepository : Pedido[updated]
+    pagoService -> auditoriaService : registrar pago rechazado
+    pagoService -> notificacionService : notificar pago rechazado
+  end
+else signature invalid
+  izipayService --> izipayGW : 400 Bad Request
+end
+izipayService --> izipayGW : 200 OK\n[webhook processed]
+
+' == Summary Note ==
+note right of izipayGW
+  Key Features:
+  • Stateless JWT authentication
+  • Idempotent operations (pedidos, pagos)
+  • Saga pattern for inventory reservation
+  • Async webhook processing
+  • Audit logging for all operations
+  • Notifications via email
+  • Dockerized deployment with persistent volume
+end note
+
+@enduml

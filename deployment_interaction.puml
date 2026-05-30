@@ -1,0 +1,50 @@
+@startuml
+' Deployment and Interaction Diagram for MercadoLink B2B
+' Shows infrastructure, components, and key user interactions
+
+' Nodes
+node "User Device" as user {
+    [Web Browser]
+}
+
+node "Docker Host" as docker {
+    node "Container: mercadolink-b2b" as container {
+        [Spring Boot Application] as springApp
+        [Embedded H2 Database] as h2db
+    }
+    artifact "mercadolink-b2b.jar" as jar
+}
+
+node "Storage" as storage {
+    [Persistent Volume: mercadolink-data] as volume
+}
+
+' Deployments
+jar -> container : deployed
+container ..> volume : mounts volume at /data
+
+' Components inside container
+springApp ..> h2db : uses for persistence
+
+' Communication
+user -> springApp : HTTP (port 8080) [Serves static React app and REST API]
+
+' Key Interaction Flows (as notes)
+note right of springApp
+    Login Flow:
+    1. Browser -> /api/v1/auth/login (POST)
+    2. AuthController -> AuthService
+    3. AuthService validates credentials
+    4. Returns JWT to browser
+    5. Browser stores JWT for subsequent requests
+end note
+
+note right of springApp
+    Product Fetch Flow:
+    1. Browser -> /api/v1/productos (GET) with JWT
+    2. ProductoController -> ProductoRepository
+    3. Returns active products list
+    4. Browser renders product catalog
+end note
+
+@enduml

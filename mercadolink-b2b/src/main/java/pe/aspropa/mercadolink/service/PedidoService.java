@@ -1,5 +1,7 @@
 package pe.aspropa.mercadolink.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.aspropa.mercadolink.domain.*;
@@ -14,16 +16,10 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Servicio de tarea para pedidos B2B.
- *
- * <p>Implementa la regla PED-001 (monto mínimo y cantidades mínimas) y orquesta
- * la reserva de stock en {@link InventarioService}. La clave de idempotencia
- * impide procesar dos veces el mismo pedido (regla EX-INV-004).
- */
 @Service
 public class PedidoService {
 
+    private static final Logger log = LoggerFactory.getLogger(PedidoService.class);
     private static final int CANTIDAD_TOTAL_MINIMA = 10;
     private static final BigDecimal MONTO_MINIMO = new BigDecimal("50.00");
 
@@ -53,19 +49,26 @@ public class PedidoService {
 
     @Transactional
     public Pedido crearPedido(String clienteId, String idempotencyKey, CrearPedidoRequest req) {
+        log.info("[PEDIDO] Iniciando crearPedido: clienteId={}, idempotencyKey={}", clienteId, idempotencyKey);
+        
         if (idempotencyKey == null || idempotencyKey.isBlank()) {
             idempotencyKey = UUID.randomUUID().toString();
+            log.info("[PEDIDO] Generado nueva idempotencyKey: {}", idempotencyKey);
         }
-        // Idempotencia: si la clave ya existe, devolvemos el pedido previo.
+        
         var prev = pedidoRepository.findByIdempotencyKey(idempotencyKey);
         if (prev.isPresent()) {
+            log.info("[PEDIDO] Pedido existente encontrado para idempotencyKey={}", idempotencyKey);
             return prev.get();
         }
 
         Actor cliente = actorService.obtenerPorId(clienteId);
+        log.info("[PEDIDO] Cliente encontrado: id={}, rol={}", clienteId, cliente.getRol());
+        
         if (cliente.getRol() != Rol.CLIENTE_MAYORISTA &&
                 cliente.getRol() != Rol.VENDEDOR &&
                 cliente.getRol() != Rol.ADMINISTRADOR) {
+            log.warn("[PEDIDO] Rol no autorizado para crear pedidos: {}", cliente.getRol());
             throw BusinessException.forbidden("EX-AUTH-002",
                     "El rol " + cliente.getRol() + " no puede crear pedidos");
         }
@@ -78,6 +81,9 @@ public class PedidoService {
 
         int totalUnidades = 0;
         for (ItemPedidoRequest itemReq : req.getItems()) {
+            log.debug("[PEDIDO] Procesando item: productoId={}, puestoId={}, cantidad={}", 
+                itemReq.getProductoId(), itemReq.getPuestoId(), itemReq.getCantidad());
+                
             Producto producto = productoRepository.findById(itemReq.getProductoId())
                     .orElseThrow(() -> BusinessException.notFound("CAT-001",
                             "Producto no encontrado: " + itemReq.getProductoId()));
@@ -96,15 +102,18 @@ public class PedidoService {
             item.setPrecioUnitario(producto.getPrecioReferencia());
             pedido.getItems().add(item);
             totalUnidades += itemReq.getCantidad();
-            // Reserva atómica (paso 1 de la saga).
+            log.info("[PEDIDO] Reservando stock: producto={}, puesto={}, cantidad={}", 
+                producto.getCodigo(), puesto.getId(), itemReq.getCantidad());
             inventarioService.reservar(producto.getId(), puesto.getId(), itemReq.getCantidad());
         }
 
         pedido.recalcularTotal();
 
+        log.info("[PEDIDO] Validando mínimos: unidades={}, monto={}", totalUnidades, pedido.getMontoTotal());
         if (totalUnidades < CANTIDAD_TOTAL_MINIMA ||
                 pedido.getMontoTotal().compareTo(MONTO_MINIMO) < 0) {
-            // Liberamos las reservas hechas (compensación parcial).
+            log.warn("[PEDIDO] Pedido no cumple mínimos. Unidades: {} (min {}), Monto: {} (min {})", 
+                totalUnidades, CANTIDAD_TOTAL_MINIMA, pedido.getMontoTotal(), MONTO_MINIMO);
             req.getItems().forEach(i -> inventarioService.liberarReserva(
                     i.getProductoId(), i.getPuestoId(), i.getCantidad()));
             throw BusinessException.badRequest("PED-001",
@@ -114,6 +123,8 @@ public class PedidoService {
 
         pedido.setEstado(EstadoPedido.PENDIENTE_PAGO);
         Pedido saved = pedidoRepository.save(pedido);
+        log.info("[PEDIDO] Pedido guardado: id={}, estado={}, monto={}, items={}", 
+            saved.getId(), saved.getEstado(), saved.getMontoTotal(), saved.getItems().size());
 
         auditoriaService.registrar(cliente.getId(), cliente.getRol().name(),
                 "GestionPedidos", "CrearPedido", saved.getId(), "EXITO",
@@ -123,20 +134,26 @@ public class PedidoService {
     }
 
     public Pedido obtenerPedido(String pedidoId) {
+        log.debug("[PEDIDO] Obteniendo pedido: id={}", pedidoId);
         return pedidoRepository.findById(pedidoId)
                 .orElseThrow(() -> BusinessException.notFound("PED-404",
                         "Pedido no encontrado: " + pedidoId));
     }
 
     public List<Pedido> listarPorCliente(String clienteId) {
+        log.debug("[PEDIDO] Listando pedidos para cliente: {}", clienteId);
         return pedidoRepository.findByClienteIdOrderByFechaCreacionDesc(clienteId);
     }
 
     @Transactional
     public Pedido cambiarEstado(String pedidoId, EstadoPedido nuevoEstado, String actorId) {
+        log.info("[PEDIDO] Cambiando estado: id={}, de={} a={}", pedidoId, null, nuevoEstado);
         Pedido pedido = obtenerPedido(pedidoId);
         EstadoPedido actual = pedido.getEstado();
+        log.info("[PEDIDO] Estado actual: {}", actual);
+        
         if (!transicionPermitida(actual, nuevoEstado)) {
+            log.warn("[PEDIDO] Transición no permitida: {} -> {}", actual, nuevoEstado);
             throw BusinessException.conflict("EX-ORD-002",
                     "Transición no permitida: " + actual + " -> " + nuevoEstado);
         }
@@ -144,6 +161,7 @@ public class PedidoService {
         auditoriaService.registrar(actorId, "SISTEMA", "GestionPedidos",
                 "CambiarEstado", pedido.getId(), "EXITO", null,
                 actual + " -> " + nuevoEstado);
+        log.info("[PEDIDO] Estado cambiado exitosamente: id={}, nuevoEstado={}", pedidoId, nuevoEstado);
         return pedido;
     }
 

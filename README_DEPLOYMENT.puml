@@ -1,0 +1,35 @@
+```plantuml
+@startuml
+' Deployment Diagram for MercadoLink B2B
+' Infrastructure overview
+
+skinparam backgroundColor #FDFDFD
+skinparam shadowing false
+
+' Nodes
+node "User Device\n(Web Browser)" as user {
+  [React SPA]
+}
+
+node "Docker Host" as docker {
+  node "Container: mercadolink-b2b" as app {
+    [Spring Boot API] --> [H2 Database] : uses
+  }
+  artifact "mercadolink-b2b.jar"
+}
+
+node "Persistent Storage" as storage {
+  [Docker Volume\nmercadolink-data]
+}
+
+cloud "Izipay Payment Gateway" as izipay {
+  [Payment API]
+}
+
+' Relationships
+artifact --> app : deployed
+app ..> storage : mounts /data
+user --> app : HTTPS (8080)\n[SPA + REST API]
+app --> izipay : HTTP\n[Payment processing]
+@enduml
+```

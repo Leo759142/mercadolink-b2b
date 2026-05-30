@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,6 +24,8 @@ import java.util.Map;
 @Tag(name = "Pedidos", description = "Pedidos B2B multi-puesto")
 public class PedidoController {
 
+    private static final Logger log = LoggerFactory.getLogger(PedidoController.class);
+
     private final PedidoService pedidoService;
 
     public PedidoController(PedidoService pedidoService) {
@@ -36,19 +40,24 @@ public class PedidoController {
             @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
             @AuthenticationPrincipal AuthenticatedActor principal,
             @Valid @RequestBody CrearPedidoRequest req) {
+        log.info("[API PEDIDOS] POST crear - actorId={}, idempotencyKey={}, items={}", 
+            principal.actorId(), idempotencyKey, req.getItems() != null ? req.getItems().size() : 0);
         Pedido pedido = pedidoService.crearPedido(principal.actorId(), idempotencyKey, req);
+        log.info("[API PEDIDOS] Pedido creado - id={}, estado={}", pedido.getId(), pedido.getEstado());
         return ResponseEntity.ok(pedido);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Consulta un pedido por id")
     public Pedido obtener(@PathVariable String id) {
+        log.debug("[API PEDIDOS] GET obtener - id={}", id);
         return pedidoService.obtenerPedido(id);
     }
 
     @GetMapping("/mios")
     @Operation(summary = "Lista los pedidos del actor autenticado")
     public List<Pedido> mios(@AuthenticationPrincipal AuthenticatedActor principal) {
+        log.debug("[API PEDIDOS] GET mios - actorId={}", principal.actorId());
         return pedidoService.listarPorCliente(principal.actorId());
     }
 
@@ -58,7 +67,9 @@ public class PedidoController {
     public Pedido cambiarEstado(@PathVariable String id,
                                 @RequestBody Map<String, String> body,
                                 @AuthenticationPrincipal AuthenticatedActor principal) {
-        EstadoPedido nuevoEstado = EstadoPedido.valueOf(body.get("estado"));
-        return pedidoService.cambiarEstado(id, nuevoEstado, principal.actorId());
+        String nuevoEstado = body.get("estado");
+        log.info("[API PEDIDOS] PATCH estado - id={}, nuevoEstado={}", id, nuevoEstado);
+        EstadoPedido estado = EstadoPedido.valueOf(nuevoEstado);
+        return pedidoService.cambiarEstado(id, estado, principal.actorId());
     }
 }
