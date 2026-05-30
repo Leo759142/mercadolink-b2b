@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MercadoLink SOA — Piloto</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #21262d;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #388bfd;
+    --green: #3fb950;
+    --yellow: #d29922;
+    --red: #f85149;
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: linear-gradient(120deg, var(--bg) 0%, #161b22 50%, var(--bg) 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 6s ease infinite;
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+    font-size: 14px;
+  }
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  /* ── LOGIN ── */
+  #login-screen { display:flex; align-items:center; justify-content:center; min-height:100vh; flex-direction:column; gap:1rem; }
+  .login-box {
+    background: rgba(22,27,34,0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    border-radius: 16px;
+    padding: 2.5rem;
+    width: 340px;
+    max-width: 95vw;
+  }
+  .login-box h1 { font-size:1.8rem; margin-bottom:.25rem; background: linear-gradient(to right, var(--accent), #79c0ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .login-box p { color:var(--muted); font-size:.9rem; margin-bottom:1.5rem; }
+  .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+  .role-btn {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: .7rem .5rem;
+    cursor: pointer;
+    text-align:center;
+    transition: border-color .2s, background .2s;
+  }
+  .role-btn:hover { border-color: var(--accent); background: rgba(56,139,253,.08); }
+  .role-btn .icon { font-size:1.6rem; display:block; margin-bottom:.3rem; }
+  .role-btn .name { font-size:.78rem; font-weight:600; }
+  .role-btn .sub { font-size:.7rem; color:var(--muted); }
+  /* ── APP SHELL ── */
+  #app { display:none; flex-direction:column; min-height:100vh; }
+  .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: .6rem 1.2rem; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+  .topbar-left { display:flex; align-items:center; gap:.8rem; }
+  .topbar-logo { font-weight:700; font-size:.95rem; display:flex; align-items:center; gap:.4rem; }
+  .badge { font-size:.7rem; padding:.15rem .5rem; border-radius:99px; font-weight:600; }
+  .badge-blue { background:rgba(56,139,253,.18); color:#79c0ff; border:1px solid rgba(56,139,253,.3); }
+  .badge-purple { background:rgba(124,58,237,.18); color:#c084fc; border:1px solid rgba(124,58,237,.3); }
+  .badge-green { background:rgba(63,185,80,.18); color:#56d364; border:1px solid rgba(63,185,80,.3); }
+  .badge-orange { background:rgba(227,179,65,.18); color:#f0a500; border:1px solid rgba(227,179,65,.3); }
+  .topbar-right { display:flex; align-items:center; gap:.7rem; }
+  .btn { border:none; border-radius:var(--radius); cursor:pointer; font-size:.82rem; font-weight:600; padding:.4rem .9rem; transition: opacity .2s; }
+  .btn:hover { opacity: .85; }
+  .btn-primary { background: var(--accent); color:#fff; }
+  .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-danger { background: var(--red); color:#fff; }
+  .btn-success { background: var(--green); color:#fff; }
+  .btn-warning { background: var(--yellow); color:#000; }
+  .btn-sm { padding:.25rem .6rem; font-size:.75rem; }
+  /* ── MAIN LAYOUT ── */
+  .main-layout { display:flex; flex:1; overflow:hidden; }
+  .sidebar { width:200px; background: var(--surface); border-right: 1px solid var(--border); padding: .8rem 0; flex-shrink:0; }
+  .nav-item { display:flex; align-items:center; gap:.6rem; padding:.55rem 1rem; cursor:pointer; border-radius:0; transition: background .15s; font-size:.83rem; color: var(--muted); border-left: 2px solid transparent; }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: rgba(56,139,253,.1); color: var(--accent); border-left-color: var(--accent); }
+  .nav-item .ni { font-size:1rem; }
+  .nav-section { font-size:.68rem; letter-spacing:2px; text-transform:uppercase; color:var(--muted); padding:.5rem 1rem .25rem; margin-top:.5rem; }
+  .content { flex:1; overflow-y:auto; padding:1.2rem; }
+  /* ── PANELS ── */
+  .panel { display:none; }
+  .panel.active { display:block; }
+  .panel-title { font-size:1.1rem; font-weight:700; margin-bottom:.15rem; }
+  .panel-sub { color:var(--muted); font-size:.8rem; margin-bottom:1.2rem; }
+  /* ── CARDS / STATS ── */
+  .stats-row { display:grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap:.8rem; margin-bottom:1.2rem; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding:.9rem 1rem; }
+  .stat-card .label { font-size:.72rem; color:var(--muted); margin-bottom:.3rem; text-transform:uppercase; letter-spacing:.5px; }
+  .stat-card .val { font-size:1.6rem; font-weight:800; }
+  .stat-card .delta { font-size:.72rem; margin-top:.15rem; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding:1rem; margin-bottom:.8rem; }
+  .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.8rem; }
+  .card-title { font-weight:600; font-size:.9rem; }
+  /* ── TABLE ── */
+  .tbl { width:100%; border-collapse:collapse; font-size:.8rem; }
+  .tbl th { text-align:left; padding:.5rem .7rem; color:var(--muted); font-weight:500; border-bottom:1px solid var(--border); font-size:.72rem; text-transform:uppercase; letter-spacing:.5px; }
+  .tbl td { padding:.5rem .7rem; border-bottom:1px solid rgba(48,54,61,.5); vertical-align:middle; }
+  .tbl tr:last-child td { border-bottom:none; }
+  .tbl tr:hover td { background: rgba(255,255,255,.02); }
+  /* ── STATUS PILLS ── */
+  .pill { font-size:.7rem; padding:.18rem .55rem; border-radius:99px; font-weight:600; display:inline-block; }
+  .pill-pending  { background:rgba(211,155,34,.18); color:#d29922; border:1px solid rgba(211,155,34,.3); }
+  .pill-ok       { background:rgba(63,185,80,.18); color:#3fb950; border:1px solid rgba(63,185,80,.3); }
+  .pill-blue     { background:rgba(56,139,253,.18); color:#79c0ff; border:1px solid rgba(56,139,253,.3); }
+  .pill-red      { background:rgba(248,81,73,.18); color:#f85149; border:1px solid rgba(248,81,73,.3); }
+  .pill-grey     { background:rgba(139,148,158,.12); color:#8b949e; border:1px solid rgba(139,148,158,.3); }
+  .pill-orange   { background:rgba(227,179,65,.18); color:#e3b341; border:1px solid rgba(227,179,65,.3); }
+  /* ── FORM ── */
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:.7rem; margin-bottom:.7rem; }
+  .form-group { display:flex; flex-direction:column; gap:.3rem; }
+  label { font-size:.75rem; color:var(--muted); font-weight:500; }
+  input, select, textarea { background: var(--surface2); border:1px solid var(--border); border-radius:var(--radius); color:var(--text); font-size:.82rem; padding:.45rem .7rem; outline:none; transition:border-color .2s; width:100%; font-family:var(--font); }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  select option { background: var(--surface2); }
+  /* ── AUDIT LOG ── */
+  .log-entry { display:flex; gap:.7rem; align-items:flex-start; padding:.5rem 0; border-bottom:1px solid rgba(48,54,61,.4); font-size:.78rem; }
+  .log-entry:last-child { border-bottom:none; }
+  .log-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:3px; }
+  .log-dot-ok { background:var(--green); box-shadow:0 0 6px var(--green); }
+  .log-dot-err { background:var(--red); box-shadow:0 0 6px var(--red); }
+  .log-dot-warn { background:var(--yellow); box-shadow:0 0 6px var(--yellow); }
+  .log-dot-info { background:var(--accent); box-shadow:0 0 6px var(--accent); }
+  .log-time { color:var(--muted); font-size:.72rem; white-space:nowrap; min-width:52px; }
+  .log-msg { flex:1; line-height:1.5; }
+  .log-meta { color:var(--muted); font-size:.7rem; }
+  /* ── FLOW STEPS ── */
+  .flow-steps { display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; margin:1rem 0; }
+  .step { background:var(--surface2); border:1px solid var(--border); border-radius:99px; padding:.3rem .8rem; font-size:.75rem; color:var(--muted); }
+  .step.done { background:rgba(63,185,80,.1); border-color:rgba(63,185,80,.4); color:var(--green); }
+  .step.current { background:rgba(56,139,253,.12); border-color:var(--accent); color:#79c0ff; }
+  .step-arrow { color:var(--muted); font-size:.8rem; }
+  /* ── PROGRESS BAR ── */
+  .prog-bar { background:var(--surface2); border-radius:99px; height:6px; overflow:hidden; margin:.3rem 0; }
+  .prog-fill { height:100%; border-radius:99px; transition: width .8s ease; }
+  /* ── TOAST ── */
+  #toast-container { position:fixed; bottom:1.2rem; right:1.2rem; display:flex; flex-direction:column; gap:.5rem; z-index:9999; }
+  .toast { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); padding:.65rem 1rem; font-size:.82rem; display:flex; align-items:center; gap:.6rem; min-width:220px; max-width:340px; animation: slide-in .25s ease; box-shadow: 0 4px 20px rgba(0,0,0,.4); }
+  @keyframes slide-in { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+  .toast-ok { border-left:3px solid var(--green); }
+  .toast-err { border-left:3px solid var(--red); }
+  .toast-warn { border-left:3px solid var(--yellow); }
+  .toast-info { border-left:3px solid var(--accent); }
+  /* ── MODAL ── */
+  .modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:500; align-items:center; justify-content:center; }
+  .modal-bg.open { display:flex; }
+  .modal { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1.4rem; width:460px; max-width:95vw; max-height:85vh; overflow-y:auto; }
+  .modal h3 { font-size:1rem; margin-bottom:.25rem; }
+  .modal .sub { color:var(--muted); font-size:.78rem; margin-bottom:1.1rem; }
+  .modal-footer { display:flex; justify-content:flex-end; gap:.6rem; margin-top:1.1rem; }
+  /* ── MISC ── */
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
+  .three-col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:.8rem; }
+  .sep { border:none; border-top:1px solid var(--border); margin:.9rem 0; }
+  .tag { font-size:.68rem; background:var(--surface2); border:1px solid var(--border); border-radius:4px; padding:.1rem .35rem; color:var(--muted); }
+  .scrollbox { max-height:220px; overflow-y:auto; }
+  .empty-state { text-align:center; color:var(--muted); padding:2rem; font-size:.85rem; }
+  @media(max-width:640px){ .sidebar{display:none} .form-row{grid-template-columns:1fr} .two-col,.three-col{grid-template-columns:1fr} .stats-row{grid-template-columns:1fr 1fr} }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <h1>🛒 MercadoLink</h1>
+    <p>Sistema SOA · Mercado Popular Aspropa · SMP, Lima</p>
+    <div class="role-grid">
+      <div class="role-btn" onclick="login('vendedor')">
+        <span class="icon">🏪</span>
+        <span class="name">Vendedor</span>
+        <span class="sub">Puesto A-01</span>
+      </div>
+      <div class="role-btn" onclick="login('proveedor')">
+        <span class="icon">🏭</span>
+        <span class="name">Proveedor</span>
+        <span class="sub">Distribuidora Lima</span>
+      </div>
+      <div class="role-btn" onclick="login('mayorista')">
+        <span class="icon">🛒</span>
+        <span class="name">Mayorista</span>
+        <span class="sub">Mercader externo</span>
+      </div>
+      <div class="role-btn" onclick="login('admin')">
+        <span class="icon">🛡️</span>
+        <span class="name">Admin</span>
+        <span class="sub">Aspropa SMP</span>
+      </div>
+    </div>
+  </div>
+  <p style="color:#8b949e;font-size:.75rem;">v1.0 · Piloto SOA · REST/JSON · JWT + RBAC</p>
+</div>
+
+<!-- ══════════════ APP ══════════════ -->
+<div id="app">
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">🛒 MercadoLink <span id="role-badge" class="badge badge-blue">—</span></div>
+      <span id="user-name" style="color:var(--muted);font-size:.8rem;"></span>
+    </div>
+    <div class="topbar-right">
+      <span id="live-time" style="color:var(--muted);font-size:.75rem;font-family:monospace;"></span>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Salir</button>
+    </div>
+  </div>
+
+  <div class="main-layout">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="nav-section">Principal</div>
+      <div class="nav-item active" onclick="nav('dashboard')"><span class="ni">📊</span> Dashboard</div>
+      <div class="nav-item" onclick="nav('inventario')" id="nav-inventario"><span class="ni">📦</span> Inventario</div>
+      <div class="nav-item" onclick="nav('pedidos')" id="nav-pedidos"><span class="ni">📋</span> Pedidos B2B</div>
+      <div class="nav-section">Gestión</div>
+      <div class="nav-item" onclick="nav('proveedores')" id="nav-proveedores"><span class="ni">🤝</span> Proveedores</div>
+      <div class="nav-item" onclick="nav('logistica')" id="nav-logistica"><span class="ni">🚚</span> Logística</div>
+      <div class="nav-section">Sistema</div>
+      <div class="nav-item" onclick="nav('auditoria')"><span class="ni">🔎</span> Auditoría</div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- ═══ DASHBOARD ═══ -->
+      <div id="panel-dashboard" class="panel active">
+        <div class="panel-title">Dashboard</div>
+        <div id="dash-sub" class="panel-sub"></div>
+
+        <div class="stats-row" id="stats-row"></div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><span class="card-title">📋 Pedidos Recientes</span><span class="pill pill-blue" id="ord-count">0</span></div>
+            <table class="tbl">
+              <thead><tr><th>ID</th><th>Producto</th><th>Cant.</th><th>Estado</th></tr></thead>
+              <tbody id="recent-orders"></tbody>
+            </table>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">📦 Stock por Producto</span></div>
+            <div id="stock-bars"></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:.8rem;">
+          <div class="card-header"><span class="card-title">⚡ Actividad en Vivo</span><span class="pill pill-ok" style="font-size:.65rem;">● LIVE</span></div>
+          <div id="live-log" class="scrollbox"></div>
+        </div>
+      </div>
+
+      <!-- ═══ INVENTARIO ═══ -->
+      <div id="panel-inventario" class="panel">
+        <div class="panel-title">Inventario</div>
+        <div class="panel-sub">Stock por puesto · Servicio: <code>ActualizarInventario</code></div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Stock de tu Puesto</span>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-reposicion')">+ Solicitar Reposición</button>
+          </div>
+          <table class="tbl">
+            <thead><tr><th>Producto</th><th>Categoría</th><th>Stock Actual</th><th>Stock Mín.</th><th>Estado</th><th>Acción</th></tr></thead>
+            <tbody id="inv-table"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">📥 Últimos Movimientos</span></div>
+          <table class="tbl">
+            <thead><tr><th>Tipo</th><th>Producto</th><th>Cantidad</th><th>Referencia</th><th>Timestamp</th></tr></thead>
+            <tbody id="mov-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══ PEDIDOS ═══ -->
+      <div id="panel-pedidos" class="panel">
+        <div class="panel-title">Gestión de Pedidos B2B</div>
+        <div class="panel-sub">Flujo: Pendiente → Confirmado → En Preparación → Enviado → Entregado</div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Mis Pedidos</span>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-pedido')">+ Nuevo Pedido</button>
+          </div>
+          <table class="tbl">
+            <thead><tr><th>ID Pedido</th><th>Producto</th><th>Proveedor</th><th>Cant.</th><th>Total S/</th><th>Estado</th><th>Acción</th></tr></thead>
+            <tbody id="ped-table"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">📊 Flujo de Estado</span></div>
+          <div class="flow-steps" id="flow-steps-display">
+            <div class="step done">✓ PENDIENTE</div><div class="step-arrow">→</div>
+            <div class="step done">✓ CONFIRMADO</div><div class="step-arrow">→</div>
+            <div class="step current">● EN PREPARACIÓN</div><div class="step-arrow">→</div>
+            <div class="step">ENVIADO</div><div class="step-arrow">→</div>
+            <div class="step">ENTREGADO</div>
+          </div>
+          <div id="selected-order-detail" class="empty-state">← Haz clic en "Ver" en un pedido para ver su flujo</div>
+        </div>
+      </div>
+
+      <!-- ═══ PROVEEDORES ═══ -->
+      <div id="panel-proveedores" class="panel">
+        <div class="panel-title">Gestión de Proveedores</div>
+        <div class="panel-sub">Evaluación, cotizaciones y desempeño · Servicio: <code>GestionProveedores</code></div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Proveedores Registrados</span></div>
+          <table class="tbl">
+            <thead><tr><th>Razón Social</th><th>RUC</th><th>Categorías</th><th>Puntaje</th><th>Estado</th><th>Acción</th></tr></thead>
+            <tbody id="prov-table"></tbody>
+          </table>
+        </div>
+        <div class="two-col" style="margin-top:.8rem;">
+          <div class="card">
+            <div class="card-header"><span class="card-title">📝 Solicitar Cotización</span></div>
+            <div class="form-group" style="margin-bottom:.7rem;"><label>Proveedor</label>
+              <select id="cot-prov"><option value="">Seleccionar...</option></select>
+            </div>
+            <div class="form-group" style="margin-bottom:.7rem;"><label>Producto</label>
+              <select id="cot-prod"><option value="">Seleccionar...</option></select>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Cantidad</label><input type="number" id="cot-qty" placeholder="50" min="1"></div>
+              <div class="form-group"><label>Plazo (días)</label><input type="number" id="cot-dias" placeholder="3" min="1"></div>
+            </div>
+            <button class="btn btn-primary" onclick="enviarCotizacion()" style="width:100%;margin-top:.5rem;">Enviar Cotización</button>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">⭐ Evaluar Proveedor</span></div>
+            <div class="form-group" style="margin-bottom:.7rem;"><label>Proveedor</label>
+              <select id="eval-prov"><option value="">Seleccionar...</option></select>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.7rem;">
+              <div class="form-group"><label>Precio (0-10)</label><input type="range" id="ev-precio" min="0" max="10" value="7" oninput="updateEval()"><span id="ev-precio-val" style="font-size:.75rem;color:var(--muted);">7.0</span></div>
+              <div class="form-group"><label>Calidad (0-10)</label><input type="range" id="ev-calidad" min="0" max="10" value="8" oninput="updateEval()"><span id="ev-calidad-val" style="font-size:.75rem;color:var(--muted);">8.0</span></div>
+              <div class="form-group"><label>Puntualidad (0-10)</label><input type="range" id="ev-puntual" min="0" max="10" value="6" oninput="updateEval()"><span id="ev-puntual-val" style="font-size:.75rem;color:var(--muted);">6.0</span></div>
+              <div class="form-group"><label>Promedio</label><div style="font-size:1.4rem;font-weight:800;color:var(--accent);" id="ev-total">7.0</div></div>
+            </div>
+            <button class="btn btn-success" onclick="evaluarProveedor()" style="width:100%;">Registrar Evaluación</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ LOGÍSTICA ═══ -->
+      <div id="panel-logistica" class="panel">
+        <div class="panel-title">Logística y Recepción</div>
+        <div class="panel-sub">Envíos, recepciones y no conformidades · Servicio: <code>LogisticaEntrega</code></div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">📦 Envíos en Tránsito</span></div>
+          <table class="tbl">
+            <thead><tr><th>Guía</th><th>Pedido</th><th>Proveedor</th><th>Transportista</th><th>Despacho</th><th>ETA</th><th>Acción</th></tr></thead>
+            <tbody id="env-table"></tbody>
+          </table>
+        </div>
+        <div class="card" style="margin-top:.8rem;">
+          <div class="card-header"><span class="card-title">✅ Actas de Recepción</span><button class="btn btn-primary btn-sm" onclick="openModal('modal-recepcion')">+ Registrar Recepción</button></div>
+          <table class="tbl">
+            <thead><tr><th>Recepción ID</th><th>Pedido</th><th>Estado</th><th>Encargado</th><th>Fecha</th></tr></thead>
+          <tbody id="rec-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══ AUDITORÍA ═══ -->
+      <div id="panel-auditoria" class="panel">
+        <div class="panel-title">Auditoría Transversal</div>
+        <div class="panel-sub">Log SOA · correlationId · timestamps · EXITO / ERROR / RECHAZADO</div>
+        <div class="stats-row" style="grid-template-columns:repeat(3,1fr);">
+          <div class="stat-card"><div class="label">Operaciones</div><div class="val" id="aud-total">0</div></div>
+          <div class="stat-card"><div class="label">Exitosas</div><div class="val" style="color:var(--green)" id="aud-ok">0</div></div>
+          <div class="stat-card"><div class="label">Rechazadas</div><div class="val" style="color:var(--red)" id="aud-err">0</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Log de Operaciones</span>
+            <select id="aud-filter" style="width:160px;" onchange="filterAudit()">
+              <option value="">Todos</option>
+              <option value="EXITO">Solo ÉXITO</option>
+              <option value="ERROR">Solo ERROR</option>
+              <option value="RECHAZADO">Solo RECHAZADO</option>
+            </select>
+          </div>
+          <div id="audit-log" class="scrollbox" style="max-height:380px;"></div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main-layout -->
+</div><!-- /app -->
+
+<!-- ══════════════ MODALS ══════════════ -->
+
+<!-- Nuevo Pedido -->
+<div id="modal-pedido" class="modal-bg">
+  <div class="modal">
+    <h3>📋 Nuevo Pedido B2B</h3>
+    <p class="sub">Servicio: <code>ProcesarPedidoB2B</code> · Idempotency-Key: UUID auto-generado</p>
+    <div class="form-group" style="margin-bottom:.7rem;"><label>Producto</label>
+      <select id="ped-prod" onchange="checkStock()">
+        <option value="">Seleccionar...</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Cantidad</label><input type="number" id="ped-qty" min="1" placeholder="10" oninput="checkStock()"></div>
+      <div class="form-group"><label>Precio Unitario S/</label><input type="number" id="ped-precio" min="0.01" step="0.01" placeholder="5.50"></div>
+    </div>
+    <div class="form-group" style="margin-bottom:.7rem;"><label>Proveedor</label>
+      <select id="ped-prov"><option value="">Seleccionar...</option></select>
+    </div>
+    <div id="stock-alert" style="display:none;background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.3);border-radius:6px;padding:.5rem .8rem;font-size:.78rem;color:#f85149;margin-bottom:.6rem;">⚠️ Stock insuficiente — <span id="stock-alert-msg"></span></div>
+    <div id="order-preview" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.6rem .8rem;font-size:.78rem;margin-bottom:.6rem;display:none;">
+      <div>Total estimado: <strong id="ord-total-preview">S/ 0.00</strong></div>
+      <div style="color:var(--muted);">Idempotency-Key: <code id="idem-key" style="font-size:.7rem;"></code></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-pedido')">Cancelar</button>
+      <button class="btn btn-primary" onclick="crearPedido()">Crear Pedido</button>
+    </div>
+  </div>
+</div>
+
+<!-- Solicitar Reposición -->
+<div id="modal-reposicion" class="modal-bg">
+  <div class="modal">
+    <h3>📦 Solicitar Reposición de Stock</h3>
+    <p class="sub">Servicio: <code>ActualizarInventario</code> · Estado inicial: PENDIENTE</p>
+    <div class="form-group" style="margin-bottom:.7rem;"><label>Producto</label>
+      <select id="rep-prod"><option value="">Seleccionar...</option></select>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Cantidad a Reponer</label><input type="number" id="rep-qty" min="1" placeholder="20"></div>
+      <div class="form-group"><label>Atender desde</label>
+        <select id="rep-origen"><option value="almacen">Almacén interno</option><option value="proveedor">Derivar a Proveedor</option></select>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:.7rem;"><label>Observaciones</label>
+      <textarea id="rep-obs" rows="2" placeholder="Urgente para mañana..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-reposicion')">Cancelar</button>
+      <button class="btn btn-success" onclick="solicitarReposicion()">Enviar Solicitud</button>
+    </div>
+  </div>
+</div>
+
+<!-- Registrar Recepción -->
+<div id="modal-recepcion" class="modal-bg">
+  <div class="modal">
+    <h3>✅ Registrar Acta de Recepción</h3>
+    <p class="sub">Servicio: <code>LogisticaEntrega</code> · Verificación física de mercadería</p>
+    <div class="form-group" style="margin-bottom:.7rem;"><label>Pedido</label>
+      <select id="rec-pedido"><option value="">Seleccionar...</option></select>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Cantidad Pedida</label><input type="number" id="rec-pedida" readonly style="opacity:.6;"></div>
+      <div class="form-group"><label>Cantidad Recibida</label><input type="number" id="rec-recibida" min="0" oninput="checkRecepcion()"></div>
+    </div>
+    <div class="form-group" style="margin-bottom:.7rem;"><label>Estado físico</label>
+      <select id="rec-estado-fis"><option value="BUENO">BUENO</option><option value="DETERIORADO">DETERIORADO</option><option value="VENCIDO">VENCIDO</option></select>
+    </div>
+    <div id="rec-diff-alert" style="display:none;background:rgba(227,179,65,.1);border:1px solid rgba(227,179,65,.3);border-radius:6px;padding:.5rem .8rem;font-size:.78rem;color:var(--yellow);margin-bottom:.6rem;">⚠️ Diferencia detectada — se registrará No Conformidad automáticamente</div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-recepcion')">Cancelar</button>
+      <button class="btn btn-success" onclick="registrarRecepcion()">Confirmar Recepción</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<script>
+/* ════════════════════════════════════════
+   STATE
+════════════════════════════════════════ */
+let currentRole = null;
+let auditLog = [];
+
+const USERS = {
+  vendedor:  { name:'Juan Quispe · Puesto A-01', badge:'badge-blue',  label:'Vendedor' },
+  proveedor: { name:'Distribuidora Lima SAC',    badge:'badge-purple', label:'Proveedor' },
+  mayorista: { name:'Mercader Mayorista',        badge:'badge-green',  label:'Mayorista' },
+  admin:     { name:'Admin Aspropa',             badge:'badge-orange', label:'Admin' },
+};
+
+const PRODUCTOS = [
+  { id:'P001', nombre:'Arroz Extra',      cat:'ABARROTES',       stock:42, min:10, precio:3.50 },
+  { id:'P002', nombre:'Aceite Primor 1L', cat:'ABARROTES',       stock:8,  min:15, precio:8.20 },
+  { id:'P003', nombre:'Azúcar Blanca',    cat:'ABARROTES',       stock:31, min:10, precio:2.80 },
+  { id:'P004', nombre:'Leche Gloria',     cat:'LACTEOS',         stock:3,  min:20, precio:4.50 },
+  { id:'P005', nombre:'Detergente Ariel', cat:'LIMPIEZA',        stock:19, min:8,  precio:12.00 },
+  { id:'P006', nombre:'Pollo Entero',     cat:'CARNESEMBUTIDOS', stock:11, min:5,  precio:9.80 },
+];
+
+const PROVEEDORES = [
+  { id:'V001', razon:'Distribuidora Lima SAC', ruc:'20501234567', cats:['ABARROTES','LACTEOS'], puntaje:8.2, estado:'ACTIVO' },
+  { id:'V002', razon:'Proveedor Carnes Perú',  ruc:'20608765432', cats:['CARNESEMBUTIDOS'],     puntaje:7.5, estado:'ACTIVO' },
+  { id:'V003', razon:'Limpieza Total SAC',     ruc:'20712345678', cats:['LIMPIEZA'],             puntaje:6.8, estado:'ACTIVO' },
+];
+
+let PEDIDOS = [
+  { id:'PED-0001', key:'uuid-aaa', prod:'P001', prov:'V001', qty:50, precio:3.50, estado:'ENTREGADO',     fecha:'2026-04-23' },
+  { id:'PED-0002', key:'uuid-bbb', prod:'P002', prov:'V001', qty:24, precio:8.20, estado:'EN_PREPARACION',fecha:'2026-04-24' },
+  { id:'PED-0003', key:'uuid-ccc', prod:'P004', prov:'V001', qty:60, precio:4.50, estado:'CONFIRMADO',    fecha:'2026-04-25' },
+];
+
+let ENVIOS = [
+  { guia:'GU-20001', pedido:'PED-0002', prov:'V001', transp:'Transporte Rápido',  despacho:'2026-04-24', eta:'2026-04-26' },
+];
+
+let RECEPCIONES = [];
+
+let MOVIMIENTOS = [
+  { tipo:'ENTRADA',  prod:'P001', qty:50,  ref:'PED-0001', ts:'2026-04-23 09:10' },
+  { tipo:'SALIDA',   prod:'P001', qty:8,   ref:'VENTA',    ts:'2026-04-24 14:22' },
+  { tipo:'AJUSTE',   prod:'P002', qty:5,   ref:'ADMIN',    ts:'2026-04-25 08:05' },
+];
+
+/* ════════════════════════════════════════
+   AUTH
+════════════════════════════════════════ */
+function login(role) {
+  currentRole = role;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  const u = USERS[role];
+  document.getElementById('role-badge').textContent = u.label;
+  document.getElementById('role-badge').className = 'badge ' + u.badge;
+  document.getElementById('user-name').textContent = u.name;
+  applyRBAC(role);
+  loadDashboard();
+  addAudit('LOGIN', 'AuthService', 'login', 'EXITO', `Actor: ${u.label}`);
+  toast(`✅ Bienvenido, ${u.name}`, 'ok');
+  startLiveClock();
+  startLiveEvents();
+}
+
+function logout() {
+  addAudit('LOGOUT', 'AuthService', 'logout', 'EXITO', `Sesión cerrada: ${USERS[currentRole].label}`);
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  currentRole = null;
+}
+
+function applyRBAC(role) {
+  const rules = {
+    vendedor:  { inventario:true,  pedidos:true,  proveedores:false, logistica:true },
+    proveedor: { inventario:false, pedidos:true,  proveedores:true,  logistica:true },
+    mayorista: { inventario:false, pedidos:true,  proveedores:false, logistica:false},
+    admin:     { inventario:true,  pedidos:true,  proveedores:true,  logistica:true },
+  };
+  const r = rules[role];
+  ['inventario','pedidos','proveedores','logistica'].forEach(k => {
+    document.getElementById('nav-'+k).style.opacity = r[k] ? '1' : '0.3';
+    document.getElementById('nav-'+k).style.pointerEvents = r[k] ? '' : 'none';
+  });
+}
+
+/* ════════════════════════════════════════
+   NAVIGATION
+════════════════════════════════════════ */
+function nav(panel) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+panel).classList.add('active');
+  if(panel === 'inventario') loadInventario();
+  if(panel === 'pedidos')    loadPedidos();
+  if(panel === 'proveedores') loadProveedores();
+  if(panel === 'logistica')  loadLogistica();
+  if(panel === 'auditoria')  loadAuditoria();
+}
+
+/* ════════════════════════════════════════
+   DASHBOARD
+════════════════════════════════════════ */
+function loadDashboard() {
+  const subs = { vendedor:'Inventario, pedidos y stock de tu puesto', proveedor:'Catálogo y órdenes recibidas', mayorista:'Pedidos y disponibilidad', admin:'Vista global · Aspropa SMP' };
+  document.getElementById('dash-sub').textContent = subs[currentRole] || '';
+
+  const stats = [
+    { label:'Pedidos Activos',  val: PEDIDOS.filter(p=>p.estado!=='ENTREGADO'&&p.estado!=='CANCELADO').length, color:'#79c0ff', delta:'↑2 hoy' },
+    { label:'Productos en Stock', val: PRODUCTOS.length, color:'#56d364', delta:'6 SKUs' },
+    { label:'Bajo Mínimo',  val: PRODUCTOS.filter(p=>p.stock<p.min).length, color:'#f85149', delta:'⚠️ reponer' },
+    { label:'Proveedores Activos', val: PROVEEDORES.length, color:'#c084fc', delta:'evaluados' },
+  ];
+  document.getElementById('stats-row').innerHTML = stats.map(s=>`
+    <div class="stat-card">
+      <div class="label">${s.label}</div>
+      <div class="val" style="color:${s.color}">${s.val}</div>
+      <div class="delta" style="color:var(--muted)">${s.delta}</div>
+    </div>`).join('');
+
+  const tbody = document.getElementById('recent-orders');
+  document.getElementById('ord-count').textContent = PEDIDOS.length;
+  tbody.innerHTML = PEDIDOS.slice(-4).reverse().map(p=>{
+    const prod = PRODUCTOS.find(x=>x.id===p.prod);
+    return `<tr>
+      <td><code style="font-size:.7rem">${p.id}</code></td>
+      <td>${prod?prod.nombre:p.prod}</td>
+      <td>${p.qty}</td>
+      <td>${pillEstado(p.estado)}</td>
+    </tr>`;
+  }).join('');
+
+  const bars = document.getElementById('stock-bars');
+  bars.innerHTML = PRODUCTOS.map(p=>{
+    const pct = Math.min(100, Math.round(p.stock/Math.max(p.min*2,1)*100));
+    const color = p.stock < p.min ? 'var(--red)' : p.stock < p.min*1.5 ? 'var(--yellow)' : 'var(--green)';
+    return `<div style="margin-bottom:.6rem;">
+      <div style="display:flex;justify-content:space-between;font-size:.74rem;margin-bottom:.2rem;">
+        <span>${p.nombre}</span><span style="color:${color};font-weight:600;">${p.stock} uds</span>
+      </div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${color};"></div></div>
+    </div>`;
+  }).join('');
+
+  renderLiveLog();
+}
+
+function renderLiveLog() {
+  const el = document.getElementById('live-log');
+  if(!el) return;
+  el.innerHTML = auditLog.slice().reverse().slice(0,12).map(e=>`
+    <div class="log-entry">
+      <div class="log-dot log-dot-${e.r==='EXITO'?'ok':e.r==='ERROR'?'err':'warn'}"></div>
+      <div class="log-time">${e.ts}</div>
+      <div class="log-msg"><strong>${e.op}</strong> <span class="log-meta">· ${e.svc}</span><br><span class="log-meta">${e.detail}</span></div>
+      <span class="pill ${e.r==='EXITO'?'pill-ok':e.r==='ERROR'?'pill-red':'pill-pending'}">${e.r}</span>
+    </div>`).join('') || '<div class="empty-state">Sin eventos aún</div>';
+}
+
+/* ════════════════════════════════════════
+   INVENTARIO
+════════════════════════════════════════ */
+function loadInventario() {
+  const tbody = document.getElementById('inv-table');
+  tbody.innerHTML = PRODUCTOS.map(p=>{
+    const low = p.stock < p.min;
+    return `<tr>
+      <td><strong>${p.nombre}</strong></td>
+      <td><span class="tag">${p.cat}</span></td>
+      <td style="color:${low?'var(--red)':'var(--text)'};font-weight:${low?'700':'400'}">${p.stock}</td>
+      <td>${p.min}</td>
+      <td>${low?'<span class="pill pill-red">BAJO MÍNIMO</span>':'<span class="pill pill-ok">OK</span>'}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="ajustarStock('${p.id}')">Ajustar</button></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('mov-table').innerHTML = MOVIMIENTOS.slice().reverse().map(m=>{
+    const prod = PRODUCTOS.find(p=>p.id===m.prod);
+    return `<tr>
+      <td><span class="pill ${m.tipo==='ENTRADA'?'pill-ok':m.tipo==='SALIDA'?'pill-red':'pill-blue'}">${m.tipo}</span></td>
+      <td>${prod?prod.nombre:m.prod}</td>
+      <td>${m.qty}</td>
+      <td><code style="font-size:.7rem">${m.ref}</code></td>
+      <td>${m.ts}</td>
+    </tr>`;
+  }).join('');
+
+  // fill selects
+  populateSelect('rep-prod', PRODUCTOS.map(p=>({val:p.id,text:p.nombre})));
+}
+
+function ajustarStock(pid) {
+  const p = PRODUCTOS.find(x=>x.id===pid);
+  const delta = parseInt(prompt(`Ajuste de stock para "${p.nombre}"\nStock actual: ${p.stock}\nIngresa delta (+/-):`, '5'));
+  if(isNaN(delta)) return;
+  p.stock = Math.max(0, p.stock + delta);
+  MOVIMIENTOS.push({ tipo:'AJUSTE', prod:pid, qty:Math.abs(delta), ref:'MANUAL', ts:nowTs() });
+  addAudit(currentRole.toUpperCase(), 'InventarioService', 'ajustarStock', 'EXITO', `${p.nombre} → stock: ${p.stock}`);
+  loadInventario();
+  loadDashboard();
+  toast(`📦 Stock ajustado: ${p.nombre} = ${p.stock}`, 'ok');
+}
+
+/* ════════════════════════════════════════
+   PEDIDOS
+════════════════════════════════════════ */
+function loadPedidos() {
+  populateSelect('ped-prod', PRODUCTOS.map(p=>({val:p.id, text:`${p.nombre} (stock: ${p.stock})`})));
+  populateSelect('ped-prov', PROVEEDORES.filter(v=>v.estado==='ACTIVO').map(v=>({val:v.id,text:v.razon})));
+
+  document.getElementById('ped-table').innerHTML = PEDIDOS.map(p=>{
+    const prod = PRODUCTOS.find(x=>x.id===p.prod);
+    const prov = PROVEEDORES.find(x=>x.id===p.prov);
+    return `<tr>
+      <td><code style="font-size:.7rem">${p.id}</code></td>
+      <td>${prod?prod.nombre:p.prod}</td>
+      <td>${prov?prov.razon:'—'}</td>
+      <td>${p.qty}</td>
+      <td>S/ ${(p.qty*p.precio).toFixed(2)}</td>
+      <td>${pillEstado(p.estado)}</td>
+      <td style="display:flex;gap:.3rem;">
+        <button class="btn btn-ghost btn-sm" onclick="verPedido('${p.id}')">Ver</button>
+        ${p.estado==='PENDIENTE'?`<button class="btn btn-warning btn-sm" onclick="avanzarEstado('${p.id}')">Confirmar</button>`:''}
+        ${p.estado==='CONFIRMADO'||p.estado==='EN_PREPARACION'?`<button class="btn btn-primary btn-sm" onclick="avanzarEstado('${p.id}')">Avanzar →</button>`:''}
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="7" class="empty-state">Sin pedidos</td></tr>';
+}
+
+function verPedido(id) {
+  const p = PEDIDOS.find(x=>x.id===id);
+  if(!p) return;
+  const prod = PRODUCTOS.find(x=>x.id===p.prod);
+  const estados = ['PENDIENTE','CONFIRMADO','EN_PREPARACION','ENVIADO','ENTREGADO'];
+  const ci = estados.indexOf(p.estado);
+  document.getElementById('flow-steps-display').innerHTML = estados.map((e,i)=>{
+    const cls = i<ci?'done':i===ci?'current':'';
+    const icon = i<ci?'✓ ':i===ci?'● ':'';
+    return (i>0?'<div class="step-arrow">→</div>':'')+`<div class="step ${cls}">${icon}${e.replace('_',' ')}</div>`;
+  }).join('');
+  document.getElementById('selected-order-detail').innerHTML = `
+    <div style="text-align:left;padding:.5rem 0;">
+      <div style="margin-bottom:.5rem;"><strong>${p.id}</strong> · ${prod?prod.nombre:p.prod} · S/ ${(p.qty*p.precio).toFixed(2)}</div>
+      <div class="log-meta">Creado: ${p.fecha} · Estado actual: ${p.estado.replace('_',' ')}</div>
+    </div>`;
+}
+
+const ESTADOS_FLOW = ['PENDIENTE','CONFIRMADO','EN_PREPARACION','ENVIADO','ENTREGADO'];
+function avanzarEstado(id) {
+  const p = PEDIDOS.find(x=>x.id===id);
+  const ci = ESTADOS_FLOW.indexOf(p.estado);
+  if(ci < ESTADOS_FLOW.length-1) {
+    p.estado = ESTADOS_FLOW[ci+1];
+    addAudit(currentRole.toUpperCase(), 'PedidosService', 'actualizarEstado', 'EXITO', `${p.id} → ${p.estado}`);
+    toast(`📋 Pedido ${p.id} → ${p.estado.replace('_',' ')}`, 'ok');
+    loadPedidos(); loadDashboard();
+  }
+}
+
+function crearPedido() {
+  const pid = document.getElementById('ped-prod').value;
+  const qty = parseInt(document.getElementById('ped-qty').value);
+  const precio = parseFloat(document.getElementById('ped-precio').value);
+  const prov = document.getElementById('ped-prov').value;
+  if(!pid||!qty||!precio||!prov) { toast('⚠️ Completa todos los campos', 'warn'); return; }
+  const prod = PRODUCTOS.find(x=>x.id===pid);
+  if(prod.stock < qty) {
+    addAudit(currentRole.toUpperCase(), 'PedidosService', 'crearPedido', 'RECHAZADO', `EX-INV-002: Stock insuficiente (${prod.stock} < ${qty})`);
+    toast('❌ EX-INV-002: Stock insuficiente', 'err'); return;
+  }
+  const newId = 'PED-'+String(PEDIDOS.length+1).padStart(4,'0');
+  PEDIDOS.push({ id:newId, key:'uuid-'+Math.random().toString(36).slice(2,8), prod:pid, prov, qty, precio, estado:'PENDIENTE', fecha:new Date().toISOString().slice(0,10) });
+  prod.stock -= qty;
+  MOVIMIENTOS.push({ tipo:'SALIDA', prod:pid, qty, ref:newId, ts:nowTs() });
+  addAudit(currentRole.toUpperCase(), 'PedidosService', 'crearPedido', 'EXITO', `${newId} · ${prod.nombre} × ${qty} · S/${(qty*precio).toFixed(2)}`);
+  closeModal('modal-pedido');
+  toast(`✅ Pedido ${newId} creado · S/ ${(qty*precio).toFixed(2)}`, 'ok');
+  loadPedidos(); loadDashboard();
+}
+
+function checkStock() {
+  const pid = document.getElementById('ped-prod').value;
+  const qty = parseInt(document.getElementById('ped-qty').value)||0;
+  const precio = parseFloat(document.getElementById('ped-precio').value)||0;
+  const prod = PRODUCTOS.find(x=>x.id===pid);
+  const alert = document.getElementById('stock-alert');
+  const preview = document.getElementById('order-preview');
+  if(!prod||!qty) { alert.style.display='none'; preview.style.display='none'; return; }
+  if(prod.stock < qty) {
+    alert.style.display='block';
+    document.getElementById('stock-alert-msg').textContent = `disponible: ${prod.stock} uds`;
+    preview.style.display='none';
+  } else {
+    alert.style.display='none';
+    preview.style.display='block';
+    document.getElementById('ord-total-preview').textContent = `S/ ${(qty*(precio||prod.precio)).toFixed(2)}`;
+    document.getElementById('idem-key').textContent = 'uuid-'+Math.random().toString(36).slice(2,10);
+  }
+}
+
+/* ════════════════════════════════════════
+   REPOSICIÓN
+════════════════════════════════════════ */
+function solicitarReposicion() {
+  const pid = document.getElementById('rep-prod').value;
+  const qty = parseInt(document.getElementById('rep-qty').value);
+  const origen = document.getElementById('rep-origen').value;
+  if(!pid||!qty) { toast('⚠️ Completa los campos', 'warn'); return; }
+  const prod = PRODUCTOS.find(x=>x.id===pid);
+  addAudit(currentRole.toUpperCase(), 'InventarioService', 'solicitarReposicion', 'EXITO', `${prod.nombre} · qty: ${qty} · origen: ${origen}`);
+  closeModal('modal-reposicion');
+  toast(`📦 Solicitud de reposición enviada para ${prod.nombre}`, 'ok');
+  loadDashboard();
+}
+
+/* ════════════════════════════════════════
+   PROVEEDORES
+════════════════════════════════════════ */
+function loadProveedores() {
+  document.getElementById('prov-table').innerHTML = PROVEEDORES.map(v=>`<tr>
+    <td><strong>${v.razon}</strong></td>
+    <td><code style="font-size:.7rem">${v.ruc}</code></td>
+    <td>${v.cats.map(c=>`<span class="tag">${c}</span>`).join(' ')}</td>
+    <td style="color:${v.puntaje>=8?'var(--green)':v.puntaje>=6?'var(--yellow)':'var(--red)'};font-weight:700">${v.puntaje}/10</td>
+    <td>${v.estado==='ACTIVO'?'<span class="pill pill-ok">ACTIVO</span>':'<span class="pill pill-grey">'+v.estado+'</span>'}</td>
+    <td><button class="btn btn-ghost btn-sm" onclick="verEvalProv('${v.id}')">Historial</button></td>
+  </tr>`).join('');
+  populateSelect('cot-prov', PROVEEDORES.map(v=>({val:v.id,text:v.razon})));
+  populateSelect('cot-prod', PRODUCTOS.map(p=>({val:p.id,text:p.nombre})));
+  populateSelect('eval-prov', PROVEEDORES.map(v=>({val:v.id,text:v.razon})));
+}
+
+function enviarCotizacion() {
+  const pv = document.getElementById('cot-prov').value;
+  const pp = document.getElementById('cot-prod').value;
+  const qty = document.getElementById('cot-qty').value;
+  const dias = document.getElementById('cot-dias').value;
+  if(!pv||!pp||!qty) { toast('⚠️ Completa los campos', 'warn'); return; }
+  const prov = PROVEEDORES.find(x=>x.id===pv);
+  const prod = PRODUCTOS.find(x=>x.id===pp);
+  addAudit(currentRole.toUpperCase(), 'ProveedoresService', 'enviarCotizacion', 'EXITO', `${prov.razon} · ${prod.nombre} × ${qty} · plazo: ${dias}d`);
+  toast(`📩 Cotización enviada a ${prov.razon}`, 'ok');
+}
+
+function evaluarProveedor() {
+  const pv = document.getElementById('eval-prov').value;
+  if(!pv) { toast('⚠️ Selecciona un proveedor', 'warn'); return; }
+  const total = parseFloat(document.getElementById('ev-total').textContent);
+  const prov = PROVEEDORES.find(x=>x.id===pv);
+  prov.puntaje = total;
+  addAudit(currentRole.toUpperCase(), 'ProveedoresService', 'evaluarProveedor', 'EXITO', `${prov.razon} · puntaje: ${total}/10`);
+  loadProveedores();
+  toast(`⭐ Evaluación registrada: ${prov.razon} → ${total}/10`, 'ok');
+}
+
+function verEvalProv(id) {
+  const prov = PROVEEDORES.find(x=>x.id===id);
+  toast(`📊 ${prov.razon}: puntaje actual ${prov.puntaje}/10`, 'info');
+}
+
+function updateEval() {
+  ['precio','calidad','puntual'].forEach(k=>{
+    document.getElementById('ev-'+k+'-val').textContent = parseFloat(document.getElementById('ev-'+k).value).toFixed(1);
+  });
+  const avg = (['precio','calidad','puntual'].reduce((s,k)=>s+parseFloat(document.getElementById('ev-'+k).value),0)/3).toFixed(1);
+  document.getElementById('ev-total').textContent = avg;
+}
+
+/* ════════════════════════════════════════
+   LOGÍSTICA
+════════════════════════════════════════ */
+function loadLogistica() {
+  document.getElementById('env-table').innerHTML = ENVIOS.map(e=>`<tr>
+    <td><code style="font-size:.7rem">${e.guia}</code></td>
+    <td><code style="font-size:.7rem">${e.pedido}</code></td>
+    <td>${PROVEEDORES.find(v=>v.id===e.prov)?.razon||e.prov}</td>
+    <td>${e.transp}</td>
+    <td>${e.despacho}</td>
+    <td>${e.eta}</td>
+    <td><button class="btn btn-success btn-sm" onclick="confirmarEnvio('${e.guia}')">Recibir</button></td>
+  </tr>`).join('') || '<tr><td colspan="7" class="empty-state">Sin envíos activos</td></tr>';
+
+  document.getElementById('rec-table').innerHTML = RECEPCIONES.map(r=>`<tr>
+    <td><code style="font-size:.7rem">${r.id}</code></td>
+    <td><code style="font-size:.7rem">${r.pedido}</code></td>
+    <td>${r.estado==='CONFORME'?'<span class="pill pill-ok">CONFORME</span>':'<span class="pill pill-orange">CON DIFERENCIA</span>'}</td>
+    <td>Encargado</td>
+    <td>${r.fecha}</td>
+  </tr>`).join('') || '<tr><td colspan="5" class="empty-state">Sin recepciones</td></tr>';
+
+  populateSelect('rec-pedido', PEDIDOS.filter(p=>p.estado==='ENVIADO'||p.estado==='EN_PREPARACION')
+    .map(p=>({val:p.id,text:`${p.id} · ${PRODUCTOS.find(x=>x.id===p.prod)?.nombre} × ${p.qty}`})));
+}
+
+function confirmarEnvio(guia) {
+  const env = ENVIOS.find(e=>e.guia===guia);
+  const ped = PEDIDOS.find(p=>p.id===env.pedido);
+  ped.estado = 'ENVIADO';
+  ENVIOS = ENVIOS.filter(e=>e.guia!==guia);
+  addAudit(currentRole.toUpperCase(), 'LogisticaService', 'confirmarEnvio', 'EXITO', `Guía ${guia} → pedido ${env.pedido} RECIBIDO`);
+  loadLogistica(); loadDashboard();
+  toast(`🚚 Envío ${guia} recibido`, 'ok');
+}
+
+document.getElementById('rec-pedido').addEventListener('change', function() {
+  const p = PEDIDOS.find(x=>x.id===this.value);
+  document.getElementById('rec-pedida').value = p?p.qty:'';
+});
+
+function checkRecepcion() {
+  const pedida = parseInt(document.getElementById('rec-pedida').value)||0;
+  const recibida = parseInt(document.getElementById('rec-recibida').value)||0;
+  document.getElementById('rec-diff-alert').style.display = (recibida>0&&recibida<pedida)?'block':'none';
+}
+
+function registrarRecepcion() {
+  const pid = document.getElementById('rec-pedido').value;
+  const pedida = parseInt(document.getElementById('rec-pedida').value)||0;
+  const recibida = parseInt(document.getElementById('rec-recibida').value)||0;
+  const ef = document.getElementById('rec-estado-fis').value;
+  if(!pid||!recibida) { toast('⚠️ Completa los campos', 'warn'); return; }
+  const id = 'REC-'+String(RECEPCIONES.length+1).padStart(3,'0');
+  const conforme = recibida === pedida && ef === 'BUENO';
+  RECEPCIONES.push({ id, pedido:pid, estado:conforme?'CONFORME':'CON_DIFERENCIA', fecha:nowTs().slice(0,10) });
+  if(!conforme) {
+    addAudit(currentRole.toUpperCase(), 'LogisticaService', 'registrarRecepcion', 'EXITO', `${id} · DIFERENCIA detectada (${pedida-recibida} uds faltantes) → No Conformidad creada`);
+    toast(`⚠️ Recepción ${id} con diferencia · No Conformidad registrada`, 'warn');
+  } else {
+    addAudit(currentRole.toUpperCase(), 'LogisticaService', 'registrarRecepcion', 'EXITO', `${id} · CONFORME`);
+    toast(`✅ Recepción ${id} registrada: CONFORME`, 'ok');
+  }
+  closeModal('modal-recepcion');
+  loadLogistica();
+}
+
+/* ════════════════════════════════════════
+   AUDITORÍA
+════════════════════════════════════════ */
+function addAudit(actor, svc, op, result, detail) {
+  auditLog.push({ actor, svc, op, r:result, detail, ts: nowHM(), full: new Date().toISOString() });
+  renderLiveLog();
+  updateAuditStats();
+}
+
+function loadAuditoria() {
+  renderAuditLog(auditLog);
+  updateAuditStats();
+}
+
+function updateAuditStats() {
+  document.getElementById('aud-total').textContent = auditLog.length;
+  document.getElementById('aud-ok').textContent  = auditLog.filter(e=>e.r==='EXITO').length;
+  document.getElementById('aud-err').textContent = auditLog.filter(e=>e.r==='ERROR'||e.r==='RECHAZADO').length;
+}
+
+function filterAudit() {
+  const f = document.getElementById('aud-filter').value;
+  renderAuditLog(f ? auditLog.filter(e=>e.r===f) : auditLog);
+}
+
+function renderAuditLog(entries) {
+  const el = document.getElementById('audit-log');
+  if(!el) return;
+  el.innerHTML = entries.slice().reverse().map(e=>`
+    <div class="log-entry">
+      <div class="log-dot log-dot-${e.r==='EXITO'?'ok':e.r==='ERROR'?'err':'warn'}"></div>
+      <div class="log-time">${e.ts}</div>
+      <div class="log-msg">
+        <span class="tag">${e.actor}</span> <strong>${e.op}</strong> <span class="log-meta">via ${e.svc}</span><br>
+        <span class="log-meta">${e.detail}</span>
+      </div>
+      <span class="pill ${e.r==='EXITO'?'pill-ok':e.r==='ERROR'?'pill-red':'pill-pending'}">${e.r}</span>
+    </div>`).join('') || '<div class="empty-state">Sin entradas</div>';
+}
+
+/* ════════════════════════════════════════
+   UTILS
+════════════════════════════════════════ */
+function pillEstado(s) {
+  const map = { PENDIENTE:'pending', CONFIRMADO:'blue', EN_PREPARACION:'orange', ENVIADO:'blue', ENTREGADO:'ok', CANCELADO:'red', CON_DIFERENCIA:'red' };
+  return `<span class="pill pill-${map[s]||'grey'}">${s.replace('_',' ')}</span>`;
+}
+
+function populateSelect(id, opts) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.innerHTML = '<option value="">Seleccionar...</option>' + opts.map(o=>`<option value="${o.val}">${o.text}</option>`).join('');
+}
+
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+document.querySelectorAll('.modal-bg').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); }));
+
+function toast(msg, type='ok') {
+  const tc = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.textContent = msg;
+  tc.appendChild(t);
+  setTimeout(()=>t.remove(), 3800);
+}
+
+function nowTs() { return new Date().toISOString().slice(0,16).replace('T',' '); }
+function nowHM() { return new Date().toTimeString().slice(0,8); }
+
+function startLiveClock() {
+  setInterval(()=>{ document.getElementById('live-time').textContent = new Date().toLocaleTimeString('es-PE'); }, 1000);
+}
+
+// Simulate live SOA events
+const liveEvents = [
+  {d:4000, actor:'VENDEDOR', svc:'InventarioService', op:'consultarStock', r:'EXITO', detail:'Producto P001 · stock:42'},
+  {d:7000, actor:'PROVEEDOR', svc:'PedidosService', op:'consultarPedido', r:'EXITO', detail:'PED-0002 · EN_PREPARACION'},
+  {d:12000, actor:'SISTEMA', svc:'AuthService', op:'validateToken', r:'EXITO', detail:'JWT válido · exp: 60min'},
+  {d:17000, actor:'MAYORISTA', svc:'PedidosService', op:'crearPedido', r:'RECHAZADO', detail:'EX-INV-002: Stock insuficiente'},
+  {d:23000, actor:'ADMIN', svc:'AuditoriaService', op:'generarReporte', r:'EXITO', detail:'Período: 2026-04-25'},
+  {d:29000, actor:'SISTEMA', svc:'NotificacionesService', op:'sendStockAlert', r:'EXITO', detail:'P002 bajo mínimo → vendedor notificado'},
+];
+function startLiveEvents() {
+  liveEvents.forEach(e => setTimeout(()=>{ addAudit(e.actor, e.svc, e.op, e.r, e.detail); }, e.d));
+}
+</script>
+</body>
+</html>

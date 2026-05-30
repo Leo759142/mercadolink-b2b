@@ -1,0 +1,118 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title th:text="${appName}">MercadoLink B2B</title>
+  <style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #21262d;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #388bfd;
+    --green: #3fb950;
+    --yellow: #d29922;
+    --red: #f85149;
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: linear-gradient(120deg, var(--bg) 0%, #161b22 50%, var(--bg) 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 6s ease infinite;
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    margin: 0;
+    padding: 2rem;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .card {
+    background: rgba(22,27,34,0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 760px;
+    width: 90%;
+    color: var(--text);
+  }
+  h1 {
+    font-size: 2rem;
+    background: linear-gradient(to right, var(--accent), #79c0ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+  }
+  p {
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+  }
+  h3 {
+    color: var(--accent);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+  }
+  ul {
+    color: var(--muted);
+    margin-left: 1.5rem;
+  }
+  li {
+    margin-bottom: 0.3rem;
+  }
+  a.btn {
+    display: inline-block;
+    margin: 0.5rem 0.5rem 0.5rem 0;
+    padding: 0.6rem 1.2rem;
+    background: var(--accent);
+    color: #fff;
+    border-radius: var(--radius);
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.2s, transform 0.2s;
+  }
+  a.btn:hover {
+    background: #79c0ff;
+    transform: translateY(-2px);
+  }
+  small {
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1 th:text="${appName}">MercadoLink B2B</h1>
+    <p>Interfaz ligera orientada a Spring Boot. Usa la API REST para operar; la UI es una ayuda para pruebas locales.</p>
+
+    <h3>Enlaces</h3>
+    <p>
+      <a class="btn" href="/swagger-ui.html">Swagger UI</a>
+      <a class="btn" href="/v3/api-docs">OpenAPI JSON</a>
+      <a class="btn" href="/h2-console">H2 Console</a>
+      <a class="btn" href="/app">UI React (B2B)</a>
+      <a class="btn" href="/productos">Productos (Thymeleaf)</a>
+    </p>
+
+    <h3>Notas</h3>
+    <ul>
+      <li>La UI es mínima y consumirá la API localmente.</li>
+      <li>En `dev` la DB corre en memoria y los datos se pierden al reiniciar.</li>
+    </ul>
+  </div>
+</body>
+</html>
+

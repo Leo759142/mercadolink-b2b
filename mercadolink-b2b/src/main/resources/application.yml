@@ -1,0 +1,50 @@
+server:
+  port: 8080
+  error:
+    include-message: always
+
+spring:
+  application:
+    name: mercadolink-b2b
+  datasource:
+    url: jdbc:h2:mem:mercadolink;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    open-in-view: true
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+# JWT configuration (override in prod via env vars)
+app:
+  jwt:
+    # 256-bit base64 secret (change in production)
+    secret: "ZmFrZS1zZWNyZXQtZGV2LW9ubHktY2hhbmdlLW1lLWluLXByb2QtMzItYnl0ZXMh"
+    expiration-minutes: 60
+  izipay:
+    # Simulated/mock Izipay endpoint. Replace with real one when integrating.
+    base-url: "https://api.micuentaweb.pe"
+    public-key: "demo-public-key"
+    hmac-secret: "demo-hmac-secret-change-me"
+    sandbox-mode: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  level:
+    root: INFO
+    pe.aspropa.mercadolink: DEBUG

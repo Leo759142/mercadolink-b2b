@@ -1,0 +1,191 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import { pedidosAPI, productosAPI, puestosAPI } from '../api';
+
+const MIN_UNIDADES = 10;
+const MIN_MONTO = 50;
+
+export default function NuevoPedidoModal({ open, onClose, onCreated }) {
+  const [productos, setProductos] = useState([]);
+  const [puestos, setPuestos] = useState([]);
+  const [puestoId, setPuestoId] = useState('');
+  const [cantidades, setCantidades] = useState({});
+  const [observaciones, setObservaciones] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [idempotencyKey, setIdempotencyKey] = useState('');
+
+  useEffect(() => {
+    if (!open) return;
+    setIdempotencyKey(crypto.randomUUID());
+    setError('');
+    setLoading(true);
+    Promise.all([productosAPI.list(), puestosAPI.list()])
+      .then(([prodRes, puestosRes]) => {
+        setProductos(prodRes.data);
+        setPuestos(puestosRes.data);
+        const stored = localStorage.getItem('puestoId');
+        const initial =
+          stored && puestosRes.data.some((p) => p.id === stored)
+            ? stored
+            : puestosRes.data[0]?.id || '';
+        setPuestoId(initial);
+      })
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, [open]);
+
+  const itemsCarrito = useMemo(() => {
+    return productos
+      .filter((p) => (cantidades[p.id] || 0) > 0)
+      .map((p) => ({
+        productoId: p.id,
+        puestoId,
+        cantidad: Number(cantidades[p.id]),
+        producto: p,
+      }));
+  }, [productos, cantidades, puestoId]);
+
+  const totalUnidades = itemsCarrito.reduce((s, i) => s + i.cantidad, 0);
+  const montoEstimado = itemsCarrito.reduce(
+    (s, i) => s + i.cantidad * Number(i.producto.precioReferencia),
+    0
+  );
+
+  const setCantidad = (productoId, value) => {
+    const n = Math.max(0, parseInt(value, 10) || 0);
+    setCantidades((prev) => ({ ...prev, [productoId]: n }));
+  };
+
+  const handleSubmit = async () => {
+    setError('');
+    if (!puestoId) {
+      setError('Selecciona un puesto');
+      return;
+    }
+    if (itemsCarrito.length === 0) {
+      setError('Agrega al menos un producto');
+      return;
+    }
+    if (totalUnidades < MIN_UNIDADES || montoEstimado < MIN_MONTO) {
+      setError(
+        `Mínimo ${MIN_UNIDADES} unidades y S/ ${MIN_MONTO} (actual: ${totalUnidades} u., S/ ${montoEstimado.toFixed(2)})`
+      );
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const items = itemsCarrito.map(({ productoId, puestoId: pid, cantidad }) => ({
+        productoId,
+        puestoId: pid,
+        cantidad,
+      }));
+      const { data } = await pedidosAPI.crear(
+        items,
+        observaciones || undefined,
+        idempotencyKey
+      );
+      onCreated?.(data);
+      onClose();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (!open) return null;
+
+  return (
+    <div className="modal-bg open" role="dialog" aria-modal="true">
+      <div className="modal">
+        <h3>📋 Nuevo pedido B2B</h3>
+        <p className="sub">
+          Idempotency-Key: <code>{idempotencyKey.slice(0, 8)}…</code>
+        </p>
+        {error && <div className="alert alert-error">{error}</div>}
+
+        {loading ? (
+          <p>Cargando catálogo…</p>
+        ) : (
+          <>
+            <div className="form-group">
+              <label htmlFor="modal-puesto">Puesto</label>
+              <select
+                id="modal-puesto"
+                value={puestoId}
+                onChange={(e) => setPuestoId(e.target.value)}
+              >
+                {puestos.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.nombre} — {p.numero}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="scrollbox" style={{ maxHeight: 200, marginBottom: 12 }}>
+              <table className="tbl">
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th>S/</th>
+                    <th>Cant.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {productos.map((p) => (
+                    <tr key={p.id}>
+                      <td>{p.descripcion}</td>
+                      <td>{Number(p.precioReferencia).toFixed(2)}</td>
+                      <td>
+                        <input
+                          type="number"
+                          min="0"
+                          style={{ width: 64 }}
+                          value={cantidades[p.id] || ''}
+                          placeholder="0"
+                          onChange={(e) => setCantidad(p.id, e.target.value)}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="order-preview">
+              Total estimado: <strong>S/ {montoEstimado.toFixed(2)}</strong> ·{' '}
+              {totalUnidades} unidades
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="modal-obs">Observaciones</label>
+              <textarea
+                id="modal-obs"
+                rows={2}
+                value={observaciones}
+                onChange={(e) => setObservaciones(e.target.value)}
+              />
+            </div>
+          </>
+        )}
+
+        <div className="modal-footer">
+          <button type="button" className="btn btn-ghost" onClick={onClose}>
+            Cancelar
+          </button>
+          <button
+            type="button"
+            className="btn btn-primary"
+            disabled={submitting || loading}
+            onClick={handleSubmit}
+          >
+            {submitting ? 'Creando…' : 'Crear pedido'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

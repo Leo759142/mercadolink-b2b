@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  mercadolink-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mercadolink-b2b
+    ports:
+      - "8080:8080"
+    environment:
+      # H2 2.2 no longer supports AUTO_SERVER in this form; use a normal file URL for the container.
+      SPRING_DATASOURCE_URL: "jdbc:h2:file:/data/mercadolink;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL"
+      SPRING_DATASOURCE_USERNAME: "sa"
+      SPRING_DATASOURCE_PASSWORD: ""
+      SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
+      APP_JWT_SECRET: "ZmFrZS1zZWNyZXQtZGV2LW9ubHktY2hhbmdlLW1lLWluLXByb2QtMzItYnl0ZXMh"
+      APP_IZIPAY_SANDBOX_MODE: "true"
+    volumes:
+      - mercadolink-data:/data
+    networks:
+      - mercadolink-net
+    restart: unless-stopped
+
+volumes:
+  mercadolink-data:
+    driver: local
+
+networks:
+  mercadolink-net:
+    driver: bridge
