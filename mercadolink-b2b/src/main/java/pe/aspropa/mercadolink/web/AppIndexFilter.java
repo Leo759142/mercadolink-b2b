@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
@@ -20,14 +22,18 @@ import jakarta.servlet.http.HttpServletResponse;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class AppIndexFilter extends OncePerRequestFilter {
 
-    private static final String PATH = "/app/";
+    private static final Logger log = LoggerFactory.getLogger(AppIndexFilter.class);
+
+    private static final String[] PATHS = {"/app/", "/app"};
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String uri = request.getRequestURI();
-        if (PATH.equals(uri)) {
+        log.info("NEW-LOG: AppIndexFilter request uri={}", uri);
+        if (startsWith(uri)) {
             Resource index = new ClassPathResource("static/app/index.html");
             if (index.exists() && index.isReadable()) {
+                log.info("NEW-LOG: AppIndexFilter serving SPA index at {}", uri);
                 response.setContentType("text/html;charset=UTF-8");
                 try (InputStream in = index.getInputStream()) {
                     String html = new String(in.readAllBytes(), StandardCharsets.UTF_8);
@@ -36,7 +42,15 @@ public class AppIndexFilter extends OncePerRequestFilter {
                     return;
                 }
             }
+            log.warn("NEW-LOG: AppIndexFilter could not serve index.html for {} (exists={}, readable={})", uri, index.exists(), index.isReadable());
         }
         filterChain.doFilter(request, response);
+    }
+
+    private static boolean startsWith(String uri) {
+        if (uri.equals("/app") || uri.equals("/app/")) {
+            return true;
+        }
+        return uri.startsWith("/app/") && !uri.startsWith("/app/static/");
     }
 }

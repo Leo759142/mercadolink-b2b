@@ -16,7 +16,8 @@ public class SpaWebConfig implements WebMvcConfigurer {
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addRedirectViewController("/app", "/app/");
+        // Removed redirect — AppIndexFilter handles /app/ and resource handlers serve /app/**
+        // registry.addRedirectViewController("/app", "/app/");
     }
 
     @Override

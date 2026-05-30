@@ -13,6 +13,7 @@ import RoleRoute from './components/RoleRoute';
 import './index.css';
 
 export default function App() {
+  console.log('[NEW-LOG] React App render');
   return (
     <Routes>
       <Route path="/" element={<Login />} />
