@@ -1,3 +1,4 @@
+# IDEs
 *.sln
 /bin
 /obj
@@ -5,6 +6,20 @@
 .DS_Store
 .kilo
 .env
-/mercadolink-b2b/target/mercadolink-b2b.jar
-mercadolink-b2b.zip
+
+# Build artifacts (Spring Boot/Maven)
+target/*.jar
+target/*.zip
+mercadolink-b2b/target/*.jar
+mercadolink-b2b/target/*.zip
+
+# Alternativa: ignorar todo el target/ (más simple)
+# target/
+
+# Node
 /mercadolink-b2b/node/*
+/mercadolink-b2b/node_modules/
+
+# Armas grandes específicos (opcional, ya están en target/)
+# /mercadolink-b2b/target/mercadolink-b2b.jar
+# mercadolink-b2b.zip
