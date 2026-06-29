@@ -24,7 +24,7 @@ export default function NuevoPedidoModal({ open, onClose, onCreated, productoPre
   const [submitting, setSubmitting] = useState(false);
   const [idempotencyKey, setIdempotencyKey] = useState('');
 
-  const preSelected = productosPre || (productoPred ? [productoPred] : []);
+  const preSelected = useMemo(() => productosPre || (productoPred ? [productoPred] : []), [productosPre, productoPred]);
 
   useEffect(() => {
     if (!open) return;

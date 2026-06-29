@@ -5,6 +5,16 @@ const PUEDE_CREAR_ENVIO = ['PROVEEDOR', 'ADMINISTRADOR'];
 const PUEDE_CREAR_RECEPCION = ['VENDEDOR', 'ADMINISTRADOR'];
 const PUEDE_CREAR_NC = ['VENDEDOR', 'ADMINISTRADOR'];
 const PUEDE_RESOLVER_NC = ['VENDEDOR', 'ADMINISTRADOR'];
+const PUEDE_AVANZAR_ETAPA = ['VENDEDOR', 'ADMINISTRADOR'];
+
+const ETAPAS_ENVIO = [
+  { key: 'PENDIENTE_RECOLECCION', label: 'Pendiente recolección', emoji: '📦' },
+  { key: 'EN_PREPARACION', label: 'En preparación', emoji: '🏭' },
+  { key: 'DESPACHADO', label: 'Despachado', emoji: '🚚' },
+  { key: 'EN_TRANSITO', label: 'En tránsito', emoji: '🛤️' },
+  { key: 'EN_PUBLICA_RECEPCION', label: 'En punto de recepción', emoji: '🏬' },
+  { key: 'RECIBIDO_CONFORME', label: 'Recibido conforme', emoji: '✅' },
+];
 
 function PillEstadoRecepcion({ estado }) {
   let cls = 'pill ';
@@ -36,6 +46,19 @@ function PillResuelta({ resuelta }) {
       {resuelta ? 'Sí' : 'No'}
     </span>
   );
+}
+
+function PillEtapa({ etapa }) {
+  const isCompleted = etapa === 'RECIBIDO_CONFORME';
+  let cls = 'pill ';
+  if (isCompleted) {
+    cls += 'pill-ok';
+  } else if (etapa) {
+    cls += 'pill-info';
+  } else {
+    cls += 'pill-pending';
+  }
+  return <span className={cls}>{etapa || 'Pendiente recolección'}</span>;
 }
 
 function ModalEnvio({ open, onClose, onCreated }) {
@@ -326,13 +349,14 @@ function ModalNoConformidad({ open, onClose, onCreated }) {
 
 export default function Logistica() {
   const rol = localStorage.getItem('rol');
-  const [tab, setTab] = useState('envios');
+  const [tab, setTab] = useState('seguimiento');
   const [envios, setEnvios] = useState([]);
   const [recepciones, setRecepciones] = useState([]);
   const [noConfs, setNoConfs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
+  const [seguimientoEnvioId, setSeguimientoEnvioId] = useState('');
 
   const [modalEnvio, setModalEnvio] = useState(false);
   const [modalRecepcion, setModalRecepcion] = useState(false);
@@ -403,6 +427,28 @@ export default function Logistica() {
     }
   };
 
+  const obtenerEtapaEnvio = (envio) => {
+    const etapa = envio.etapa || 'PENDIENTE_RECOLECCION';
+    return ETAPAS_ENVIO.findIndex((e) => e.key === etapa);
+  };
+
+  const avanzarEtapa = async (envioId) => {
+    setError('');
+    setInfo('');
+    const envio = envios.find((e) => e.id === envioId);
+    if (!envio) return;
+    const currentIdx = obtenerEtapaEnvio(envio);
+    if (currentIdx >= ETAPAS_ENVIO.length - 1) return;
+    const nextEtapa = ETAPAS_ENVIO[currentIdx + 1].key;
+    try {
+      await logisticaAPI.seguimiento.avanzarEtapa(envioId, nextEtapa);
+      setInfo('Etapa avanzada correctamente');
+      cargarEnvios();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   const truncar = (text, max = 60) => {
     if (!text) return '—';
     return text.length > max ? text.slice(0, max) + '…' : text;
@@ -431,6 +477,9 @@ export default function Logistica() {
 
       <div className="card">
         <nav style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', borderBottom: '2px solid var(--maderaclaro)' }}>
+          <button type="button" className={`btn btn-sm ${tab === 'seguimiento' ? 'btn-primary' : 'btn-ghost'}`} onClick={() => handleTab('seguimiento')}>
+            📍 Seguimiento
+          </button>
           <button type="button" className={`btn btn-sm ${tab === 'envios' ? 'btn-primary' : 'btn-ghost'}`} onClick={() => handleTab('envios')}>
             🚚 Envíos
           </button>
@@ -441,6 +490,103 @@ export default function Logistica() {
             ⚠️ No conformidades
           </button>
         </nav>
+
+        {tab === 'seguimiento' && (
+          <div>
+            <div className="card-header">
+              <span className="card-title">📍 Seguimiento de envíos</span>
+              <div>
+                <button type="button" className="btn btn-ghost btn-sm" onClick={cargarEnvios}>
+                  Actualizar
+                </button>
+              </div>
+            </div>
+            <div style={{ marginBottom: '1rem' }}>
+              <select
+                value={seguimientoEnvioId}
+                onChange={(e) => setSeguimientoEnvioId(e.target.value)}
+                style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--maderaclaro)', minWidth: '200px' }}
+              >
+                <option value="">Seleccionar envío...</option>
+                {envios.map((env) => (
+                  <option key={env.id} value={env.id}>
+                    Pedido {env.pedido_id?.slice(0, 8) || env.id?.slice(0, 8) || '—'}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {seguimientoEnvioId && (
+              <div>
+                {(() => {
+                  const envio = envios.find((e) => e.id === seguimientoEnvioId);
+                  if (!envio) return <p>Envío no encontrado</p>;
+                  const currentIdx = obtenerEtapaEnvio(envio);
+                  const isFinal = currentIdx >= ETAPAS_ENVIO.length - 1;
+                  return (
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                        {ETAPAS_ENVIO.map((etapa, idx) => {
+                          const isCompleted = idx < currentIdx;
+                          const isCurrent = idx === currentIdx;
+                          const isPending = idx > currentIdx;
+                          return (
+                            <div key={etapa.key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                              <div
+                                style={{
+                                  width: '40px',
+                                  height: '40px',
+                                  borderRadius: '50%',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: '20px',
+                                  backgroundColor:
+                                    isCompleted ? '#d4edda' :
+                                    isCurrent ? '#cce5ff' :
+                                    '#f8f9fa',
+                                  border: isCurrent ? '2px solid #007bff' : '1px solid #dee2e6',
+                                }}
+                              >
+                                {isCompleted ? '✅' : etapa.emoji}
+                              </div>
+                              <span style={{ fontSize: '12px', fontWeight: isCurrent ? 'bold' : isCompleted ? '500' : 'normal', color: isPending ? '#6c757d' : 'inherit' }}>
+                                {etapa.label}
+                              </span>
+                              {idx < ETAPAS_ENVIO.length - 1 && (
+                                <span style={{ color: '#007bff', fontSize: '14px' }}>➔</span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                      {PUEDE_AVANZAR_ETAPA.includes(rol) && !isFinal && (
+                        <div style={{ marginTop: '1rem' }}>
+                          <button type="button" className="btn btn-primary btn-sm" onClick={() => avanzarEtapa(envio.id)}>
+                            Avanzar etapa
+                          </button>
+                          <span style={{ marginLeft: '1rem', fontSize: '14px', color: '#6c757d' }}>
+                            Etapa actual: {ETAPAS_ENVIO[currentIdx].label}
+                          </span>
+                        </div>
+                      )}
+                      {isFinal && (
+                        <div style={{ marginTop: '1rem', padding: '0.75rem', backgroundColor: '#d4edda', borderRadius: '4px', color: '#155724' }}>
+                          ✅ Envío completado - Recibido conforme
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
+            {!seguimientoEnvioId && envios.length > 0 && (
+              <p style={{ color: '#6c757d' }}>Selecciona un envío para ver su seguimiento</p>
+            )}
+            {envios.length === 0 && (
+              <p style={{ color: '#6c757d' }}>No hay envíos registrados</p>
+            )}
+          </div>
+        )}
 
         {tab === 'envios' && (
           <div>
@@ -463,6 +609,7 @@ export default function Logistica() {
                   <th>Pedido</th>
                   <th>Transportista</th>
                   <th>Guía</th>
+                  <th>Etapa</th>
                   <th>Despacho</th>
                   <th>Entrega estimada</th>
                 </tr>
@@ -470,7 +617,7 @@ export default function Logistica() {
               <tbody>
                 {envios.length === 0 ? (
                   <tr>
-                    <td colSpan={5}>No hay envíos registrados</td>
+                    <td colSpan={6}>No hay envíos registrados</td>
                   </tr>
                 ) : (
                   envios.map((env) => (
@@ -478,6 +625,7 @@ export default function Logistica() {
                       <td><code>{env.pedido_id || '—'}</code></td>
                       <td>{env.transportista || '—'}</td>
                       <td>{env.numero_guia || '—'}</td>
+                      <td><PillEtapa etapa={env.etapa} /></td>
                       <td>{env.fecha_despacho ? new Date(env.fecha_despacho).toLocaleString('es-PE') : '—'}</td>
                       <td>{env.fecha_estimada_entrega ? new Date(env.fecha_estimada_entrega).toLocaleDateString('es-PE') : '—'}</td>
                     </tr>

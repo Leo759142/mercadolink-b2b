@@ -87,6 +87,13 @@ export const izipayAPI = {
   webhook: (payload) => apiClient.post('/izipay/webhook', payload),
 };
 
+export const proveedoresAPI = {
+  listar: () => apiClient.get('/proveedores'),
+  crear: (data) => apiClient.post('/proveedores', data),
+  actualizar: (id, data) => apiClient.put(`/proveedores/${id}`, data),
+  cambiarEstado: (id, body) => apiClient.patch(`/proveedores/${id}/estado`, body),
+};
+
 export const logisticaAPI = {
   envios: {
     listar: () => apiClient.get('/logistica/envios'),
@@ -101,5 +108,8 @@ export const logisticaAPI = {
     listar: () => apiClient.get('/logistica/no-conformidades'),
     crear: (data) => apiClient.post('/logistica/no-conformidades', data),
     resolver: (id) => apiClient.patch(`/logistica/no-conformidades/${id}/resolver`),
+  },
+  seguimiento: {
+    avanzarEtapa: (envioId, etapa) => apiClient.patch(`/logistica/envios/${envioId}/etapa`, { etapa }),
   },
 };
