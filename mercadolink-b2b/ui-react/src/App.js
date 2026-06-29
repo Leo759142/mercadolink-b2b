@@ -7,9 +7,9 @@ import Login from './components/Login';
 import Logistica from './components/Logistica';
 import Pedidos from './components/Pedidos';
 import PedidosProveedor from './components/PedidosProveedor';
-import PlaceholderPanel from './components/PlaceholderPanel';
 import PrivateRoute from './components/PrivateRoute';
 import Productos from './components/Productos';
+import Proveedores from './components/Proveedores';
 import ProveedorInventario from './components/ProveedorInventario';
 import Register from './components/Register';
 import RoleRoute from './components/RoleRoute';
@@ -44,11 +44,7 @@ export default function App() {
           path="proveedores"
           element={
             <RoleRoute module="proveedores">
-              <PlaceholderPanel
-                title="Gestión de proveedores"
-                subtitle="Cotizaciones, evaluaciones y RUC · Servicio GestionProveedores"
-                fase="Fase B — entidades proveedores, cotizaciones y evaluaciones en BD + API"
-              />
+              <Proveedores />
             </RoleRoute>
           }
         />
