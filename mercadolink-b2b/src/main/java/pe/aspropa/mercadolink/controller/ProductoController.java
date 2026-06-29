@@ -36,6 +36,13 @@ public class ProductoController {
         return productoRepository.findByActivoTrue();
     }
 
+    @GetMapping("/mis-productos")
+    @PreAuthorize("hasAnyRole('PROVEEDOR','ADMINISTRADOR')")
+    @Operation(summary = "Lista productos publicados por el proveedor autenticado")
+    public List<Producto> listarMisProductos(@AuthenticationPrincipal AuthenticatedActor principal) {
+        return productoRepository.findByProveedorId(principal.actorId());
+    }
+
     @PostMapping
     @PreAuthorize("hasAnyRole('PROVEEDOR','ADMINISTRADOR')")
     @Operation(summary = "Publica un producto en el catálogo (solo PROVEEDOR/ADMIN)")
@@ -56,6 +63,22 @@ public class ProductoController {
         p.setCategoria(categoria);
         p.setPrecioReferencia(new BigDecimal(precioRaw.toString()));
         p.setProveedor(proveedor);
+        p.setEtiquetas((String) body.get("etiquetas"));
+        return ResponseEntity.ok(productoRepository.save(p));
+    }
+
+    @PatchMapping("/{id}/etiquetas")
+    @PreAuthorize("hasAnyRole('PROVEEDOR','ADMINISTRADOR')")
+    @Operation(summary = "Actualiza las etiquetas de un producto")
+    public ResponseEntity<Producto> actualizarEtiquetas(@PathVariable String id,
+                                                         @RequestBody Map<String, String> body,
+                                                         @AuthenticationPrincipal AuthenticatedActor principal) {
+        Producto p = productoRepository.findById(id)
+                .orElseThrow(() -> BusinessException.notFound("PRO-003", "Producto no encontrado: " + id));
+        if (!p.getProveedor().getId().equals(principal.actorId()) && !principal.rol().name().equals("ADMINISTRADOR")) {
+            throw BusinessException.forbidden("PRO-004", "No autorizado para modificar este producto");
+        }
+        p.setEtiquetas(body.get("etiquetas"));
         return ResponseEntity.ok(productoRepository.save(p));
     }
 }

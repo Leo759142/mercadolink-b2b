@@ -1,0 +1,9 @@
+*.sln
+/bin
+/obj
+.vscode/*
+.DS_Store
+.kilo
+.env
+/mercadolink-b2b/target/mercadolink-b2b.jar
+/mercadolink-b2b/node/*

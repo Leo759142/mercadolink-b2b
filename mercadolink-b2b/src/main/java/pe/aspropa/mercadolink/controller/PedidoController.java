@@ -61,6 +61,14 @@ public class PedidoController {
         return pedidoService.listarPorCliente(principal.actorId());
     }
 
+    @GetMapping("/proveedor/mios")
+    @PreAuthorize("hasAnyRole('PROVEEDOR','ADMINISTRADOR')")
+    @Operation(summary = "Lista los pedidos que incluyen productos del proveedor")
+    public List<Pedido> miosProveedor(@AuthenticationPrincipal AuthenticatedActor principal) {
+        log.debug("[API PEDIDOS] GET miosProveedor - proveedorId={}", principal.actorId());
+        return pedidoService.listarPorProveedor(principal.actorId());
+    }
+
     @PatchMapping("/{id}/estado")
     @PreAuthorize("hasAnyRole('VENDEDOR','ADMINISTRADOR')")
     @Operation(summary = "Cambia el estado de un pedido (transiciones controladas)")

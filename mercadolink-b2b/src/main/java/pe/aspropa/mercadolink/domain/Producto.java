@@ -37,6 +37,9 @@ public class Producto {
     @Column(nullable = false)
     private boolean activo = true;
 
+    @Column(length = 500)
+    private String etiquetas;
+
     public Producto() {}
 
     public String getId() { return id; }
@@ -55,4 +58,6 @@ public class Producto {
     public void setProveedor(Actor proveedor) { this.proveedor = proveedor; }
     public boolean isActivo() { return activo; }
     public void setActivo(boolean activo) { this.activo = activo; }
+    public String getEtiquetas() { return etiquetas; }
+    public void setEtiquetas(String etiquetas) { this.etiquetas = etiquetas; }
 }

@@ -86,12 +86,12 @@ Los 4 roles del Avance 1 (sección 3.1.2) se aplican como authorities Spring Sec
 
 ### Pedidos
 
-| Método   | Ruta                            | Roles                                          | Notas                             |
-| --------- | ------------------------------- | ---------------------------------------------- | --------------------------------- |
-| `POST`  | `/api/v1/pedidos`             | `CLIENTE_MAYORISTA`, `VENDEDOR`, `ADMIN` | Acepta header `Idempotency-Key` |
-| `GET`   | `/api/v1/pedidos/{id}`        | autenticado                                    |                                   |
-| `GET`   | `/api/v1/pedidos/mios`        | autenticado                                    |                                   |
-| `PATCH` | `/api/v1/pedidos/{id}/estado` | `VENDEDOR`, `ADMIN`                        | Transiciones controladas          |
+| Método   | Ruta                            | Roles                                          | Notas                            |
+| --------- | ------------------------------- | ---------------------------------------------- | -------------------------------- |
+| `POST`  | `/api/v1/pedidos`             | `CLIENTE_MAYORISTA`, `VENDEDOR`, `ADMIN` | Acepta header`Idempotency-Key` |
+| `GET`   | `/api/v1/pedidos/{id}`        | autenticado                                    |                                  |
+| `GET`   | `/api/v1/pedidos/mios`        | autenticado                                    |                                  |
+| `PATCH` | `/api/v1/pedidos/{id}/estado` | `VENDEDOR`, `ADMIN`                        | Transiciones controladas         |
 
 ### Pagos (Izipay)
 
@@ -300,7 +300,7 @@ docker run -d --name mercadolink -p 8080:8080 -v mercadolink-data:/data mercadol
 
 | Variable                    | Valor por defecto                   | Descripción                        |
 | --------------------------- | ----------------------------------- | ----------------------------------- |
-| `SPRING_PROFILES_ACTIVE`  | —                                  | Usar `dev` para H2 en memoria     |
+| `SPRING_PROFILES_ACTIVE`  | —                                  | Usar`dev` para H2 en memoria      |
 | `SPRING_DATASOURCE_URL`   | `jdbc:h2:file:./data/mercadolink` | Cambiar a PostgreSQL en producción |
 | `APP_JWT_SECRET`          | Aleatorio                           | **Cambiar en producción**    |
 | `APP_IZIPAY_SANDBOX_MODE` | `true`                            | `false` con credenciales reales   |
@@ -332,15 +332,15 @@ npm run build  # Los archivos se integra automáticamente en el JAR
 | ------------------------------ | --------------------------------------------------------------------------------------- |
 | 3.1.2 Roles RBAC               | `Rol` + `SecurityConfig` + `@PreAuthorize`                                        |
 | 3.1.4 Idempotencia             | `Pedido.idempotencyKey`, `Pago.orderId` únicos                                     |
-| 3.2.1 REST + JSON              | Todos los controllers bajo `/api/v1`                                                  |
+| 3.2.1 REST + JSON              | Todos los controllers bajo`/api/v1`                                                   |
 | 3.2.3 Excepciones              | `BusinessException` + `GlobalExceptionHandler` (RFC 9457)                           |
 | 3.2.4 Validaciones             | Bean Validation + reglas de negocio                                                     |
-| 3.3.2 Estados                  | Enums `EstadoPedido`/`EstadoPago` con transiciones controladas                      |
+| 3.3.2 Estados                  | Enums`EstadoPedido`/`EstadoPago` con transiciones controladas                       |
 | 3.3.2 Izipay                   | `IzipayService` + `IzipayWebhookController` (formToken, IPN, HMAC)                  |
 | 3.3.4 Aspectos transversales   | `AsyncConfig`, `AuditoriaService`, `NotificacionService`                          |
 | 3.4.1–3.4.3 Reglas de negocio | `PedidoService` (mín. 10 unidades / S/50), `InventarioService` (stock ≥ cantidad) |
-| 3.4.4 Sagas compensatorias     | Reserva → commit/rollback en `PagoService.procesarWebhook`                           |
-| 3.5 Modelo de datos            | Entidades JPA con `@Version`, FKs, optimism locking                                   |
+| 3.4.4 Sagas compensatorias     | Reserva → commit/rollback en`PagoService.procesarWebhook`                            |
+| 3.5 Modelo de datos            | Entidades JPA con`@Version`, FKs, optimism locking                                    |
 | 5.1–5.4 Seguridad             | BCrypt, JWT HS256, validación de entrada                                               |
 | Frontend SPA                   | React 18 + React Router v6 + Axios (`ui-react/`)                                      |
 

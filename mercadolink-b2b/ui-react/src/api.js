@@ -44,6 +44,10 @@ export const authAPI = {
 
 export const productosAPI = {
   list: () => apiClient.get('/productos'),
+  misProductos: () => apiClient.get('/productos/mis-productos'),
+  crear: (data) => apiClient.post('/productos', data),
+  actualizarEtiquetas: (productoId, etiquetas) =>
+    apiClient.patch(`/productos/${productoId}/etiquetas`, { etiquetas }),
 };
 
 export const puestosAPI = {
@@ -67,6 +71,7 @@ export const pedidosAPI = {
       { headers: { 'Idempotency-Key': idempotencyKey } }
     ),
   misPedidos: () => apiClient.get('/pedidos/mios'),
+  miosProveedor: () => apiClient.get('/pedidos/proveedor/mios'),
   obtener: (id) => apiClient.get(`/pedidos/${id}`),
   cambiarEstado: (id, estado) =>
     apiClient.patch(`/pedidos/${id}/estado`, { estado }),
@@ -80,4 +85,21 @@ export const pagosAPI = {
 export const izipayAPI = {
   firmar: (payload) => apiClient.post('/izipay/firmar', payload),
   webhook: (payload) => apiClient.post('/izipay/webhook', payload),
+};
+
+export const logisticaAPI = {
+  envios: {
+    listar: () => apiClient.get('/logistica/envios'),
+    crear: (data) => apiClient.post('/logistica/envios', data),
+  },
+  recepciones: {
+    listar: () => apiClient.get('/logistica/recepciones'),
+    crear: (data) => apiClient.post('/logistica/recepciones', data),
+    actualizarEstado: (id, estado) => apiClient.patch(`/logistica/recepciones/${id}/estado`, { estado_recepcion: estado }),
+  },
+  noConformidades: {
+    listar: () => apiClient.get('/logistica/no-conformidades'),
+    crear: (data) => apiClient.post('/logistica/no-conformidades', data),
+    resolver: (id) => apiClient.patch(`/logistica/no-conformidades/${id}/resolver`),
+  },
 };

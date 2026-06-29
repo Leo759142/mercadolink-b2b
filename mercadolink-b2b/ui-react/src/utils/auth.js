@@ -6,10 +6,10 @@ export const DEMO_USERS = {
 };
 
 const RBAC = {
-  vendedor: { dashboard: true, inventario: true, pedidos: true, productos: true, proveedores: false, logistica: true },
-  proveedor: { dashboard: true, inventario: false, pedidos: true, productos: true, proveedores: true, logistica: true },
-  mayorista: { dashboard: true, inventario: false, pedidos: true, productos: true, proveedores: false, logistica: false },
-  admin: { dashboard: true, inventario: true, pedidos: true, productos: true, proveedores: true, logistica: true },
+  vendedor: { dashboard: true, inventario: true, pedidos: true, productos: true, proveedores: false, logistica: true, proveedorInventario: false },
+  proveedor: { dashboard: true, inventario: false, pedidos: true, productos: true, proveedores: true, logistica: true, proveedorInventario: true },
+  mayorista: { dashboard: true, inventario: false, pedidos: true, productos: true, proveedores: false, logistica: false, proveedorInventario: false },
+  admin: { dashboard: true, inventario: true, pedidos: true, productos: true, proveedores: true, logistica: true, proveedorInventario: true },
 };
 
 export function rolToKey(rol) {

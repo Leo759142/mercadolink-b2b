@@ -13,21 +13,24 @@ function logEvento(evento, datos) {
   console.log(`[DEBUG] ${evento}`, datos);
 }
 
-export default function NuevoPedidoModal({ open, onClose, onCreated }) {
+export default function NuevoPedidoModal({ open, onClose, onCreated, productoPred, productosPre }) {
   const [productos, setProductos] = useState([]);
   const [puestos, setPuestos] = useState([]);
-  const [puestoId, setPuestoId] = useState('');
   const [cantidades, setCantidades] = useState({});
+  const [puestosSeleccionados, setPuestosSeleccionados] = useState({});
   const [observaciones, setObservaciones] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [idempotencyKey, setIdempotencyKey] = useState('');
 
+  const preSelected = productosPre || (productoPred ? [productoPred] : []);
+
   useEffect(() => {
     if (!open) return;
     setIdempotencyKey(crypto.randomUUID());
     setError('');
+    setCantidades({});
     setLoading(true);
     logEvento('modal_open', { idempotencyKey: crypto.randomUUID() });
     Promise.all([productosAPI.list(), puestosAPI.list()])
@@ -36,29 +39,41 @@ export default function NuevoPedidoModal({ open, onClose, onCreated }) {
         setProductos(prodRes.data);
         setPuestos(puestosRes.data);
         const stored = localStorage.getItem('puestoId');
-        const initial =
-          stored && puestosRes.data.some((p) => p.id === stored)
-            ? stored
-            : puestosRes.data[0]?.id || '';
-        setPuestoId(initial);
+        const initialPuestos = {};
+        prodRes.data.forEach((p) => {
+          if (stored && puestosRes.data.some((pu) => pu.id === stored)) {
+            initialPuestos[p.id] = stored;
+          } else {
+            initialPuestos[p.id] = puestosRes.data[0]?.id || '';
+          }
+        });
+        const initialCantidades = {};
+        preSelected.forEach((p) => {
+          const exists = prodRes.data.some((prod) => prod.id === p.id);
+          if (exists) {
+            initialCantidades[p.id] = 1;
+          }
+        });
+        setPuestosSeleccionados(initialPuestos);
+        setCantidades(initialCantidades);
       })
       .catch((err) => {
         logEvento('catalogo_error', { error: err.message });
         setError(err.message);
       })
       .finally(() => setLoading(false));
-  }, [open]);
+  }, [open, preSelected]);
 
   const itemsCarrito = useMemo(() => {
     return productos
       .filter((p) => (cantidades[p.id] || 0) > 0)
       .map((p) => ({
         productoId: p.id,
-        puestoId,
+        puestoId: puestosSeleccionados[p.id] || '',
         cantidad: Number(cantidades[p.id]),
         producto: p,
       }));
-  }, [productos, cantidades, puestoId]);
+  }, [productos, cantidades, puestosSeleccionados]);
 
   const totalUnidades = itemsCarrito.reduce((s, i) => s + i.cantidad, 0);
   const montoEstimado = itemsCarrito.reduce(
@@ -71,15 +86,20 @@ export default function NuevoPedidoModal({ open, onClose, onCreated }) {
     setCantidades((prev) => ({ ...prev, [productoId]: n }));
   };
 
+  const setPuestoProducto = (productoId, puestoId) => {
+    setPuestosSeleccionados((prev) => ({ ...prev, [productoId]: puestoId }));
+  };
+
   const handleSubmit = async () => {
-    logEvento('submit_iniciado', { puestoId, totalUnidades, montoEstimado, itemsCount: itemsCarrito.length });
+    logEvento('submit_iniciado', { totalUnidades, montoEstimado, itemsCount: itemsCarrito.length });
     setError('');
-    if (!puestoId) {
-      setError('Selecciona un puesto');
-      return;
-    }
     if (itemsCarrito.length === 0) {
       setError('Agrega al menos un producto');
+      return;
+    }
+    const itemsSinPuesto = itemsCarrito.filter((i) => !i.puestoId);
+    if (itemsSinPuesto.length > 0) {
+      setError('Selecciona un puesto para todos los productos');
       return;
     }
     if (totalUnidades < MIN_UNIDADES || montoEstimado < MIN_MONTO) {
@@ -128,27 +148,13 @@ export default function NuevoPedidoModal({ open, onClose, onCreated }) {
           <p>Cargando catálogo…</p>
         ) : (
           <>
-            <div className="form-group">
-              <label htmlFor="modal-puesto">Puesto</label>
-              <select
-                id="modal-puesto"
-                value={puestoId}
-                onChange={(e) => setPuestoId(e.target.value)}
-              >
-                {puestos.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.nombre} — {p.numero}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="scrollbox" style={{ maxHeight: 200, marginBottom: 12 }}>
+            <div className="scrollbox" style={{ maxHeight: 300, marginBottom: 12 }}>
               <table className="tbl">
                 <thead>
                   <tr>
                     <th>Producto</th>
                     <th>S/</th>
+                    <th>Puesto</th>
                     <th>Cant.</th>
                   </tr>
                 </thead>
@@ -157,6 +163,20 @@ export default function NuevoPedidoModal({ open, onClose, onCreated }) {
                     <tr key={p.id}>
                       <td>{p.descripcion}</td>
                       <td>{Number(p.precioReferencia).toFixed(2)}</td>
+                      <td>
+                        <select
+                          value={puestosSeleccionados[p.id] || ''}
+                          onChange={(e) => setPuestoProducto(p.id, e.target.value)}
+                          style={{ width: 120 }}
+                        >
+                          <option value="">Seleccionar</option>
+                          {puestos.map((pu) => (
+                            <option key={pu.id} value={pu.id}>
+                              {pu.nombre}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
                       <td>
                         <input
                           type="number"

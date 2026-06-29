@@ -34,7 +34,7 @@ public class InventarioController {
     }
 
     @PutMapping("/{productoId}/puesto/{puestoId}")
-    @PreAuthorize("hasAnyRole('VENDEDOR','ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('VENDEDOR','ADMINISTRADOR','PROVEEDOR')")
     @Operation(summary = "Actualiza el stock de un producto en un puesto (regla INV-002)")
     public Inventario actualizar(@PathVariable String productoId,
                                  @PathVariable String puestoId,

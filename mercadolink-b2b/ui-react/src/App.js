@@ -4,10 +4,13 @@ import AppShell from './components/AppShell';
 import Dashboard from './components/Dashboard';
 import Inventario from './components/Inventario';
 import Login from './components/Login';
+import Logistica from './components/Logistica';
 import Pedidos from './components/Pedidos';
+import PedidosProveedor from './components/PedidosProveedor';
 import PlaceholderPanel from './components/PlaceholderPanel';
 import PrivateRoute from './components/PrivateRoute';
 import Productos from './components/Productos';
+import ProveedorInventario from './components/ProveedorInventario';
 import Register from './components/Register';
 import RoleRoute from './components/RoleRoute';
 import './index.css';
@@ -50,14 +53,26 @@ export default function App() {
           }
         />
         <Route
+          path="proveedor-inventario"
+          element={
+            <RoleRoute module="proveedorInventario">
+              <ProveedorInventario />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="proveedor-pedidos"
+          element={
+            <RoleRoute module="proveedores">
+              <PedidosProveedor />
+            </RoleRoute>
+          }
+        />
+        <Route
           path="logistica"
           element={
             <RoleRoute module="logistica">
-              <PlaceholderPanel
-                title="Logística y recepción"
-                subtitle="Envíos, actas de recepción y no conformidades · Servicio LogisticaEntrega"
-                fase="Fase C — tablas envios, recepciones, no_conformidades del SQL"
-              />
+              <Logistica />
             </RoleRoute>
           }
         />

@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface ProductoRepository extends JpaRepository<Producto, String> {
     Optional<Producto> findByCodigo(String codigo);
     List<Producto> findByActivoTrue();
+    List<Producto> findByProveedorId(String proveedorId);
 }

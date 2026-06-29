@@ -13,6 +13,7 @@ import pe.aspropa.mercadolink.repository.ProductoRepository;
 import pe.aspropa.mercadolink.repository.PuestoRepository;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -79,11 +80,13 @@ public class PedidoService {
         pedido.setEstado(EstadoPedido.BORRADOR);
         pedido.setObservaciones(req.getObservaciones());
 
+        List<ItemPedido> itemsProcesados = new ArrayList<>();
         int totalUnidades = 0;
+        
         for (ItemPedidoRequest itemReq : req.getItems()) {
-            log.debug("[PEDIDO] Procesando item: productoId={}, puestoId={}, cantidad={}", 
+            log.debug("[PEDIDO] Procesando item: productoId={}, puestoId={}, cantidad={}",
                 itemReq.getProductoId(), itemReq.getPuestoId(), itemReq.getCantidad());
-                
+
             Producto producto = productoRepository.findById(itemReq.getProductoId())
                     .orElseThrow(() -> BusinessException.notFound("CAT-001",
                             "Producto no encontrado: " + itemReq.getProductoId()));
@@ -100,11 +103,29 @@ public class PedidoService {
             item.setPuesto(puesto);
             item.setCantidad(itemReq.getCantidad());
             item.setPrecioUnitario(producto.getPrecioReferencia());
+            itemsProcesados.add(item);
+        }
+
+        for (ItemPedido item : itemsProcesados) {
             pedido.getItems().add(item);
-            totalUnidades += itemReq.getCantidad();
-            log.info("[PEDIDO] Reservando stock: producto={}, puesto={}, cantidad={}", 
-                producto.getCodigo(), puesto.getId(), itemReq.getCantidad());
-            inventarioService.reservar(producto.getId(), puesto.getId(), itemReq.getCantidad());
+            totalUnidades += item.getCantidad();
+            log.info("[PEDIDO] Reservando stock: producto={}, puesto={}, cantidad={}",
+                item.getProducto().getCodigo(), item.getPuesto().getId(), item.getCantidad());
+        }
+
+        int itemsReservados = 0;
+        try {
+            for (ItemPedido item : itemsProcesados) {
+                inventarioService.reservar(item.getProducto().getId(), item.getPuesto().getId(), item.getCantidad());
+                itemsReservados++;
+            }
+        } catch (BusinessException e) {
+            log.warn("[PEDIDO] Error reservando stock, liberando {} reservas previas", itemsReservados);
+            for (int i = 0; i < itemsReservados; i++) {
+                ItemPedido item = itemsProcesados.get(i);
+                inventarioService.liberarReserva(item.getProducto().getId(), item.getPuesto().getId(), item.getCantidad());
+            }
+            throw e;
         }
 
         pedido.recalcularTotal();
@@ -114,8 +135,8 @@ public class PedidoService {
                 pedido.getMontoTotal().compareTo(MONTO_MINIMO) < 0) {
             log.warn("[PEDIDO] Pedido no cumple mínimos. Unidades: {} (min {}), Monto: {} (min {})", 
                 totalUnidades, CANTIDAD_TOTAL_MINIMA, pedido.getMontoTotal(), MONTO_MINIMO);
-            req.getItems().forEach(i -> inventarioService.liberarReserva(
-                    i.getProductoId(), i.getPuestoId(), i.getCantidad()));
+            itemsProcesados.forEach(item -> inventarioService.liberarReserva(
+                    item.getProducto().getId(), item.getPuesto().getId(), item.getCantidad()));
             throw BusinessException.badRequest("PED-001",
                     "El pedido no cumple el mínimo de " + CANTIDAD_TOTAL_MINIMA +
                             " unidades o S/" + MONTO_MINIMO);
@@ -128,7 +149,7 @@ public class PedidoService {
 
         auditoriaService.registrar(cliente.getId(), cliente.getRol().name(),
                 "GestionPedidos", "CrearPedido", saved.getId(), "EXITO",
-                idempotencyKey, "Pedido B2B creado con " + req.getItems().size() + " ítems");
+                idempotencyKey, "Pedido B2B creado con " + saved.getItems().size() + " ítems");
         notificacionService.notificarPedidoCreado(cliente.getEmail(), saved.getId());
         return saved;
     }
@@ -143,6 +164,11 @@ public class PedidoService {
     public List<Pedido> listarPorCliente(String clienteId) {
         log.debug("[PEDIDO] Listando pedidos para cliente: {}", clienteId);
         return pedidoRepository.findByClienteIdOrderByFechaCreacionDesc(clienteId);
+    }
+
+    public List<Pedido> listarPorProveedor(String proveedorId) {
+        log.debug("[PEDIDO] Listando pedidos para proveedor: {}", proveedorId);
+        return pedidoRepository.findByProveedorId(proveedorId);
     }
 
     @Transactional
