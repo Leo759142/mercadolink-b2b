@@ -19,6 +19,14 @@ mercadolink-b2b/target/*.zip
 # Node
 /mercadolink-b2b/node/*
 /mercadolink-b2b/node_modules/
+mercadolink-b2b/ui-react/node_modules/
+
+# Database locks
+data/*.lock.db
+data/*.mv.db
+
+# Build output
+/mercadolink-b2b/ui-react/build/
 
 # Armas grandes específicos (opcional, ya están en target/)
 # /mercadolink-b2b/target/mercadolink-b2b.jar
