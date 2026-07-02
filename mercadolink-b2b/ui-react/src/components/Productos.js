@@ -71,7 +71,7 @@ export default function Productos() {
     let resultado = productos;
     if (tagsSeleccionadosNombres.length > 0) {
       resultado = resultado.filter((p) => {
-        const ets = p.etiquetas ? p.etiquetas.split(',').map(t => t.trim()).filter(Boolean) : [];
+        const ets = getEtiquetas(p);
         return tagsSeleccionadosNombres.every(tagSel => ets.includes(tagSel));
       });
     }
@@ -133,7 +133,7 @@ export default function Productos() {
     seleccionados.forEach((id) => {
       const prod = productos.find((p) => p.id === id);
       if (prod) {
-        const existentes = prod.etiquetas ? prod.etiquetas.split(',').map((t) => t.trim()).filter(Boolean) : [];
+        const existentes = getEtiquetas(prod);
         if (!existentes.includes(tag.trim())) {
           existentes.push(tag.trim());
           nuevasEtiquetas[id] = existentes.join(',');

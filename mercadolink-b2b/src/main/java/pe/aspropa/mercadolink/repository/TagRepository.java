@@ -18,4 +18,7 @@ public interface TagRepository extends JpaRepository<Tag, String> {
 
     @Query("SELECT t FROM Tag t WHERE t.activo = true ORDER BY (SELECT COUNT(pt) FROM ProductoTag pt WHERE pt.tag.id = t.id) DESC")
     List<Tag> findPopularTags();
+
+    @Query("SELECT COUNT(pt) FROM ProductoTag pt WHERE pt.tag.id = :tagId")
+    long countProductosPorTagId(@Param("tagId") String tagId);
 }

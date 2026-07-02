@@ -139,7 +139,7 @@ public class TagService {
     }
 
     public long contarProductosPorTag(Tag tag) {
-        return tag.getProductoTags().size();
+        return tagRepository.countProductosPorTagId(tag.getId());
     }
 
     @Transactional
