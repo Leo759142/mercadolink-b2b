@@ -26,56 +26,189 @@
     color: var(--text);
     font-family: 'Segoe UI', system-ui, sans-serif;
     margin: 0;
-    padding: 2rem;
+    padding: 0;
     min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
   @keyframes gradientShift {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
   }
-  .card {
-    background: rgba(22,27,34,0.7);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--border);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-    border-radius: 16px;
-    padding: 2rem;
-    max-width: 760px;
-    width: 90%;
-    color: var(--text);
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
   }
   h1 {
-    font-size: 2rem;
+    font-size: 1.7rem;
     background: linear-gradient(to right, var(--accent), #79c0ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 0.5rem;
   }
   p {
     color: var(--muted);
     line-height: 1.5;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
   }
   h3 {
     color: var(--accent);
     margin-top: 1.5rem;
     margin-bottom: 0.5rem;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
-  ul {
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .carousel-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .carousel {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    flex: 1;
+    padding-bottom: 0.5rem;
+  }
+  .carousel .card {
+    min-width: 260px;
+    max-width: 300px;
+  }
+  .carousel-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .carousel-btn:hover {
+    background: var(--border);
+  }
+  .hero {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  }
+  .hero h2 {
+    font-size: 1.6rem;
+    margin: 0 0 0.5rem;
+    color: var(--text);
+  }
+  .hero p {
     color: var(--muted);
-    margin-left: 1.5rem;
+    max-width: 760px;
   }
-  li {
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+  .stat-card {
+    padding: 0.8rem 1rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    text-align: center;
+  }
+  .stat-card .val {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .stat-card .label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+  }
+  .card {
+    background: rgba(22,27,34,0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  }
+  .card.proveedor { border-left: 3px solid var(--green); }
+  .card.vendedor { border-left: 3px solid var(--accent); }
+  .card h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+    color: var(--text);
+  }
+  .card .field {
+    display: flex;
     margin-bottom: 0.3rem;
+    font-size: 0.8rem;
+  }
+  .card .field-label {
+    color: var(--muted);
+    min-width: 70px;
+    font-weight: 600;
+  }
+  .card .field-value {
+    color: var(--text);
+  }
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    margin: 0.1rem;
+    background: rgba(210,153,34,0.2);
+    color: var(--yellow);
+    border-radius: 4px;
+    font-size: 0.75rem;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-header h2 {
+    color: var(--accent);
+    margin: 0;
+    font-size: 1.3rem;
+  }
+  .icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    vertical-align: middle;
   }
   a.btn {
     display: inline-block;
-    margin: 0.5rem 0.5rem 0.5rem 0;
+    margin: 0.4rem 0.4rem 0.4rem 0;
     padding: 0.6rem 1.2rem;
     background: var(--accent);
     color: #fff;
@@ -88,31 +221,157 @@
     background: #79c0ff;
     transform: translateY(-2px);
   }
+  .btn.secondary {
+    background: var(--surface2);
+    color: var(--text);
+  }
+  .btn.secondary:hover {
+    background: var(--border);
+  }
+  .btn.success {
+    background: var(--green);
+    color: #000;
+  }
+  .btn.success:hover {
+    background: #5cd76f;
+  }
   small {
     color: var(--muted);
+    display: block;
+    margin-top: 1.5rem;
   }
-</style>
+  </style>
 </head>
 <body>
-  <div class="card">
-    <h1 th:text="${appName}">MercadoLink B2B</h1>
-    <p>Interfaz ligera orientada a Spring Boot. Usa la API REST para operar; la UI es una ayuda para pruebas locales.</p>
+  <div class="container">
+    <div class="top">
+      <h1 th:text="${appName}">MercadoLink B2B</h1>
+      <div>
+        <a class="btn success" href="/app">📱 Entrar a la App</a>
+      </div>
+    </div>
 
-    <h3>Enlaces</h3>
-    <p>
-      <a class="btn" href="/swagger-ui.html">Swagger UI</a>
-      <a class="btn" href="/v3/api-docs">OpenAPI JSON</a>
-      <a class="btn" href="/h2-console">H2 Console</a>
-      <a class="btn" href="/app">UI React (B2B)</a>
-      <a class="btn" href="/productos">Productos (Thymeleaf)</a>
-    </p>
+    <div class="hero">
+      <h2>El mercado mayorista para Aspropa</h2>
+      <p>
+        Explora productos destacados, gestiona pedidos, controla inventario y recibe notificaciones.
+        Diseñado para vendedores, proveedores y mayoristas.
+      </p>
+      <div>
+        <a class="btn success" href="/app">🚀 Ir a la App</a>
+        <a class="btn secondary" href="#destacados">🛒 Ver destacados</a>
+      </div>
+      <div class="stats-row" th:if="${productos != null or proveedores != null}">
+        <div class="stat-card">
+          <div class="val" th:text="${productos != null} ? ${productos.size()} : 0">0</div>
+          <div class="label">Productos</div>
+        </div>
+        <div class="stat-card">
+          <div class="val" th:text="${proveedores != null} ? ${proveedores.size()} : 0">0</div>
+          <div class="label">Proveedores</div>
+        </div>
+        <div class="stat-card">
+          <div class="val" th:text="${vendedores != null} ? ${vendedores.size()} : 0">0</div>
+          <div class="label">Vendedores</div>
+        </div>
+      </div>
+    </div>
 
-    <h3>Notas</h3>
-    <ul>
-      <li>La UI es mínima y consumirá la API localmente.</li>
-      <li>En `dev` la DB corre en memoria y los datos se pierden al reiniciar.</li>
-    </ul>
+    <section id="beneficios" style="margin-top: 2rem;">
+      <div class="section-header">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M12 2l3 6 6 1-4 4 1 6-6-3-6 3 1-6-4-4 6-1z" fill="var(--green)"/></svg>
+        <h2>Beneficios</h2>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <h3>🛒 Compra mayorista</h3>
+          <p>Pedidos desde el catálogo con entrega coordinada.</p>
+        </div>
+        <div class="card">
+          <h3>📦 Inventario digital</h3>
+          <p>Control de stock por puesto y alertas tempranas.</p>
+        </div>
+        <div class="card">
+          <h3>🤝 Proveedores</h3>
+          <p>Publica productos, gestiona pedidos y logística.</p>
+        </div>
+        <div class="card">
+          <h3>🚚 Logística</h3>
+          <p>Seguimiento de envíos y recepciones.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="roles" style="margin-top: 2rem;">
+      <div class="section-header">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="var(--accent)"/><path d="M4 20c0-4 4-7 8-7s8 3 8 7" fill="var(--accent)"/></svg>
+        <h2>Roles</h2>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <h3>🏪 Vendedor</h3>
+          <p>Gestiona tu puesto, stock y pedidos del día.</p>
+        </div>
+        <div class="card">
+          <h3>🚚 Proveedor</h3>
+          <p>Publica catálogo, recibe pedidos y despacha.</p>
+        </div>
+        <div class="card">
+          <h3>🛒 Mayorista</h3>
+          <p>Compra al por mayor con pedidos claros.</p>
+        </div>
+        <div class="card">
+          <h3>🛡️ Admin</h3>
+          <p>Panel de control y supervisión global.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="destacados" th:if="${productos != null and !productos.empty}" style="margin-top: 2rem;">
+      <div class="section-header">
+        <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" fill="var(--yellow)"/></svg>
+        <h2>Destacados</h2>
+      </div>
+      <div class="carousel-wrapper">
+        <button class="carousel-btn prev" onclick="scrollCarousel(-1)">&#10094;</button>
+        <div class="carousel" id="productCarousel">
+          <div class="card" th:each="pr : ${productos}" style="border-left: 3px solid var(--yellow); min-width: 260px;">
+            <h3 th:text="${pr.descripcion}">Producto</h3>
+            <div class="field">
+              <span class="field-label">SKU:</span>
+              <span class="field-value" th:text="${pr.codigo}">SKU</span>
+            </div>
+            <div class="field">
+              <span class="field-label">Precio:</span>
+              <span class="field-value" th:text="${'S/ ' + pr.precioReferencia}">100.00</span>
+            </div>
+            <div class="field" th:if="${pr.proveedor != null}">
+              <span class="field-label">Proveedor:</span>
+              <span class="field-value" th:text="${pr.proveedor.nombreComercial}">Proveedor</span>
+            </div>
+            <div class="field" th:if="${pr.etiquetas != null and !pr.etiquetas.isEmpty()}">
+              <span class="field-label">Categoría:</span>
+              <span class="field-value" th:text="${#strings.arraySplit(pr.etiquetas, ',')[0]}">General</span>
+            </div>
+          </div>
+        </div>
+        <button class="carousel-btn next" onclick="scrollCarousel(1)">&#10095;</button>
+      </div>
+    </section>
+
+    <section th:if="${proveedores == null or proveedores.empty} and ${vendedores == null or vendedores.empty}">
+      <p style="color: var(--muted); text-align: center; padding: 2rem;">Comienza ingresando a la app para ver el catálogo completo.</p>
+    </section>
+
+    <small>La UI es mínima y consumirá la API localmente. En `dev` la DB corre en memoria y los datos se pierden al reiniciar.</small>
+
+    <script>
+      function scrollCarousel(dir) {
+        const el = document.getElementById('productCarousel');
+        if (!el) return;
+        el.scrollBy({ left: dir * 300, behavior: 'smooth' });
+      }
+    </script>
   </div>
 </body>
 </html>
-

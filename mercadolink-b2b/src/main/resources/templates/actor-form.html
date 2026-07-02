@@ -1,0 +1,112 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title th:text="${rol == T(pe.aspropa.mercadolink.domain.Rol).PROVEEDOR} ? 'Nuevo Proveedor' : 'Nuevo Vendedor'">MercadoLink B2B</title>
+  <style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --border: #30363d;
+    --text: #e6edf3; --muted: #8b949e; --accent: #388bfd;
+    --green: #3fb950; --radius: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: linear-gradient(120deg, var(--bg) 0%, #161b22 50%, var(--bg) 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 6s ease infinite;
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    margin: 0;
+    padding: 2rem;
+    min-height: 100vh;
+  }
+  @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+  .container { max-width: 600px; margin: 0 auto; }
+  .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+  h1 { font-size: 1.8rem; color: var(--accent); }
+  .top h1 { background: linear-gradient(to right, var(--accent), #79c0ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  form {
+    background: rgba(22,27,34,0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .form-group { margin-bottom: 1rem; }
+  label { display: block; color: var(--muted); margin-bottom: 0.3rem; font-size: 0.9rem; font-weight: 600; }
+  input, select {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-size: 0.95rem;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--accent); }
+  .actions { display: flex; gap: 0.5rem; margin-top: 1.5rem; }
+  button, a.btn {
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: var(--radius);
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  button[type="submit"] { background: var(--green); color: #fff; }
+  button[type="submit"]:hover { background: #51d664; transform: translateY(-2px); }
+  a.btn { background: var(--surface2); color: var(--text); }
+  a.btn:hover { background: var(--border); }
+  .error { color: var(--red); font-size: 0.85rem; margin-top: 0.3rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top">
+      <h1 th:text="${actor.id != null} ? (${actor.rol == T(pe.aspropa.mercadolink.domain.Rol).PROVEEDOR} ? 'Editar Proveedor' : 'Editar Vendedor') : (${rol == T(pe.aspropa.mercadolink.domain.Rol).PROVEEDOR} ? 'Nuevo Proveedor' : 'Nuevo Vendedor')">Nuevo Actor</h1>
+      <a class="btn" th:href="${rol == T(pe.aspropa.mercadolink.domain.Rol).PROVEEDOR} ? '/proveedores' : '/vendedores'">Volver</a>
+    </div>
+
+    <form th:action="@{/actores/guardar}" method="post" th:object="${actor}">
+      <input type="hidden" th:field="*{id}" />
+      <input type="hidden" th:field="*{rol}" />
+      
+      <div class="form-group">
+        <label for="nombreComercial">Nombre Comercial</label>
+        <input type="text" id="nombreComercial" th:field="*{nombreComercial}" required />
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" th:field="*{email}" required />
+      </div>
+
+      <div class="form-group">
+        <label for="documento">Documento</label>
+        <input type="text" id="documento" th:field="*{documento}" required />
+      </div>
+
+      <div class="form-group">
+        <label for="passwordHash">Contraseña</label>
+        <input type="password" id="passwordHash" th:field="*{passwordHash}" th:placeholder="${actor.id != null} ? 'Nueva contraseña (opcional)' : 'Contraseña'" />
+      </div>
+
+      <div class="form-group" th:if="${puestos != null and !puestos.empty}">
+        <label for="puesto">Puesto (Opcional)</label>
+        <select id="puesto" name="puestoId">
+          <option value="">-- Sin puesto --</option>
+          <option th:each="p : ${puestos}" th:value="${p.id}" th:text="${p.nombre + ' (' + p.numero + ')'}" th:selected="${actor.puesto != null and actor.puesto.id == p.id}">Puesto</option>
+        </select>
+      </div>
+
+      <div class="actions">
+        <button type="submit">Guardar</button>
+        <a class="btn" th:href="${rol == T(pe.aspropa.mercadolink.domain.Rol).PROVEEDOR} ? '/proveedores' : '/vendedores'">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

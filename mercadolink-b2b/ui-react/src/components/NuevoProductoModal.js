@@ -1,23 +1,63 @@
-import React, { useState } from 'react';
-import { productosAPI } from '../api';
+import React, { useEffect, useState } from 'react';
+import { productosAPI, etiquetasAPI } from '../api';
 
 export default function NuevoProductoModal({ open, onClose, onCreated }) {
   const [form, setForm] = useState({
     codigo: '',
     descripcion: '',
-    categoria: '',
+    etiquetas: '',
     precioReferencia: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [tagSuggestions, setTagSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const reset = () => {
-    setForm({ codigo: '', descripcion: '', categoria: '', precioReferencia: '' });
+    setForm({ codigo: '', descripcion: '', etiquetas: '', precioReferencia: '' });
     setError('');
+    setTagSuggestions([]);
+    setShowSuggestions(false);
   };
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  useEffect(() => {
+    if (open) {
+      etiquetasAPI.list().then((res) => {
+        setTagSuggestions(res.data || []);
+      }).catch(() => {
+        setTagSuggestions([]);
+      });
+    }
+  }, [open]);
+
+  const handleEtiquetasChange = async (e) => {
+    const value = e.target.value;
+    setForm({ ...form, etiquetas: value });
+    if (value.trim().length > 0) {
+      try {
+        const res = await etiquetasAPI.buscar(value);
+        setTagSuggestions(res.data || []);
+        setShowSuggestions(true);
+      } catch {
+        setShowSuggestions(false);
+      }
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+
+  const seleccionarTag = (nombre) => {
+    const current = form.etiquetas;
+    const etiquetas = current ? current.split(',').map(t => t.trim()).filter(Boolean) : [];
+    if (!etiquetas.includes(nombre)) {
+      etiquetas.push(nombre);
+      setForm({ ...form, etiquetas: etiquetas.join(', ') });
+    }
+    setShowSuggestions(false);
   };
 
   const handleSubmit = async (e) => {
@@ -28,7 +68,7 @@ export default function NuevoProductoModal({ open, onClose, onCreated }) {
       await productosAPI.crear({
         codigo: form.codigo,
         descripcion: form.descripcion,
-        categoria: form.categoria || undefined,
+        etiquetas: form.etiquetas || undefined,
         precioReferencia: Number(form.precioReferencia),
       });
       onCreated?.();
@@ -76,14 +116,57 @@ export default function NuevoProductoModal({ open, onClose, onCreated }) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="prod-categoria">Categoría</label>
+            <label htmlFor="prod-etiquetas">Etiquetas (categoría)</label>
             <input
-              id="prod-categoria"
-              name="categoria"
-              value={form.categoria}
-              onChange={handleChange}
-              placeholder="Ej: Frutas, Verduras"
+              id="prod-etiquetas"
+              name="etiquetas"
+              value={form.etiquetas}
+              onChange={handleEtiquetasChange}
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+              placeholder="Ej: Frutas, Verduras (separar con coma)"
+              autoComplete="off"
             />
+            {showSuggestions && tagSuggestions.length > 0 && (
+              <div style={{
+                position: 'relative',
+                marginTop: 4,
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                borderRadius: 4,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                maxHeight: 180,
+                overflowY: 'auto',
+                zIndex: 200,
+              }}>
+                {tagSuggestions.map((tag) => (
+                  <div
+                    key={tag.id || tag.nombre}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => seleccionarTag(tag.nombre)}
+                    style={{
+                      padding: '8px 12px',
+                      cursor: 'pointer',
+                      fontSize: '0.9rem',
+                      borderBottom: '1px solid var(--border)',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <span>{tag.nombre}</span>
+                    {tag.cantidadProductos > 0 && (
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                        {tag.cantidadProductos} prod.
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            <small style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+              Las etiquetas funcionan como categoría. Separa múltiples con coma o selecciona de la lista.
+            </small>
           </div>
 
           <div className="form-group">

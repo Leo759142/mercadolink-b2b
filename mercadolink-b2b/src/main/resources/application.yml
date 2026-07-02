@@ -33,10 +33,13 @@ app:
     secret: "ZmFrZS1zZWNyZXQtZGV2LW9ubHktY2hhbmdlLW1lLWluLXByb2QtMzItYnl0ZXMh"
     expiration-minutes: 60
   izipay:
-    # Simulated/mock Izipay endpoint. Replace with real one when integrating.
     base-url: "https://api.micuentaweb.pe"
     public-key: "demo-public-key"
     hmac-secret: "demo-hmac-secret-change-me"
+    sandbox-mode: true
+  culqi:
+    public-key: "culqi-demo-public"
+    secret-key: "culqi-demo-secret"
     sandbox-mode: true
 
 springdoc:

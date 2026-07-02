@@ -1,8 +1,11 @@
 package pe.aspropa.mercadolink.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 /** Producto del catálogo, publicado normalmente por un proveedor. */
@@ -19,9 +22,6 @@ public class Producto {
 
     @Column(nullable = false, length = 200)
     private String descripcion;
-
-    @Column(length = 60)
-    private String categoria;
 
     @Column(nullable = false, length = 20)
     private String unidadMedida = "UNIDAD";
@@ -40,6 +40,10 @@ public class Producto {
     @Column(length = 500)
     private String etiquetas;
 
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private Set<ProductoTag> tags = new HashSet<>();
+
     public Producto() {}
 
     public String getId() { return id; }
@@ -48,8 +52,6 @@ public class Producto {
     public void setCodigo(String codigo) { this.codigo = codigo; }
     public String getDescripcion() { return descripcion; }
     public void setDescripcion(String d) { this.descripcion = d; }
-    public String getCategoria() { return categoria; }
-    public void setCategoria(String c) { this.categoria = c; }
     public String getUnidadMedida() { return unidadMedida; }
     public void setUnidadMedida(String u) { this.unidadMedida = u; }
     public BigDecimal getPrecioReferencia() { return precioReferencia; }
@@ -60,4 +62,22 @@ public class Producto {
     public void setActivo(boolean activo) { this.activo = activo; }
     public String getEtiquetas() { return etiquetas; }
     public void setEtiquetas(String etiquetas) { this.etiquetas = etiquetas; }
+    public Set<ProductoTag> getTags() { return tags; }
+    public void setTags(Set<ProductoTag> tags) { this.tags = tags; }
+
+    public void addTag(Tag tag, int orden) {
+        ProductoTag pt = new ProductoTag(this, tag, orden);
+        tags.add(pt);
+    }
+
+    public void removeTag(Tag tag) {
+        tags.removeIf(pt -> pt.getTag().equals(tag));
+    }
+
+    public java.util.List<String> getTagNombres() {
+        return tags.stream()
+                .sorted((a, b) -> a.getOrden().compareTo(b.getOrden()))
+                .map(pt -> pt.getTag().getNombre())
+                .toList();
+    }
 }

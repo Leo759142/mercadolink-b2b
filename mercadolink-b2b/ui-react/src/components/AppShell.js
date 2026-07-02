@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { badgeClassForRol, canAccess, clearSession, getSession } from '../utils/auth';
+import { useNotificaciones } from '../hooks/useNotificaciones';
 
 const NAV = [
   { id: 'dashboard', path: '/', icon: '🏠', label: 'Inicio', module: 'dashboard' },
@@ -18,6 +19,7 @@ export default function AppShell() {
   const location = useLocation();
   const [session, setSession] = useState(getSession());
   const [time, setTime] = useState('');
+  const { noLeidas } = useNotificaciones();
 
   useEffect(() => {
     const refresh = () => setSession(getSession());
@@ -59,6 +61,14 @@ export default function AppShell() {
         </div>
         <div className="topbar-right">
           <span className="live-time">🕐 {time}</span>
+          <Link to="/auditoria" className="nav-item" style={{ position: 'relative' }}>
+            🔔
+            {noLeidas > 0 && (
+              <span className="badge badge-red" style={{ position: 'absolute', top: '-4px', right: '-4px', fontSize: '0.65rem', padding: '0.1rem 0.35rem', borderRadius: '99px', background: 'var(--rojo-terracota)', color: '#fff' }}>
+                {noLeidas}
+              </span>
+            )}
+          </Link>
           <button type="button" className="btn btn-ghost btn-sm" onClick={logout}>
             🚪 Salir
           </button>
@@ -68,17 +78,27 @@ export default function AppShell() {
       <div className="main-layout">
         <aside className="sidebar">
           <div className="nav-section" style={{ marginTop: '0.5rem' }}>📌 PRINCIPAL</div>
-          {NAV.filter((n) => canAccess(n.module, session.rol)).map((item) => (
-            <Link
-              key={item.id}
-              to={item.path}
-              className={`nav-item ${
-                location.pathname === item.path || (item.path === '/' && location.pathname === '/dashboard') ? 'active' : ''
-              }`}
-            >
-              <span className="ni">{item.icon}</span> {item.label}
-            </Link>
-          ))}
+  {NAV.filter((n) => canAccess(n.module, session.rol)).map((item) => (
+    <Link
+      key={item.id}
+      to={item.path}
+      className={`nav-item ${
+        location.pathname === item.path || (item.path === '/' && location.pathname === '/dashboard') ? 'active' : ''
+      }`}
+    >
+      <span className="ni">{item.icon}</span> {item.label}
+    </Link>
+  ))}
+  
+  <div className="nav-section">🔎 SISTEMA</div>
+  {canAccess('auditoria', session.rol) && (
+    <Link
+      to="/auditoria"
+      className={`nav-item ${location.pathname === '/auditoria' ? 'active' : ''}`}
+    >
+      <span className="ni">🔎</span> Auditoría
+    </Link>
+  )}
           
           <div className="nav-section">ℹ️ AYUDA</div>
           <a href="/swagger-ui.html" target="_blank" rel="noopener noreferrer" className="nav-item">

@@ -41,18 +41,13 @@ public class SecurityConfig {
                     "/api/v1/izipay/webhook"
                 ).permitAll()
                 .requestMatchers(
-                    "/",
-                    "/home",
-                    "/error",
-                    "/favicon.ico",
-                    "/swagger-ui/**",
-                    "/swagger-ui.html",
-                    "/v3/api-docs/**",
-                    "/h2-console/**",
-                    "/actuator/health",
-                    "/app",
-                    "/app/**",
-                    "/api/health"
+                    "/", "/home", "/error", "/favicon.ico",
+                    "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**",
+                    "/h2-console/**", "/actuator/health",
+                    "/app", "/app/**", "/api/health",
+                    "/login", "/productos", "/proveedores", "/vendedores", "/actores",
+                    "/actores/**", "/static/**",
+                    "/api/v1/productos", "/api/v1/etiquetas", "/api/v1/etiquetas/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             )

@@ -44,7 +44,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             "/app/static/**",
             "/api/v1/auth/login",
             "/api/v1/auth/register",
-            "/api/v1/izipay/webhook"
+            "/api/v1/izipay/webhook",
+            "/login",
+            "/productos",
+            "/proveedores",
+            "/vendedores",
+            "/actores",
+            "/proveedores/**",
+            "/vendedores/**",
+            "/actores/**"
     );
 
     private final JwtUtil jwtUtil;

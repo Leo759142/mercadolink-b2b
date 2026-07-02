@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import pe.aspropa.mercadolink.domain.Pago;
 import pe.aspropa.mercadolink.security.AuthenticatedActor;
+import pe.aspropa.mercadolink.service.CulqiService;
 import pe.aspropa.mercadolink.service.PagoService;
 import pe.aspropa.mercadolink.service.QulqiSimulationService;
 
@@ -23,10 +24,12 @@ public class PagoController {
 
     private final PagoService pagoService;
     private final QulqiSimulationService qulqiService;
+    private final CulqiService culqiService;
 
-    public PagoController(PagoService pagoService, QulqiSimulationService qulqiService) {
+    public PagoController(PagoService pagoService, QulqiSimulationService qulqiService, CulqiService culqiService) {
         this.pagoService = pagoService;
         this.qulqiService = qulqiService;
+        this.culqiService = culqiService;
     }
 
     @PostMapping("/iniciar/{pedidoId}")
@@ -50,6 +53,17 @@ public class PagoController {
             @RequestParam String monto) {
         java.math.BigDecimal amount = new java.math.BigDecimal(monto);
         QulqiSimulationService.QulqiSession session = qulqiService
+            .createPaymentSession(orderId, amount, "PEN");
+        return ResponseEntity.ok(session);
+    }
+
+    @PostMapping("/simulacion/culqi")
+    @Operation(summary = "[SIMULADO] Retorna datos para testing con Culqi mock")
+    public ResponseEntity<CulqiService.CulqiSession> simularCulqi(
+            @RequestParam String orderId,
+            @RequestParam String monto) {
+        java.math.BigDecimal amount = new java.math.BigDecimal(monto);
+        CulqiService.CulqiSession session = culqiService
             .createPaymentSession(orderId, amount, "PEN");
         return ResponseEntity.ok(session);
     }

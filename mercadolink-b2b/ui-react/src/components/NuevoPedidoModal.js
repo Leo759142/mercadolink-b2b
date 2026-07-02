@@ -25,12 +25,13 @@ export default function NuevoPedidoModal({ open, onClose, onCreated, productoPre
   const [idempotencyKey, setIdempotencyKey] = useState('');
 
   const preSelected = useMemo(() => productosPre || (productoPred ? [productoPred] : []), [productosPre, productoPred]);
+  const singleProduct = productoPred && !productosPre;
 
   useEffect(() => {
     if (!open) return;
     setIdempotencyKey(crypto.randomUUID());
     setError('');
-    setCantidades({});
+    setObservaciones('');
     setLoading(true);
     logEvento('modal_open', { idempotencyKey: crypto.randomUUID() });
     Promise.all([productosAPI.list(), puestosAPI.list()])
@@ -48,12 +49,16 @@ export default function NuevoPedidoModal({ open, onClose, onCreated, productoPre
           }
         });
         const initialCantidades = {};
-        preSelected.forEach((p) => {
-          const exists = prodRes.data.some((prod) => prod.id === p.id);
-          if (exists) {
-            initialCantidades[p.id] = 1;
-          }
-        });
+        if (singleProduct && productoPred) {
+          initialCantidades[productoPred.id] = 1;
+        } else {
+          preSelected.forEach((p) => {
+            const exists = prodRes.data.some((prod) => prod.id === p.id);
+            if (exists) {
+              initialCantidades[p.id] = 1;
+            }
+          });
+        }
         setPuestosSeleccionados(initialPuestos);
         setCantidades(initialCantidades);
       })
@@ -62,10 +67,20 @@ export default function NuevoPedidoModal({ open, onClose, onCreated, productoPre
         setError(err.message);
       })
       .finally(() => setLoading(false));
-  }, [open, preSelected]);
+  }, [open, preSelected, singleProduct, productoPred]);
+
+  const productosAMostrar = useMemo(() => {
+    if (singleProduct && productoPred) {
+      return [productoPred];
+    }
+    if (productosPre && productosPre.length > 0) {
+      return productosPre;
+    }
+    return productos;
+  }, [productos, productoPred, singleProduct, productosPre]);
 
   const itemsCarrito = useMemo(() => {
-    return productos
+    return productosAMostrar
       .filter((p) => (cantidades[p.id] || 0) > 0)
       .map((p) => ({
         productoId: p.id,
@@ -73,7 +88,7 @@ export default function NuevoPedidoModal({ open, onClose, onCreated, productoPre
         cantidad: Number(cantidades[p.id]),
         producto: p,
       }));
-  }, [productos, cantidades, puestosSeleccionados]);
+  }, [productosAMostrar, cantidades, puestosSeleccionados]);
 
   const totalUnidades = itemsCarrito.reduce((s, i) => s + i.cantidad, 0);
   const montoEstimado = itemsCarrito.reduce(
@@ -159,7 +174,7 @@ export default function NuevoPedidoModal({ open, onClose, onCreated, productoPre
                   </tr>
                 </thead>
                 <tbody>
-                  {productos.map((p) => (
+                  {productosAMostrar.map((p) => (
                     <tr key={p.id}>
                       <td>{p.descripcion}</td>
                       <td>{Number(p.precioReferencia).toFixed(2)}</td>
@@ -220,7 +235,7 @@ export default function NuevoPedidoModal({ open, onClose, onCreated, productoPre
             disabled={submitting || loading}
             onClick={handleSubmit}
           >
-            {submitting ? 'Creando…' : 'Crear pedido'}
+            {submitting ? 'Creando…' : `Crear pedido (${totalUnidades}u.)`}
           </button>
         </div>
       </div>

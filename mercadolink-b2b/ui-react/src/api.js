@@ -43,11 +43,27 @@ export const authAPI = {
 };
 
 export const productosAPI = {
-  list: () => apiClient.get('/productos'),
+  list: (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.tag) query.set('tag', params.tag);
+    if (params.busqueda) query.set('busqueda', params.busqueda);
+    const qs = query.toString();
+    return apiClient.get(`/productos${qs ? `?${qs}` : ''}`);
+  },
   misProductos: () => apiClient.get('/productos/mis-productos'),
   crear: (data) => apiClient.post('/productos', data),
   actualizarEtiquetas: (productoId, etiquetas) =>
     apiClient.patch(`/productos/${productoId}/etiquetas`, { etiquetas }),
+  sugerenciasEtiquetas: () => apiClient.get('/productos/sugerencias-etiquetas'),
+};
+
+export const etiquetasAPI = {
+  list: () => apiClient.get('/etiquetas'),
+  buscar: (q) => apiClient.get(`/etiquetas/buscar?q=${encodeURIComponent(q)}`),
+  populares: () => apiClient.get('/etiquetas/populares'),
+  crear: (nombre) => apiClient.post('/etiquetas', { nombre }),
+  renombrar: (id, nombre) => apiClient.patch(`/etiquetas/${id}`, { nombre }),
+  eliminar: (id) => apiClient.delete(`/etiquetas/${id}`),
 };
 
 export const puestosAPI = {
@@ -87,6 +103,13 @@ export const izipayAPI = {
   webhook: (payload) => apiClient.post('/izipay/webhook', payload),
 };
 
+export const culqiAPI = {
+  iniciar: (pedidoId, monto) => apiClient.post(`/culqi/iniciar/${pedidoId}`, null, { params: { monto } }),
+  firmar: (payload) => apiClient.post('/culqi/firmar', payload),
+  webhook: (payload) => apiClient.post('/culqi/webhook', payload),
+  config: () => apiClient.get('/culqi/config'),
+};
+
 export const proveedoresAPI = {
   listar: () => apiClient.get('/proveedores'),
   crear: (data) => apiClient.post('/proveedores', data),
@@ -112,4 +135,13 @@ export const logisticaAPI = {
   seguimiento: {
     avanzarEtapa: (envioId, etapa) => apiClient.patch(`/logistica/envios/${envioId}/etapa`, { etapa }),
   },
+};
+
+export const auditoriaAPI = {
+  listar: () => apiClient.get('/auditoria'),
+};
+
+export const notificacionesAPI = {
+  listar: () => apiClient.get('/notificaciones'),
+  contarNoLeidas: () => apiClient.get('/notificaciones/no-leidas'),
 };

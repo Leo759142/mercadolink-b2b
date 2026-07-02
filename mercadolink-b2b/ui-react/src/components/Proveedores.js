@@ -21,6 +21,8 @@ export default function Proveedores() {
     razonSocial: '', ruc: '', estado: 'EN_EVALUACION',
     nombreContacto: '', telefono: '', email: '', direccion: '', distrito: '',
   });
+  const [cotForm, setCotForm] = useState({ proveedorId: '', productoId: '', cantidad: '', dias: '' });
+  const [evalForm, setEvalForm] = useState({ proveedorId: '', precio: 7, calidad: 8, puntual: 6 });
 
   const cargar = async () => {
     setError('');
@@ -77,6 +79,29 @@ export default function Proveedores() {
     } catch (err) {
       setError(err.message);
     }
+  };
+
+  const enviarCotizacion = async () => {
+    if (!cotForm.proveedorId || !cotForm.productoId || !cotForm.cantidad) {
+      setError('Completa los campos de cotización');
+      return;
+    }
+    setInfo('Cotización enviada');
+    setCotForm({ proveedorId: '', productoId: '', cantidad: '', dias: '' });
+  };
+
+  const evaluarProveedor = async () => {
+    if (!evalForm.proveedorId) {
+      setError('Selecciona un proveedor');
+      return;
+    }
+    const avg = ((Number(evalForm.precio) + Number(evalForm.calidad) + Number(evalForm.puntual)) / 3).toFixed(1);
+    const prov = lista.find((v) => v.id === evalForm.proveedorId);
+    if (prov) {
+      prov.puntaje = Number(avg);
+    }
+    setInfo(`Evaluación registrada: ${avg}/10`);
+    setEvalForm({ ...evalForm, proveedorId: '' });
   };
 
   if (loading) {
@@ -157,6 +182,122 @@ export default function Proveedores() {
             )}
           </tbody>
         </table>
+      </div>
+
+      <div className="two-col" style={{ marginTop: '1rem' }}>
+        <div className="card">
+          <div className="card-header">
+            <span className="card-title">📝 Solicitar Cotización</span>
+          </div>
+          <div className="form-group">
+            <label>Proveedor</label>
+            <select
+              value={cotForm.proveedorId}
+              onChange={(e) => setCotForm((f) => ({ ...f, proveedorId: e.target.value }))}
+            >
+              <option value="">Seleccionar...</option>
+              {lista.map((v) => (
+                <option key={v.id} value={v.id}>{v.razonSocial}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Producto</label>
+            <select
+              value={cotForm.productoId}
+              onChange={(e) => setCotForm((f) => ({ ...f, productoId: e.target.value }))}
+            >
+              <option value="">Seleccionar...</option>
+            </select>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.7rem', marginBottom: '0.7rem' }}>
+            <div className="form-group">
+              <label>Cantidad</label>
+              <input
+                type="number"
+                value={cotForm.cantidad}
+                onChange={(e) => setCotForm((f) => ({ ...f, cantidad: e.target.value }))}
+                placeholder="50"
+                min="1"
+              />
+            </div>
+            <div className="form-group">
+              <label>Plazo (días)</label>
+              <input
+                type="number"
+                value={cotForm.dias}
+                onChange={(e) => setCotForm((f) => ({ ...f, dias: e.target.value }))}
+                placeholder="3"
+                min="1"
+              />
+            </div>
+          </div>
+          <button type="button" className="btn btn-primary" onClick={enviarCotizacion} style={{ width: '100%' }}>
+            Enviar Cotización
+          </button>
+        </div>
+
+        <div className="card">
+          <div className="card-header">
+            <span className="card-title">⭐ Evaluar Proveedor</span>
+          </div>
+          <div className="form-group">
+            <label>Proveedor</label>
+            <select
+              value={evalForm.proveedorId}
+              onChange={(e) => setEvalForm((f) => ({ ...f, proveedorId: e.target.value }))}
+            >
+              <option value="">Seleccionar...</option>
+              {lista.map((v) => (
+                <option key={v.id} value={v.id}>{v.razonSocial}</option>
+              ))}
+            </select>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginBottom: '0.7rem' }}>
+            <div className="form-group">
+              <label>Precio (0-10)</label>
+              <input
+                type="range"
+                min="0"
+                max="10"
+                value={evalForm.precio}
+                onChange={(e) => setEvalForm((f) => ({ ...f, precio: e.target.value }))}
+              />
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{evalForm.precio}</span>
+            </div>
+            <div className="form-group">
+              <label>Calidad (0-10)</label>
+              <input
+                type="range"
+                min="0"
+                max="10"
+                value={evalForm.calidad}
+                onChange={(e) => setEvalForm((f) => ({ ...f, calidad: e.target.value }))}
+              />
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{evalForm.calidad}</span>
+            </div>
+            <div className="form-group">
+              <label>Puntualidad (0-10)</label>
+              <input
+                type="range"
+                min="0"
+                max="10"
+                value={evalForm.puntual}
+                onChange={(e) => setEvalForm((f) => ({ ...f, puntual: e.target.value }))}
+              />
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{evalForm.puntual}</span>
+            </div>
+            <div className="form-group">
+              <label>Promedio</label>
+              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent)' }}>
+                {((Number(evalForm.precio) + Number(evalForm.calidad) + Number(evalForm.puntual)) / 3).toFixed(1)}
+              </div>
+            </div>
+          </div>
+          <button type="button" className="btn btn-success" onClick={evaluarProveedor} style={{ width: '100%' }}>
+            Registrar Evaluación
+          </button>
+        </div>
       </div>
 
       {modal && (

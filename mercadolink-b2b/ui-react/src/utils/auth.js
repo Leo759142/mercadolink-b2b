@@ -1,15 +1,15 @@
 export const DEMO_USERS = {
-  vendedor: { email: 'vendedor@aspropa.pe', password: 'password123', label: 'Vendedor' },
-  proveedor: { email: 'proveedor@aspropa.pe', password: 'password123', label: 'Proveedor' },
-  mayorista: { email: 'cliente@aspropa.pe', password: 'password123', label: 'Mayorista' },
-  admin: { email: 'admin@aspropa.pe', password: 'password123', label: 'Admin' },
+  vendedor: { email: 'vendedor@aspropa.pe', password: 'password123', label: 'Vendedor', sub: 'Puesto A-01' },
+  proveedor: { email: 'proveedor@aspropa.pe', password: 'password123', label: 'Proveedor', sub: 'Distribuidora Lima' },
+  mayorista: { email: 'cliente@aspropa.pe', password: 'password123', label: 'Mayorista', sub: 'Mercader externo' },
+  admin: { email: 'admin@aspropa.pe', password: 'password123', label: 'Admin', sub: 'Aspropa SMP' },
 };
 
 const RBAC = {
-  vendedor: { dashboard: true, inventario: true, pedidos: true, productos: true, proveedores: false, logistica: true, proveedorInventario: false },
-  proveedor: { dashboard: true, inventario: false, pedidos: true, productos: true, proveedores: true, logistica: true, proveedorInventario: true },
-  mayorista: { dashboard: true, inventario: false, pedidos: true, productos: true, proveedores: false, logistica: false, proveedorInventario: false },
-  admin: { dashboard: true, inventario: true, pedidos: true, productos: true, proveedores: true, logistica: true, proveedorInventario: true },
+  vendedor: { dashboard: true, inventario: true, pedidos: true, productos: true, proveedores: false, logistica: true, proveedorInventario: false, auditoria: true },
+  proveedor: { dashboard: true, inventario: false, pedidos: true, productos: true, proveedores: true, logistica: true, proveedorInventario: true, auditoria: true },
+  mayorista: { dashboard: true, inventario: false, pedidos: true, productos: true, proveedores: false, logistica: false, proveedorInventario: false, auditoria: true },
+  admin: { dashboard: true, inventario: true, pedidos: true, productos: true, proveedores: true, logistica: true, proveedorInventario: true, auditoria: true },
 };
 
 export function rolToKey(rol) {

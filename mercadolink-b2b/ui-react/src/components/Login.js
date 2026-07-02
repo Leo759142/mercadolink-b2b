@@ -63,7 +63,7 @@ export default function Login() {
                 {key === 'admin' && '🛡️'}
               </span>
               <span className="name">{u.label}</span>
-              <span className="sub">{u.email}</span>
+              <span className="sub">{u.sub}</span>
             </button>
           ))}
         </div>

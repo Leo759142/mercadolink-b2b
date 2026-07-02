@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { productosAPI } from '../api';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { productosAPI, etiquetasAPI } from '../api';
 import NuevoPedidoModal from './NuevoPedidoModal';
 import NuevoProductoModal from './NuevoProductoModal';
 
@@ -17,48 +17,85 @@ export default function Productos() {
   const [modalPedidoSeleccionados, setModalPedidoSeleccionados] = useState(false);
   const [seleccionado, setSeleccionado] = useState(null);
   const [busqueda, setBusqueda] = useState('');
-  const [categoriaFiltro, setCategoriaFiltro] = useState('');
+  const [tagsSeleccionados, setTagsSeleccionados] = useState([]);
+  const [todasEtiquetas, setTodasEtiquetas] = useState([]);
+  const [etiquetasPopulares, setEtiquetasPopulares] = useState([]);
   const [seleccionados, setSeleccionados] = useState(new Set());
-  const [tagFiltro, setTagFiltro] = useState('');
   const [tagInputVisible, setTagInputVisible] = useState({});
   const [tagEditValue, setTagEditValue] = useState({});
+  const [tagAutocomplete, setTagAutocomplete] = useState({});
+  const [loadingTags, setLoadingTags] = useState(true);
 
-  useEffect(() => {
-    productosAPI
-      .list()
-      .then((res) => setProductos(res.data))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+  const cargarProductos = useCallback(async () => {
+    try {
+      const res = await productosAPI.list();
+      setProductos(res.data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const categorias = useMemo(() => {
-    const cats = new Set(productos.map((p) => p.categoria).filter(Boolean));
-    return Array.from(cats).sort();
-  }, [productos]);
+  const cargarEtiquetas = useCallback(async () => {
+    try {
+      const [allRes, popRes] = await Promise.all([
+        etiquetasAPI.list(),
+        etiquetasAPI.populares(),
+      ]);
+      const etiquetas = (allRes.data || []).map(t => ({
+        id: t.id,
+        nombre: t.nombre,
+        slug: t.slug,
+        cantidadProductos: t.cantidadProductos || 0,
+      }));
+      setTodasEtiquetas(etiquetas);
+      setEtiquetasPopulares(popRes.data || []);
+    } catch {
+      /* si falla la API de etiquetas no bloqueamos la carga del catálogo */
+      setTodasEtiquetas([]);
+      setEtiquetasPopulares([]);
+    } finally {
+      setLoadingTags(false);
+    }
+  }, []);
 
-  const todasEtiquetas = useMemo(() => {
-    const tags = new Set();
-    productos.forEach((p) => {
-      if (p.etiquetas) {
-        p.etiquetas.split(',').forEach((t) => {
-          const trimmed = t.trim();
-          if (trimmed) tags.add(trimmed);
-        });
-      }
-    });
-    return Array.from(tags).sort();
-  }, [productos]);
+  useEffect(() => {
+    cargarProductos();
+    cargarEtiquetas();
+  }, [cargarProductos, cargarEtiquetas]);
+
+  const tagsSeleccionadosNombres = useMemo(() => tagsSeleccionados.map(t => typeof t === 'string' ? t : t.nombre), [tagsSeleccionados]);
 
   const productosFiltrados = useMemo(() => {
-    return productos.filter((p) => {
+    let resultado = productos;
+    if (tagsSeleccionadosNombres.length > 0) {
+      resultado = resultado.filter((p) => {
+        const ets = p.etiquetas ? p.etiquetas.split(',').map(t => t.trim()).filter(Boolean) : [];
+        return tagsSeleccionadosNombres.every(tagSel => ets.includes(tagSel));
+      });
+    }
+    // Text search
+    resultado = resultado.filter((p) => {
       const matchBusqueda = !busqueda ||
         p.descripcion.toLowerCase().includes(busqueda.toLowerCase()) ||
         p.codigo.toLowerCase().includes(busqueda.toLowerCase());
-      const matchCategoria = !categoriaFiltro || p.categoria === categoriaFiltro;
-      const matchTag = !tagFiltro || (p.etiquetas && p.etiquetas.includes(tagFiltro));
-      return matchBusqueda && matchCategoria && matchTag;
+      return matchBusqueda;
     });
-  }, [productos, busqueda, categoriaFiltro, tagFiltro]);
+    return resultado;
+  }, [productos, busqueda, tagsSeleccionadosNombres]);
+
+  const toggleTag = (tag) => {
+    setTagsSeleccionados((prev) => {
+      const exists = prev.some(t => (typeof t === 'string' ? t : t.nombre) === (typeof tag === 'string' ? tag : tag.nombre));
+      if (exists) {
+        return prev.filter(t => (typeof t === 'string' ? t : t.nombre) !== (typeof tag === 'string' ? tag : tag.nombre));
+      }
+      return [...prev, tag];
+    });
+  };
+
+  const limpiarTags = () => setTagsSeleccionados([]);
 
   const toggleSeleccion = (productoId) => {
     const nuevaSeleccion = new Set(seleccionados);
@@ -78,9 +115,7 @@ export default function Productos() {
     }
   };
 
-  const limpiarSeleccion = () => {
-    setSeleccionados(new Set());
-  };
+  const limpiarSeleccion = () => setSeleccionados(new Set());
 
   const handleAgregarProducto = (p) => {
     setSeleccionado(p);
@@ -91,7 +126,7 @@ export default function Productos() {
     setModalPedidoSeleccionados(true);
   };
 
-  const handleAsignarEtiqueta = () => {
+  const handleAsignarEtiqueta = async () => {
     const tag = tagEditValue._bulk || '';
     if (!tag.trim()) return;
     const nuevasEtiquetas = {};
@@ -107,52 +142,108 @@ export default function Productos() {
     });
     setTagEditValue((prev) => ({ ...prev, _bulk: '' }));
     limpiarSeleccion();
-    Object.entries(nuevasEtiquetas).forEach(([id, etiquetas]) => {
-      guardarEtiquetas(Number(id), etiquetas);
-    });
+    await Promise.all(
+      Object.entries(nuevasEtiquetas).map(([id, etiquetas]) =>
+        guardarEtiquetas(id, etiquetas)
+      )
+    );
   };
 
-  const handleProductoGuardado = () => {
+  const handleProductoGuardado = async () => {
     setInfo('Producto agregado correctamente');
-    productosAPI.list().then((res) => setProductos(res.data));
+    await cargarProductos();
+    await cargarEtiquetas();
   };
 
   const getEtiquetas = (producto) => {
-    return producto.etiquetas ? producto.etiquetas.split(',').map((t) => t.trim()).filter(Boolean) : [];
+    if (Array.isArray(producto.etiquetas)) {
+      return producto.etiquetas;
+    }
+    if (producto.etiquetas && typeof producto.etiquetas === 'string') {
+      return producto.etiquetas.split(',').map((t) => t.trim()).filter(Boolean);
+    }
+    return [];
   };
 
-  const guardarEtiquetas = (productoId, etiquetas) => {
+  const guardarEtiquetas = async (productoId, etiquetas) => {
     const productoOriginal = productos.find((p) => p.id === productoId);
     if (!productoOriginal) return;
-    setProductos((prev) => prev.map((p) => p.id === productoId ? { ...p, etiquetas } : p));
-    productosAPI.actualizarEtiquetas(productoId, etiquetas).catch(() => {
-      setProductos((prev) => prev.map((p) => p.id === productoId ? { ...p, etiquetas: productoOriginal.etiquetas } : p));
+    const etiquetasArray = typeof etiquetas === 'string' ? etiquetas.split(',').map(t => t.trim()).filter(Boolean) : etiquetas;
+    setProductos((prev) => prev.map((p) => p.id === productoId ? { ...p, etiquetas: etiquetasArray } : p));
+    try {
+      await productosAPI.actualizarEtiquetas(productoId, etiquetasArray.join(','));
+    } catch {
+      setProductos((prev) => prev.map((p) => p.id === productoId ? { ...p, etiquetas: typeof productoOriginal.etiquetas === 'string' ? productoOriginal.etiquetas : productoOriginal.etiquetas } : p));
       setError('Error al guardar etiquetas');
-    });
+    }
   };
 
-  const eliminarEtiqueta = (producto, etiqueta) => {
+  const eliminarEtiqueta = async (producto, etiqueta) => {
     const etiquetas = getEtiquetas(producto).filter((t) => t !== etiqueta);
-    guardarEtiquetas(producto.id, etiquetas.join(','));
+    await guardarEtiquetas(producto.id, etiquetas.join(','));
   };
 
-  const agregarEtiqueta = (producto, etiqueta) => {
+  const agregarEtiqueta = async (producto, etiqueta) => {
     if (!etiqueta.trim()) return;
     const etiquetas = getEtiquetas(producto);
     if (!etiquetas.includes(etiqueta.trim())) {
       etiquetas.push(etiqueta.trim());
-      guardarEtiquetas(producto.id, etiquetas.join(','));
+      await guardarEtiquetas(producto.id, etiquetas.join(','));
     }
     setTagInputVisible((prev) => ({ ...prev, [producto.id]: false }));
     setTagEditValue((prev) => ({ ...prev, [producto.id]: '' }));
+    setTagAutocomplete((prev) => ({ ...prev, [producto.id]: [] }));
+  };
+
+  const handleTagInputChange = async (producto, value) => {
+    setTagEditValue((prev) => ({ ...prev, [producto.id]: value }));
+    if (value.trim().length > 0) {
+      try {
+        const res = await etiquetasAPI.buscar(value);
+        const sugerencias = (res.data || []).filter(t => !getEtiquetas(producto).includes(t.nombre));
+        setTagAutocomplete((prev) => ({ ...prev, [producto.id]: sugerencias }));
+      } catch {
+        setTagAutocomplete((prev) => ({ ...prev, [producto.id]: [] }));
+      }
+    } else {
+      setTagAutocomplete((prev) => ({ ...prev, [producto.id]: [] }));
+    }
+  };
+
+  const seleccionarSugerencia = async (producto, tag) => {
+    await agregarEtiqueta(producto, tag.nombre);
+    setTagAutocomplete((prev) => ({ ...prev, [producto.id]: [] }));
+  };
+
+  const crearEtiqueta = async (nombre) => {
+    try {
+      await etiquetasAPI.crear(nombre);
+      await cargarEtiquetas();
+      setInfo(`Etiqueta "${nombre}" creada`);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const eliminarEtiquetaGlobal = async (tagId, nombre) => {
+    try {
+      await etiquetasAPI.eliminar(tagId);
+      await cargarEtiquetas();
+      setTagsSeleccionados(prev => prev.filter(t => (typeof t === 'string' ? t : t.nombre) !== nombre));
+      setInfo(`Etiqueta "${nombre}" eliminada`);
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   const handleDragStart = (e, productoId, etiqueta) => {
     e.dataTransfer.setData('text/plain', JSON.stringify({ productoId, etiqueta }));
+    e.dataTransfer.effectAllowed = 'move';
   };
 
   const handleDragOver = (e) => {
     e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
   };
 
   const handleDrop = (e, producto, etiquetaDestino) => {
@@ -193,53 +284,124 @@ export default function Productos() {
 
       <div className="card">
         <div className="card-header" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 12 }}>
-          {tagFiltro && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              <span className="pill pill-blue">Filtrado por: {tagFiltro}</span>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setTagFiltro('')}>
-                Borrar filtro
+          {/* Active tag filters */}
+          {tagsSeleccionadosNombres.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Filtrado por:</span>
+              {tagsSeleccionadosNombres.map((tag) => (
+                <span key={tag} className="pill pill-ok" style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                  {tag}
+                  <button
+                    type="button"
+                    onClick={() => toggleTag(tag)}
+                    style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', fontSize: '0.9rem', padding: 0, lineHeight: 1 }}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+              <button type="button" className="btn btn-ghost btn-sm" onClick={limpiarTags}>
+                Borrar filtros
               </button>
             </div>
           )}
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {todasEtiquetas.map((tag) => (
-              <button
-                key={tag}
-                type="button"
-                className={`pill ${tagFiltro === tag ? 'pill-ok' : 'pill-blue'}`}
-                onClick={() => setTagFiltro(tagFiltro === tag ? '' : tag)}
-                style={{ cursor: 'pointer', background: tagFiltro === tag ? 'rgba(76, 175, 80, 0.2)' : '' }}
-              >
-                {tag}
-              </button>
-            ))}
+          {/* Tabs: Populares / Todas */}
+          <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid var(--border)' }}>
+            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', marginRight: 8, paddingBottom: 4 }}>
+              Etiquetas:
+            </span>
           </div>
 
+          {/* Tag cloud */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+            {todasEtiquetas.length === 0 && !loadingTags && (
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                Sin etiquetas todavía
+              </span>
+            )}
+            {todasEtiquetas.map((tag) => {
+              const nombre = typeof tag === 'string' ? tag : tag.nombre;
+              const cantidad = typeof tag === 'object' ? (tag.cantidadProductos || 0) : 0;
+              const id = typeof tag === 'object' ? tag.id : null;
+              const isActive = tagsSeleccionadosNombres.includes(nombre);
+              return (
+                <span key={id || nombre} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                  <button
+                    type="button"
+                    className={`pill ${isActive ? 'pill-ok' : 'pill-blue'}`}
+                    onClick={() => toggleTag(tag)}
+                    style={{ cursor: 'pointer', background: isActive ? 'rgba(76, 175, 80, 0.2)' : '' }}
+                    title={`${cantidad} producto${cantidad !== 1 ? 's' : ''}`}
+                  >
+                    {nombre}
+                    <span style={{ opacity: 0.7, fontSize: '0.75rem' }}>{cantidad}</span>
+                  </button>
+                  {PUEDE_GESTIONAR_PRODUCTOS.includes(rol) && id && (
+                    <button
+                      type="button"
+                      onClick={() => eliminarEtiquetaGlobal(id, nombre)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--rojo-terracota)',
+                        cursor: 'pointer',
+                        fontSize: '0.8rem',
+                        padding: 0,
+                        lineHeight: 1,
+                        marginLeft: -2,
+                      }}
+                      title="Eliminar etiqueta"
+                    >
+                      ×
+                    </button>
+                  )}
+                </span>
+              );
+            })}
+          </div>
+
+          {/* Popular tags section */}
+          {etiquetasPopulares.length > 0 && (
+            <>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4, fontWeight: 600, textTransform: 'uppercase' }}>
+                Más usadas
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {etiquetasPopulares.slice(0, 8).map((tag) => (
+                  <button
+                    key={tag.id}
+                    type="button"
+                    className={`pill ${tagsSeleccionadosNombres.includes(tag.nombre) ? 'pill-ok' : 'pill-pending'}`}
+                    onClick={() => toggleTag(tag)}
+                    style={{ cursor: 'pointer', background: tagsSeleccionadosNombres.includes(tag.nombre) ? 'rgba(76, 175, 80, 0.2)' : '' }}
+                  >
+                    {tag.nombre}
+                    <span style={{ opacity: 0.7, fontSize: '0.75rem' }}>{tag.cantidadProductos || 0}</span>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* Actions bar */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span className="card-title">📋 Lista de productos ({productosFiltrados.length})</span>
             <div style={{ display: 'flex', gap: 8 }}>
               {PUEDE_CREAR.includes(rol) && (
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm pulse"
-                  onClick={() => setModalOpen(true)}
-                >
+                <button type="button" className="btn btn-primary btn-sm pulse" onClick={() => setModalOpen(true)}>
                   🛒 Nuevo pedido
                 </button>
               )}
               {PUEDE_GESTIONAR_PRODUCTOS.includes(rol) && (
-                <button
-                  type="button"
-                  className="btn btn-success btn-sm"
-                  onClick={() => setModalProductoOpen(true)}
-                >
+                <button type="button" className="btn btn-success btn-sm" onClick={() => setModalProductoOpen(true)}>
                   📦 Nuevo producto
                 </button>
               )}
             </div>
           </div>
 
+          {/* Search bar */}
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <div className="form-group" style={{ flex: 1, minWidth: 200, margin: 0 }}>
               <input
@@ -250,21 +412,31 @@ export default function Productos() {
                 style={{ width: '100%' }}
               />
             </div>
-            <div className="form-group" style={{ margin: 0 }}>
-              <select
-                value={categoriaFiltro}
-                onChange={(e) => setCategoriaFiltro(e.target.value)}
-                style={{ minWidth: 150 }}
-              >
-                <option value="">Todas las categorías</option>
-                {categorias.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
-            </div>
+            {PUEDE_GESTIONAR_PRODUCTOS.includes(rol) && (
+              <div className="form-group" style={{ margin: 0 }}>
+                <input
+                  type="text"
+                  placeholder="+ Nueva etiqueta..."
+                  onKeyDown={async (e) => {
+                    if (e.key === 'Enter') {
+                      const val = e.target.value.trim();
+                      if (val) {
+                        await crearEtiqueta(val);
+                        e.target.value = '';
+                      }
+                    }
+                  }}
+                  style={{ minWidth: 160 }}
+                />
+                <small style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                  Enter para crear etiqueta global
+                </small>
+              </div>
+            )}
           </div>
         </div>
 
+        {/* Selection bar */}
         {seleccionados.size > 0 && (
           <div style={{
             position: 'sticky',
@@ -279,11 +451,7 @@ export default function Productos() {
           }}>
             <span className="pill pill-pending">{seleccionados.size} seleccionado{seleccionados.size > 1 ? 's' : ''}</span>
             {PUEDE_CREAR.includes(rol) && (
-              <button
-                type="button"
-                className="btn btn-success btn-sm"
-                onClick={handleAgregarSeleccionados}
-              >
+              <button type="button" className="btn btn-success btn-sm" onClick={handleAgregarSeleccionados}>
                 Agregar seleccionados al pedido
               </button>
             )}
@@ -297,26 +465,18 @@ export default function Productos() {
                   onKeyDown={(e) => e.key === 'Enter' && handleAsignarEtiqueta()}
                   style={{ width: 150, padding: '0.3rem 0.5rem', fontSize: '0.85rem' }}
                 />
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm"
-                  onClick={handleAsignarEtiqueta}
-                  style={{ marginLeft: 4 }}
-                >
+                <button type="button" className="btn btn-primary btn-sm" onClick={handleAsignarEtiqueta} style={{ marginLeft: 4 }}>
                   Asignar etiqueta...
                 </button>
               </div>
             )}
-            <button
-              type="button"
-              className="btn btn-ghost btn-sm"
-              onClick={limpiarSeleccion}
-            >
+            <button type="button" className="btn btn-ghost btn-sm" onClick={limpiarSeleccion}>
               Limpiar
             </button>
           </div>
         )}
 
+        {/* Product table */}
         <div style={{ maxHeight: 400, overflow: 'auto' }}>
           <table className="tbl">
             <thead>
@@ -330,7 +490,6 @@ export default function Productos() {
                 </th>
                 <th>🏷️ Código</th>
                 <th>📝 Descripción</th>
-                <th>📦 Categoría</th>
                 <th>🏷️ Etiquetas</th>
                 <th>💰 Precio (S/)</th>
                 <th>🏷️ Estado</th>
@@ -340,7 +499,7 @@ export default function Productos() {
             <tbody>
               {productosFiltrados.length === 0 ? (
                 <tr>
-                  <td colSpan={PUEDE_CREAR.includes(rol) ? 8 : 7} className="empty-state">
+                  <td colSpan={PUEDE_CREAR.includes(rol) ? 7 : 6} className="empty-state">
                     📭 No se encontraron productos
                   </td>
                 </tr>
@@ -358,11 +517,6 @@ export default function Productos() {
                       </td>
                       <td><strong>{p.codigo}</strong></td>
                       <td>{p.descripcion}</td>
-                      <td>
-                        <span className="pill pill-blue" style={{ textTransform: 'capitalize' }}>
-                          {p.categoria || 'General'}
-                        </span>
-                      </td>
                       <td>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, alignItems: 'center' }}>
                           {etiquetas.map((tag) => (
@@ -397,24 +551,63 @@ export default function Productos() {
                             </span>
                           ))}
                           {PUEDE_GESTIONAR_PRODUCTOS.includes(rol) && (
-                            <>
+                            <span style={{ position: 'relative' }}>
                               {tagInputVisible[p.id] ? (
-                                <input
-                                  type="text"
-                                  value={tagEditValue[p.id] || ''}
-                                  onChange={(e) => setTagEditValue((prev) => ({ ...prev, [p.id]: e.target.value }))}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
+                                <>
+                                  <input
+                                    type="text"
+                                    value={tagEditValue[p.id] || ''}
+                                    onChange={(e) => handleTagInputChange(p, e.target.value)}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') {
+                                        agregarEtiqueta(p, tagEditValue[p.id] || '');
+                                      }
+                                      if (e.key === 'Escape') {
+                                        setTagInputVisible((prev) => ({ ...prev, [p.id]: false }));
+                                        setTagAutocomplete((prev) => ({ ...prev, [p.id]: [] }));
+                                      }
+                                    }}
+                                    onBlur={() => {
                                       agregarEtiqueta(p, tagEditValue[p.id] || '');
-                                    }
-                                    if (e.key === 'Escape') {
-                                      setTagInputVisible((prev) => ({ ...prev, [p.id]: false }));
-                                    }
-                                  }}
-                                  onBlur={() => agregarEtiqueta(p, tagEditValue[p.id] || '')}
-                                  style={{ width: 100, padding: '0.2rem 0.4rem', fontSize: '0.8rem' }}
-                                  autoFocus
-                                />
+                                      setTagAutocomplete((prev) => ({ ...prev, [p.id]: [] }));
+                                    }}
+                                    style={{ width: 100, padding: '0.2rem 0.4rem', fontSize: '0.8rem' }}
+                                    autoFocus
+                                  />
+                                  {tagAutocomplete[p.id] && tagAutocomplete[p.id].length > 0 && (
+                                    <div
+                                      style={{
+                                        position: 'absolute',
+                                        top: '100%',
+                                        left: 0,
+                                        background: 'var(--surface)',
+                                        border: '1px solid var(--border)',
+                                        borderRadius: 4,
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                        zIndex: 100,
+                                        minWidth: 160,
+                                        maxHeight: 200,
+                                        overflowY: 'auto',
+                                      }}
+                                    >
+                                      {tagAutocomplete[p.id].map((sug) => (
+                                        <div
+                                          key={sug.id}
+                                          onClick={() => seleccionarSugerencia(p, sug)}
+                                          onMouseDown={(e) => e.preventDefault()}
+                                          style={{
+                                            padding: '6px 10px',
+                                            cursor: 'pointer',
+                                            fontSize: '0.85rem',
+                                            borderBottom: '1px solid var(--border)',
+                                          }}
+                                        >
+                                          {sug.nombre}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </>
                               ) : (
                                 <button
                                   type="button"
@@ -425,7 +618,7 @@ export default function Productos() {
                                   +
                                 </button>
                               )}
-                            </>
+                            </span>
                           )}
                         </div>
                       </td>

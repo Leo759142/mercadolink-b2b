@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { inventarioAPI, pedidosAPI, productosAPI, puestosAPI } from '../api';
+import { inventarioAPI, pedidosAPI, productosAPI, puestosAPI, proveedoresAPI } from '../api';
 import { getSession, rolToKey } from '../utils/auth';
 import { labelEstado, pedidoActivo, pillClass } from '../utils/pedidos';
 
@@ -11,6 +11,16 @@ const SUBTITLES = {
   admin: '🛡️ Panel de control global de Aspropa',
 };
 
+function resumenItems(p) {
+  if (!p.items?.length) return '—';
+  return p.items
+    .map(
+      (it) =>
+        `${it.producto?.descripcion || '?'} ×${it.cantidad}`
+    )
+    .join(', ');
+}
+
 export default function Dashboard() {
   const { rol, puestoId } = getSession();
   const [loading, setLoading] = useState(true);
@@ -20,18 +30,21 @@ export default function Dashboard() {
     productos: 0,
     bajoMinimo: 0,
     montoPendiente: 0,
+    proveedoresActivos: 0,
   });
   const [pedidos, setPedidos] = useState([]);
   const [stockBars, setStockBars] = useState([]);
+  const [activityLog, setActivityLog] = useState([]);
 
   const cargar = useCallback(async () => {
     setError('');
     setLoading(true);
     try {
-      const [prodRes, pedRes, puestosRes] = await Promise.all([
+      const [prodRes, pedRes, puestosRes, provRes] = await Promise.all([
         productosAPI.list(),
         pedidosAPI.misPedidos(),
         puestosAPI.list(),
+        proveedoresAPI.listar(),
       ]);
 
       const listaPedidos = pedRes.data || [];
@@ -77,9 +90,13 @@ export default function Dashboard() {
         productos: prodRes.data?.length || 0,
         bajoMinimo,
         montoPendiente,
+        proveedoresActivos: Array.isArray(provRes.data) ? provRes.data.length : 0,
       });
       setPedidos(listaPedidos.slice(0, 5));
       setStockBars(bars);
+
+      const logs = JSON.parse(localStorage.getItem('debug_logs') || '[]');
+      setActivityLog(logs.slice(-8).reverse());
     } catch (err) {
       setError(err.message);
     } finally {
@@ -132,6 +149,12 @@ export default function Dashboard() {
             {stats.montoPendiente.toFixed(2)}
           </div>
         </div>
+        <div className="stat-card pulse">
+          <div className="label">🤝 Proveedores activos</div>
+          <div className="val" style={{ color: 'var(--maderaoscuro)' }}>
+            {stats.proveedoresActivos}
+          </div>
+        </div>
       </div>
 
       <div className="two-col">
@@ -145,30 +168,32 @@ export default function Dashboard() {
           <table className="tbl">
             <thead>
               <tr>
-                <th>ID Pedido</th>
+                <th>ID</th>
+                <th>Producto</th>
+                <th>Cant.</th>
                 <th>Estado</th>
-                <th>Monto</th>
               </tr>
             </thead>
             <tbody>
               {pedidos.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="empty-state">📭 Aún no tienes pedidos</td>
+                  <td colSpan={4} className="empty-state">📭 Aún no tienes pedidos</td>
                 </tr>
               ) : (
                 pedidos.map((p) => (
                   <tr key={p.id}>
                     <td>
                       <span style={{ fontFamily: "'Amatic SC', cursive", fontSize: '1.1rem' }}>
-                        {p.id.slice(0, 8)}…
+                        {p.id.slice(0, 8)}
                       </span>
                     </td>
+                    <td>{resumenItems(p)}</td>
+                    <td>{p.items?.length || 1}</td>
                     <td>
                       <span className={`pill ${pillClass(p.estado)}`}>
                         {labelEstado(p.estado)}
                       </span>
                     </td>
-                    <td><strong>S/ {Number(p.montoTotal).toFixed(2)}</strong></td>
                   </tr>
                 ))
               )}
@@ -178,7 +203,7 @@ export default function Dashboard() {
 
         <div className="card">
           <div className="card-header">
-            <span className="card-title">📦 Mi inventario</span>
+            <span className="card-title">📦 Stock por producto</span>
             {canAccessInventario(rol) && (
               <Link to="/inventario" className="pill pill-success pulse">
                 Gestionar →
@@ -192,8 +217,8 @@ export default function Dashboard() {
               <div key={b.nombre} style={{ marginBottom: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', marginBottom: 4 }}>
                   <span>{b.nombre}</span>
-                  <span style={{ color: 'var(--muted)' }}>
-                    📊 {b.disp} unidades / mínimo: {b.min}
+                  <span style={{ color: b.low ? 'var(--danger)' : 'var(--text-muted)' }}>
+                    {b.disp} uds / mín: {b.min}
                   </span>
                 </div>
                 <div className="prog-bar">
@@ -201,7 +226,11 @@ export default function Dashboard() {
                     className="prog-fill"
                     style={{
                       width: `${b.pct}%`,
-                      background: b.low ? 'linear-gradient(90deg, #ffcdd2, #e57373)' : 'linear-gradient(90deg, #c8e6c9, #4caf50)',
+                      background: b.low
+                        ? 'linear-gradient(90deg, #ffcdd2, #e57373)'
+                        : b.pct < 70
+                        ? 'linear-gradient(90deg, #fff9c4, #ffb74d)'
+                        : 'linear-gradient(90deg, #c8e6c9, #4caf50)',
                     }}
                   />
                 </div>
@@ -209,6 +238,28 @@ export default function Dashboard() {
             ))
           )}
         </div>
+      </div>
+
+      <div className="card" style={{ marginTop: '1rem' }}>
+        <div className="card-header">
+          <span className="card-title">⚡ Actividad reciente</span>
+        </div>
+        {activityLog.length === 0 ? (
+          <p className="empty-state">Sin eventos aún</p>
+        ) : (
+          <div className="scrollbox" style={{ maxHeight: 260 }}>
+            {activityLog.map((log, i) => (
+              <div className="log-entry" key={i}>
+                <div className={`log-dot ${log.evento?.includes('error') || log.evento?.includes('Error') ? 'log-dot-err' : 'log-dot-ok'}`}></div>
+                <div className="log-time">{new Date(log.timestamp).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })}</div>
+                <div className="log-msg">
+                  <strong>{log.evento}</strong>
+                  <span className="log-meta"> · {JSON.stringify(log.datos).slice(0, 60)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="card" style={{ marginTop: '1rem' }}>

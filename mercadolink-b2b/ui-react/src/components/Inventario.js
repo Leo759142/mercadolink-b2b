@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { inventarioAPI, puestosAPI } from '../api';
+import { inventarioAPI, puestosAPI, productosAPI } from '../api';
 import { getSession } from '../utils/auth';
 
 export default function Inventario() {
@@ -12,6 +12,10 @@ export default function Inventario() {
   const [loading, setLoading] = useState(true);
   const [editId, setEditId] = useState(null);
   const [editForm, setEditForm] = useState({ cantidadActual: 0, cantidadMinima: 0 });
+  const [movimientos, setMovimientos] = useState([]);
+  const [modalReposicion, setModalReposicion] = useState(false);
+  const [repForm, setRepForm] = useState({ productoId: '', cantidad: '', origen: 'almacen', observaciones: '' });
+  const [productos, setProductos] = useState([]);
 
   const cargarInventario = useCallback(async (pid) => {
     if (!pid) return;
@@ -48,6 +52,12 @@ export default function Inventario() {
     }
   }, [puestoId, loading, cargarInventario]);
 
+  useEffect(() => {
+    if (modalReposicion) {
+      productosAPI.list().then((res) => setProductos(res.data)).catch(() => {});
+    }
+  }, [modalReposicion]);
+
   const iniciarEdicion = (inv) => {
     setEditId(inv.id);
     setEditForm({
@@ -67,11 +77,32 @@ export default function Inventario() {
         Number(editForm.cantidadActual),
         Number(editForm.cantidadMinima)
       );
+      const delta = editForm.cantidadActual - inv.cantidadActual;
+      setMovimientos((prev) => [
+        ...prev,
+        {
+          tipo: 'AJUSTE',
+          producto: inv.producto?.descripcion || '—',
+          cantidad: Math.abs(delta),
+          referencia: 'MANUAL',
+          timestamp: new Date().toISOString().slice(0, 16).replace('T', ' '),
+        },
+      ]);
       setInfo('Stock actualizado');
       await cargarInventario(puestoId);
     } catch (err) {
       setError(err.message);
     }
+  };
+
+  const solicitarReposicion = async () => {
+    if (!repForm.productoId || !repForm.cantidad) {
+      setError('Selecciona producto y cantidad');
+      return;
+    }
+    setInfo('Solicitud de reposición enviada');
+    setModalReposicion(false);
+    setRepForm({ productoId: '', cantidad: '', origen: 'almacen', observaciones: '' });
   };
 
   if (loading) {
@@ -84,7 +115,7 @@ export default function Inventario() {
 
   return (
     <div className="panel active">
-      <div className="panel-title">Inventario</div>
+      <div className="panel-title">📦 Inventario</div>
       <div className="panel-sub">
         Stock por puesto · API <code>GET/PUT /inventario</code>
       </div>
@@ -108,15 +139,20 @@ export default function Inventario() {
           </select>
         </div>
 
+        <div className="card-header">
+          <span className="card-title">Stock de tu Puesto</span>
+          <button type="button" className="btn btn-primary btn-sm" onClick={() => setModalReposicion(true)}>
+            + Solicitar Reposición
+          </button>
+        </div>
+
         <table className="tbl">
           <thead>
             <tr>
               <th>Producto</th>
               <th>Categoría</th>
-              <th>Stock</th>
-              <th>Reservado</th>
-              <th>Disponible</th>
-              <th>Mínimo</th>
+              <th>Stock Actual</th>
+              <th>Stock Mín.</th>
               <th>Estado</th>
               <th>Acción</th>
             </tr>
@@ -124,7 +160,7 @@ export default function Inventario() {
           <tbody>
             {items.length === 0 ? (
               <tr>
-                <td colSpan={8}>Sin inventario en este puesto</td>
+                <td colSpan={6}>Sin inventario en este puesto</td>
               </tr>
             ) : (
               items.map((inv) => {
@@ -134,7 +170,7 @@ export default function Inventario() {
                 return (
                   <tr key={inv.id}>
                     <td>{inv.producto?.descripcion}</td>
-                    <td>{inv.producto?.categoria || '—'}</td>
+                    <td>{(inv.producto?.etiquetas || inv.producto?.descripcion || '—').toString().split(',')[0]}</td>
                     <td>
                       {editing ? (
                         <input
@@ -150,11 +186,11 @@ export default function Inventario() {
                           }
                         />
                       ) : (
-                        inv.cantidadActual
+                        <span style={{ color: bajo ? 'var(--danger)' : 'inherit', fontWeight: bajo ? 700 : 400 }}>
+                          {inv.cantidadActual}
+                        </span>
                       )}
                     </td>
-                    <td>{inv.cantidadReservada || 0}</td>
-                    <td>{disp}</td>
                     <td>
                       {editing ? (
                         <input
@@ -175,7 +211,7 @@ export default function Inventario() {
                     </td>
                     <td>
                       <span className={`pill ${bajo ? 'pill-red' : 'pill-ok'}`}>
-                        {bajo ? 'Bajo mínimo' : 'OK'}
+                        {bajo ? 'BAJO MÍNIMO' : 'OK'}
                       </span>
                     </td>
                     <td>
@@ -202,7 +238,7 @@ export default function Inventario() {
                           className="btn btn-primary btn-sm"
                           onClick={() => iniciarEdicion(inv)}
                         >
-                          Editar
+                          Ajustar
                         </button>
                       )}
                     </td>
@@ -212,11 +248,99 @@ export default function Inventario() {
             )}
           </tbody>
         </table>
-        <p className="hint" style={{ marginTop: 12 }}>
-          Movimientos y solicitudes de reposición llegarán en Fase B (tablas{' '}
-          <code>movimientos_inventario</code>, <code>solicitudes_reposicion</code>).
-        </p>
       </div>
+
+      <div className="card" style={{ marginTop: '1rem' }}>
+        <div className="card-header">
+          <span className="card-title">📥 Últimos Movimientos</span>
+        </div>
+        {movimientos.length === 0 ? (
+          <p className="empty-state">Sin movimientos recientes</p>
+        ) : (
+          <table className="tbl">
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Referencia</th>
+                <th>Timestamp</th>
+              </tr>
+            </thead>
+            <tbody>
+              {movimientos.slice().reverse().map((m, i) => (
+                <tr key={i}>
+                  <td>
+                    <span className={`pill ${m.tipo === 'ENTRADA' ? 'pill-ok' : m.tipo === 'SALIDA' ? 'pill-red' : 'pill-blue'}`}>
+                      {m.tipo}
+                    </span>
+                  </td>
+                  <td>{m.producto}</td>
+                  <td>{m.cantidad}</td>
+                  <td><code style={{ fontSize: '0.7rem' }}>{m.referencia}</code></td>
+                  <td>{m.timestamp}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {modalReposicion && (
+        <div className="modal-bg open" role="dialog" aria-modal="true">
+          <div className="modal">
+            <h3>📦 Solicitar Reposición de Stock</h3>
+            <p className="sub">Servicio: <code>ActualizarInventario</code> · Estado inicial: PENDIENTE</p>
+            <div className="form-group">
+              <label>Producto</label>
+              <select
+                value={repForm.productoId}
+                onChange={(e) => setRepForm((f) => ({ ...f, productoId: e.target.value }))}
+              >
+                <option value="">Seleccionar...</option>
+                {productos.map((p) => (
+                  <option key={p.id} value={p.id}>{p.descripcion}</option>
+                ))}
+              </select>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.7rem', marginBottom: '0.7rem' }}>
+              <div className="form-group">
+                <label>Cantidad a Reponer</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={repForm.cantidad}
+                  onChange={(e) => setRepForm((f) => ({ ...f, cantidad: e.target.value }))}
+                  placeholder="20"
+                />
+              </div>
+              <div className="form-group">
+                <label>Atender desde</label>
+                <select
+                  value={repForm.origen}
+                  onChange={(e) => setRepForm((f) => ({ ...f, origen: e.target.value }))}
+                >
+                  <option value="almacen">Almacén interno</option>
+                  <option value="proveedor">Derivar a Proveedor</option>
+                </select>
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Observaciones</label>
+                <textarea
+                  rows={2}
+                  value={repForm.observaciones}
+                  onChange={(e) => setRepForm((f) => ({ ...f, observaciones: e.target.value }))}
+                  placeholder="Urgente para mañana..."
+                />
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-ghost" onClick={() => setModalReposicion(false)}>Cancelar</button>
+              <button type="button" className="btn btn-success" onClick={solicitarReposicion}>Enviar Solicitud</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

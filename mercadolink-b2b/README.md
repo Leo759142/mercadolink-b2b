@@ -102,6 +102,14 @@ Los 4 roles del Avance 1 (sección 3.1.2) se aplican como authorities Spring Sec
 | `POST` | `/api/v1/izipay/webhook`           | **público** (IPN, valida firma HMAC) |
 | `POST` | `/api/v1/izipay/firmar`            | **sandbox** (helper para tests)       |
 
+### Pagos (Culqi - simulado)
+
+| Método  | Ruta                                  | Roles                                  |
+| -------- | ------------------------------------- | -------------------------------------- |
+| `POST` | `/api/v1/pagos/simulacion/culqi`     | sandbox                                |
+| `POST` | `/api/v1/culqi/webhook`              | **público** (valida Content-Signature) |
+| `POST` | `/api/v1/culqi/firmar`               | **sandbox** (helper para tests)       |
+
 ---
 
 ## 4. Flujo de prueba end-to-end (curl)
@@ -184,6 +192,28 @@ curl -s http://localhost:8080/api/v1/pagos/<ORDER_ID> \
 ```
 
 Debe pasar a `APROBADO` y el pedido a `PAGADO`.
+
+### f) Simular pago Culqi (alternativo)
+
+```bash
+# 1. Generar firma
+SIG=$(curl -s -X POST http://localhost:8080/api/v1/culqi/firmar \
+  -H "Content-Type: application/json" \
+  -d '{"orderId":"<ORDER_ID>","transactionId":"TX-002","status":"APROBADO","amount":"1800.00"}' \
+  | jq -r .signature)
+
+# 2. Enviar webhook Culqi
+curl -s -X POST http://localhost:8080/api/v1/culqi/webhook \
+  -H "Content-Type: application/json" \
+  -H "Content-Signature: $SIG" \
+  -d "{
+    \"orderId\":\"<ORDER_ID>\",
+    \"chargeId\":\"ch-001\",
+    \"transactionId\":\"TX-002\",
+    \"status\":\"APROBADO\",
+    \"amount\":\"1800.00\"
+  }"
+```
 
 ---
 
@@ -304,6 +334,8 @@ docker run -d --name mercadolink -p 8080:8080 -v mercadolink-data:/data mercadol
 | `SPRING_DATASOURCE_URL`   | `jdbc:h2:file:./data/mercadolink` | Cambiar a PostgreSQL en producción |
 | `APP_JWT_SECRET`          | Aleatorio                           | **Cambiar en producción**    |
 | `APP_IZIPAY_SANDBOX_MODE` | `true`                            | `false` con credenciales reales   |
+| `APP_CULQI_PUBLIC_KEY`    | `culqi-demo-public`                 | Public key Culqi (producción)   |
+| `APP_CULQI_SECRET_KEY`    | `culqi-demo-secret`                 | Secret key Culqi (producción)   |
 
 ---
 

@@ -1,0 +1,129 @@
+<!doctype html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Proveedores — MercadoLink B2B</title>
+  <style>
+  :root {
+    --bg: #1b1410; --surface: rgba(35,25,18,0.72); --surface2: rgba(50,36,26,0.72); --border: rgba(120,90,60,0.35);
+    --text: #f3e7d3; --muted: #c9b89a; --accent: #e0a96d; --accent2: #b45b3a; --green: #6fbf73; --yellow: #e6b85c; --red: #d76b5c; --radius: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(180,120,60,0.12), transparent),
+      radial-gradient(1200px 600px at 90% 110%, rgba(160,90,50,0.10), transparent),
+      var(--bg);
+    color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh;
+  }
+  body { padding: 0; }
+  .navbar {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.9rem 1.2rem;
+    background: rgba(20,14,10,0.55); backdrop-filter: blur(14px) saturate(140%);
+    border-bottom: 1px solid var(--border);
+  }
+  .navbar .brand { font-weight: 700; letter-spacing: 0.3px; color: var(--text); }
+  .navbar .brand span { color: var(--accent); }
+  .nav-links { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .nav-links a {
+    color: var(--muted); text-decoration: none; font-size: 0.92rem;
+    padding: 0.35rem 0.7rem; border-radius: 999px; border: 1px solid transparent; transition: all .2s ease;
+  }
+  .nav-links a:hover { color: var(--text); border-color: var(--border); background: rgba(255,255,255,0.04); }
+  .nav-links a.cta { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #1a110c; border: none; font-weight: 600; }
+  .nav-links a.cta:hover { transform: translateY(-1px); filter: brightness(1.05); }
+
+  .container { max-width: 1000px; margin: 0 auto; padding: 1.2rem; }
+  .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+  h1 { font-size: 1.8rem; background: linear-gradient(to right, var(--green), #9be89f); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+  table {
+    width: 100%; border-collapse: separate; border-spacing: 0;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    backdrop-filter: blur(10px);
+  }
+  th, td { padding: 0.8rem 1rem; border-bottom: 1px solid rgba(120,90,60,0.2); vertical-align: middle; font-size: 0.9rem; }
+  th { background: rgba(20,14,10,0.45); color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.5px; }
+  tbody tr:hover td { background: rgba(111,191,115,0.08); }
+  tbody tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  .status { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 0.4rem; }
+  .status.activo { background: var(--green); box-shadow: 0 0 0 3px rgba(111,191,115,0.25); }
+  .status.inactivo { background: var(--muted); }
+  .subtext { color: var(--muted); font-size: 0.8rem; display: block; }
+  .empty { color: var(--muted); text-align: center; padding: 2rem; }
+
+  .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.55rem 1rem; border-radius: 999px; text-decoration: none; font-weight: 600; border: 1px solid transparent; transition: all .2s ease; }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #1a110c; }
+  .btn-primary:hover { transform: translateY(-2px); filter: brightness(1.05); }
+  .btn-secondary { background: rgba(255,255,255,0.06); color: var(--text); border-color: var(--border); }
+  .btn-secondary:hover { background: rgba(255,255,255,0.10); }
+  .btn.edit { background: rgba(255,255,255,0.06); color: var(--text); border-color: var(--border); }
+  .btn.delete { background: var(--red); color: #fff; border-color: transparent; }
+  </style>
+</head>
+<body>
+  <nav class="navbar" aria-label="Principal">
+    <div class="brand">🛒 MercadoLink <span>B2B</span></div>
+    <div class="nav-links">
+      <a href="/">Inicio</a>
+      <a href="/productos">Productos</a>
+      <a href="/proveedores">Proveedores</a>
+      <a href="/vendedores">Vendedores</a>
+      <a href="/actores">Actores</a>
+      <a href="/app" class="cta">Entrar a la App</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="top">
+      <h1>Proveedores</h1>
+      <div>
+        <a class="btn btn-secondary" href="/">Volver</a>
+      </div>
+    </div>
+
+    <table th:if="${proveedores != null and !proveedores.empty}">
+      <thead>
+        <tr>
+          <th>Nombre Com.</th>
+          <th>Email</th>
+          <th>Documento</th>
+          <th>Puesto / Sección</th>
+          <th>Estado</th>
+          <th>Fecha Reg.</th>
+          <th style="width: 120px;">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="p : ${proveedores}">
+          <td th:text="${p.nombreComercial}">Nombre</td>
+          <td th:text="${p.email}">email@ejemplo.com</td>
+          <td th:text="${p.documento}">12345678</td>
+          <td>
+            <span th:if="${p.puesto != null}" th:text="${p.puesto.nombre}">Puesto</span>
+            <span class="subtext" th:if="${p.puesto != null}" th:text="${p.puesto.seccion}">Sección</span>
+            <span th:if="${p.puesto == null}">-</span>
+          </td>
+          <td>
+            <span class="status" th:classappend="${p.activo} ? 'activo' : 'inactivo'"></span>
+            <span th:text="${p.activo} ? 'Activo' : 'Inactivo'">Activo</span>
+          </td>
+          <td th:text="${p.fechaRegistro}">2024-01-01</td>
+          <td>
+            <a class="btn edit" th:href="@{'/proveedores/' + ${p.id} + '/editar'}">Editar</a>
+            <form th:action="@{'/actores/' + ${p.id} + '/eliminar'}" method="post" style="display:inline" onsubmit="return confirm('¿Desactivar este proveedor?')">
+              <button type="submit" class="btn delete">X</button>
+            </form>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="empty" th:if="${proveedores == null or proveedores.empty}">No hay proveedores registrados. <a href="/proveedores/nuevo">Crear uno</a></p>
+  </div>
+</body>
+</html>

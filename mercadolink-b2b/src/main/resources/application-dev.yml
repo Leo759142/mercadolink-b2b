@@ -24,3 +24,9 @@ logging:
 app:
   izipay:
     sandbox-mode: true
+  culqi:
+    public-key: "pk_test_demo_culqi_public"
+    secret-key: "sk_test_demo_culqi_secret"
+    api-key: "sk_test_demo_culqi_api_key"
+    enabled: true
+    real-mode: false

@@ -1,13 +1,14 @@
 import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import AppShell from './components/AppShell';
+import Auditoria from './components/Auditoria';
 import Dashboard from './components/Dashboard';
 import Inventario from './components/Inventario';
 import Login from './components/Login';
 import Logistica from './components/Logistica';
 import Pedidos from './components/Pedidos';
 import PedidosProveedor from './components/PedidosProveedor';
-import PrivateRoute from './components/PrivateRoute';
+import PrivateRoute, { PublicRoute } from './components/PrivateRoute';
 import Productos from './components/Productos';
 import Proveedores from './components/Proveedores';
 import ProveedorInventario from './components/ProveedorInventario';
@@ -19,8 +20,22 @@ export default function App() {
   console.log('[NEW-LOG] React App render');
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
-      <Route path="/login" element={<Login />} />
+      <Route
+        path="/"
+        element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        }
+      />
       <Route path="/register" element={<Register />} />
       <Route
         element={
@@ -72,8 +87,16 @@ export default function App() {
             </RoleRoute>
           }
         />
+        <Route
+          path="auditoria"
+          element={
+            <RoleRoute module="auditoria">
+              <Auditoria />
+            </RoleRoute>
+          }
+        />
       </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 }

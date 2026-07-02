@@ -10,7 +10,7 @@ Se añadió una sección completa en el README (Sección 7) con:
 - **Base de Datos**: H2 file-based (`./data/mercadolink`)
 - **Autenticación**: JWT (HMAC-SHA256, 60 min expiración)
 - **Autorización**: RBAC con 4 roles
-- **Pasarelas**: Izipay + Qulqi (simulada)
+- **Pasarelas**: Izipay + Qulqi/Culqi (simuladas)
 - **API**: REST versionada `/api/v1`, RFC 9457 Error Handling
 - **Build**: Maven 3.6+ sin mvnw wrapper
 - **Puerto**: 8080
@@ -18,20 +18,22 @@ Se añadió una sección completa en el README (Sección 7) con:
 
 ### 2. Simulación de APIs Agregadas
 
-✨ Nueva clase `QulqiSimulationService.java`:
+✨ Nuevas clases `CulqiService.java` y `CulqiWebhookController.java`:
 
-- Simula creación de sesiones de pago Qulqi
-- Genera tokens y URLs de checkout ficticios
-- Valida transacciones en modo demo
+- Simula creación de sesiones de pago Culqi
+- Genera tokens y session IDs ficticios
+- Webhook con Content-Signature validation (simulado)
 - Fully annotated en español
 
-✨ Nuevo endpoint en `PagoController.java`:
+✨ Nuevos endpoints en `PagoController.java`:
 
 ```
-POST /api/v1/pagos/simulacion/qulqi?orderId=...&monto=...
+POST /api/v1/pagos/simulacion/culqi?orderId=...&monto=...
+POST /api/v1/culqi/webhook
+POST /api/v1/culqi/firmar
 ```
 
-- Retorna sesión mock de Qulqi para testing
+- Retorna sesión mock de Culqi para testing
 - Compatible con flujos end-to-end sin API real
 
 ### 3. Despliegue Rápido Preparado
@@ -153,8 +155,11 @@ curl -s -X POST http://localhost:8080/api/v1/pagos/simulacion/qulqi \
 | `Dockerfile`                  | ✨ Nuevo        | Alpine JRE 17 + health checks                             |
 | `docker-compose.yml`          | ✨ Nuevo        | BD persistente + env vars                                 |
 | `.dockerignore`               | ✨ Nuevo        | Optimización de build                                    |
-| `QulqiSimulationService.java` | ✨ Nuevo        | Simulación de pagos Qulqi                                |
-| `PagoController.java`         | ✏️ Modificado | +Inyección QulqiService + endpoint `/simulacion/qulqi` |
+| `CulqiService.java`           | ✨ Nuevo        | Simulación de pagos Culqi                                |
+| `CulqiWebhookController.java` | ✨ Nuevo        | Webhook y firma Culqi simulados                           |
+| `PagoController.java`         | ✏️ Modificado | Inyección CulqiService + endpoint `/simulacion/culqi`    |
+| `api.js`                      | ✏️ Modificado | `culqiAPI` agregado                                       |
+| `Pedidos.js`                  | ✏️ Modificado | Botón "Pagar Culqi" agregado                              |
 
 ---
 

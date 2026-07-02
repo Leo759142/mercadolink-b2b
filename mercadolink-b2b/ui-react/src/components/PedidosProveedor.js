@@ -10,13 +10,9 @@ function logEvento(evento, datos) {
   localStorage.setItem('debug_logs', JSON.stringify(logs.slice(-100)));
 }
 
-const ESTADOS_PAGO = ['PENDIENTE_PAGO', 'PAGADO', 'CONFIRMADO', 'EN_DESPACHO', 'ENTREGADO'];
-const ESTADOS_CANCELADO = ['CANCELADO', 'RECHAZADO'];
-
 export default function PedidosProveedor() {
   const [pedidos, setPedidos] = useState([]);
   const [error, setError] = useState('');
-  const [info, setInfo] = useState('');
   const [loading, setLoading] = useState(true);
 
   const cargar = useCallback(async () => {
@@ -40,31 +36,23 @@ export default function PedidosProveedor() {
 
   const resumenItems = (p) => {
     if (!p.items?.length) return '—';
-    return p.items
-      .map((it) => `${it.producto?.descripcion || '?'} ×${it.cantidad}`)
-      .join(', ');
+    return p.items.map((it) => `${it.producto?.descripcion || '?'} ×${it.cantidad}`).join(', ');
   };
-
-  const esPagoConfirmado = (pedido) => 
-    ESTADOS_PAGO.includes(pedido.estado) && !ESTADOS_CANCELADO.includes(pedido.estado);
 
   if (loading) {
     return (
       <div className="panel active">
-        <div className="card">Cargando pedidos de tus productos…</div>
+        <div className="card">Cargando pedidos proveedor…</div>
       </div>
     );
   }
 
   return (
     <div className="panel active">
-      <div className="panel-title">Mis Pedidos Proveedor</div>
-      <div className="panel-sub">
-        Pedidos que incluyen tus productos
-      </div>
+      <div className="panel-title">📥 Pedidos Recibidos</div>
+      <div className="panel-sub">Pedidos de tus productos · Usa la pestaña "Pedidos Recibidos" en Gestión de Pedidos para más opciones</div>
 
       {error && <div className="alert alert-error">{error}</div>}
-      {info && <div className="alert alert-success">{info}</div>}
 
       <div className="card">
         <div className="card-header">
@@ -93,9 +81,7 @@ export default function PedidosProveedor() {
             ) : (
               pedidos.map((p) => (
                 <tr key={p.id}>
-                  <td>
-                    <code>{p.id.slice(0, 8)}…</code>
-                  </td>
+                  <td><code>{p.id.slice(0, 8)}…</code></td>
                   <td>{p.cliente?.nombreComercial || '—'}</td>
                   <td style={{ maxWidth: 250 }}>{resumenItems(p)}</td>
                   <td>S/ {Number(p.montoTotal).toFixed(2)}</td>
