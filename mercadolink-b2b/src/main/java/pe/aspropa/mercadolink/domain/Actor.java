@@ -49,6 +49,11 @@ public class Actor {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Puesto puesto;
 
+    /** Relación 1:1 con Proveedor (solo para rol PROVEEDOR). */
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "actor")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Proveedor proveedor;
+
     @Column(nullable = false)
     private Instant fechaRegistro = Instant.now();
 
@@ -79,6 +84,8 @@ public class Actor {
     public void setActivo(boolean a) { this.activo = a; }
     public Puesto getPuesto() { return puesto; }
     public void setPuesto(Puesto p) { this.puesto = p; }
+    public Proveedor getProveedor() { return proveedor; }
+    public void setProveedor(Proveedor proveedor) { this.proveedor = proveedor; }
     public Instant getFechaRegistro() { return fechaRegistro; }
     public void setFechaRegistro(Instant f) { this.fechaRegistro = f; }
 }

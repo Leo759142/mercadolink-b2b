@@ -83,33 +83,46 @@ public class PedidoService {
         List<ItemPedido> itemsProcesados = new ArrayList<>();
         int totalUnidades = 0;
         
+        // 🔑 REFACTOR B2B: Sistema elige puesto automáticamente (no cliente)
         for (ItemPedidoRequest itemReq : req.getItems()) {
-            log.debug("[PEDIDO] Procesando item: productoId={}, puestoId={}, cantidad={}",
-                itemReq.getProductoId(), itemReq.getPuestoId(), itemReq.getCantidad());
+            log.debug("[PEDIDO B2B] Procesando item: productoId={}, cantidad={} (SIN puestoId)", 
+                itemReq.getProductoId(), itemReq.getCantidad());
 
+            // 1. Validar producto
             Producto producto = productoRepository.findById(itemReq.getProductoId())
                     .orElseThrow(() -> BusinessException.notFound("CAT-001",
                             "Producto no encontrado: " + itemReq.getProductoId()));
-            Puesto puesto = puestoRepository.findById(itemReq.getPuestoId())
-                    .orElseThrow(() -> BusinessException.notFound("PUE-001",
-                            "Puesto no encontrado: " + itemReq.getPuestoId()));
+            
             if (!producto.isActivo()) {
-                throw BusinessException.badRequest("CAT-001",
+                throw BusinessException.badRequest("CAT-002",
                         "Producto inactivo: " + producto.getCodigo());
             }
+
+            // 2. 🎯 BUSCAR AUTOMÁTICAMENTE puesto con stock disponible
+            Inventario inventarioElegido = inventarioService.buscarInventarioDisponible(
+                    itemReq.getProductoId(), 
+                    itemReq.getCantidad()
+            );
+            Puesto puestoElegido = inventarioElegido.getPuesto();
+            
+            log.info("[PEDIDO B2B] Sistema eligió: puesto={}, disponible={}",
+                puestoElegido.getId(), inventarioElegido.disponible());
+
+            // 3. Crear item con puesto elegido por el sistema
             ItemPedido item = new ItemPedido();
             item.setPedido(pedido);
             item.setProducto(producto);
-            item.setPuesto(puesto);
+            item.setPuesto(puestoElegido);
             item.setCantidad(itemReq.getCantidad());
             item.setPrecioUnitario(producto.getPrecioReferencia());
+            item.setEstadoItem(ItemPedido.EstadoItem.PENDIENTE);
             itemsProcesados.add(item);
         }
 
         for (ItemPedido item : itemsProcesados) {
             pedido.getItems().add(item);
             totalUnidades += item.getCantidad();
-            log.info("[PEDIDO] Reservando stock: producto={}, puesto={}, cantidad={}",
+            log.info("[PEDIDO B2B] Reservando stock: producto={}, puesto={}, cantidad={}",
                 item.getProducto().getCodigo(), item.getPuesto().getId(), item.getCantidad());
         }
 
@@ -120,7 +133,7 @@ public class PedidoService {
                 itemsReservados++;
             }
         } catch (BusinessException e) {
-            log.warn("[PEDIDO] Error reservando stock, liberando {} reservas previas", itemsReservados);
+            log.warn("[PEDIDO B2B] Error reservando stock, liberando {} reservas previas", itemsReservados);
             for (int i = 0; i < itemsReservados; i++) {
                 ItemPedido item = itemsProcesados.get(i);
                 inventarioService.liberarReserva(item.getProducto().getId(), item.getPuesto().getId(), item.getCantidad());
@@ -130,10 +143,10 @@ public class PedidoService {
 
         pedido.recalcularTotal();
 
-        log.info("[PEDIDO] Validando mínimos: unidades={}, monto={}", totalUnidades, pedido.getMontoTotal());
+        log.info("[PEDIDO B2B] Validando mínimos: unidades={}, monto={}", totalUnidades, pedido.getMontoTotal());
         if (totalUnidades < CANTIDAD_TOTAL_MINIMA ||
                 pedido.getMontoTotal().compareTo(MONTO_MINIMO) < 0) {
-            log.warn("[PEDIDO] Pedido no cumple mínimos. Unidades: {} (min {}), Monto: {} (min {})", 
+            log.warn("[PEDIDO B2B] Pedido no cumple mínimos. Unidades: {} (min {}), Monto: {} (min {})", 
                 totalUnidades, CANTIDAD_TOTAL_MINIMA, pedido.getMontoTotal(), MONTO_MINIMO);
             itemsProcesados.forEach(item -> inventarioService.liberarReserva(
                     item.getProducto().getId(), item.getPuesto().getId(), item.getCantidad()));
@@ -144,12 +157,13 @@ public class PedidoService {
 
         pedido.setEstado(EstadoPedido.PENDIENTE_PAGO);
         Pedido saved = pedidoRepository.save(pedido);
-        log.info("[PEDIDO] Pedido guardado: id={}, estado={}, monto={}, items={}", 
-            saved.getId(), saved.getEstado(), saved.getMontoTotal(), saved.getItems().size());
+        log.info("[PEDIDO B2B] Pedido guardado: id={}, estado={}, monto={}, items={}, puestos diferentes={}", 
+            saved.getId(), saved.getEstado(), saved.getMontoTotal(), saved.getItems().size(),
+            saved.getItems().stream().map(i -> i.getPuesto().getId()).distinct().count());
 
         auditoriaService.registrar(cliente.getId(), cliente.getRol().name(),
                 "GestionPedidos", "CrearPedido", saved.getId(), "EXITO",
-                idempotencyKey, "Pedido B2B creado con " + saved.getItems().size() + " ítems");
+                idempotencyKey, "Pedido B2B creado con " + saved.getItems().size() + " ítems, sistema eligió puestos");
         notificacionService.notificarPedidoCreado(cliente.getEmail(), saved.getId());
         return saved;
     }

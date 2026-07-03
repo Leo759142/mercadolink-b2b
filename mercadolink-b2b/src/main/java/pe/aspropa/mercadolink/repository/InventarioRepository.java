@@ -15,6 +15,9 @@ public interface InventarioRepository extends JpaRepository<Inventario, String> 
     Optional<Inventario> findByProductoIdAndPuestoId(String productoId, String puestoId);
 
     List<Inventario> findByPuestoId(String puestoId);
+    
+    /** Buscar todos los inventarios de un producto (para elegir puesto automáticamente en B2B). */
+    List<Inventario> findByProductoId(String productoId);
 
     /** Optimistic lock por defecto via @Version; este método es por si se quisiera reforzar. */
     @Lock(LockModeType.OPTIMISTIC)

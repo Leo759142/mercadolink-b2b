@@ -48,6 +48,53 @@ public class InventarioService {
                                 " en puesto " + puestoId));
     }
 
+    /** 
+     * 🔑 CRÍTICO: Busca automáticamente el puesto con stock disponible.
+     * Algoritmo: Prioriza puestos con más stock disponible.
+     * 
+     * @param productoId ID del producto
+     * @param cantidadRequerida Cantidad necesaria
+     * @return Inventario con stock suficiente
+     * @throws BusinessException si no hay stock en ningún puesto
+     */
+    @Transactional(readOnly = true)
+    public Inventario buscarInventarioDisponible(String productoId, int cantidadRequerida) {
+        log.info("[INVENTARIO B2B] Buscando puesto con stock: productoId={}, cantidad={}", 
+            productoId, cantidadRequerida);
+        
+        // Buscar todos los inventarios del producto, ordenados por disponibilidad DESC
+        List<Inventario> inventarios = inventarioRepository.findByProductoId(productoId);
+        
+        if (inventarios.isEmpty()) {
+            log.warn("[INVENTARIO B2B] Producto no tiene inventario en ningún puesto: {}", productoId);
+            throw BusinessException.conflict("INV-005",
+                    "Producto no disponible en mercado: " + productoId);
+        }
+        
+        // Filtrar por stock disponible y ordenar por cantidad DESC
+        var disponibles = inventarios.stream()
+                .filter(inv -> inv.disponible() >= cantidadRequerida)
+                .sorted((a, b) -> Integer.compare(b.disponible(), a.disponible()))
+                .toList();
+        
+        if (disponibles.isEmpty()) {
+            int totalDisponible = inventarios.stream()
+                    .mapToInt(Inventario::disponible)
+                    .sum();
+            log.warn("[INVENTARIO B2B] Stock insuficiente en todos los puestos. Total: {}, Solicitado: {}", 
+                totalDisponible, cantidadRequerida);
+            throw BusinessException.conflict("INV-001",
+                    "Stock insuficiente para producto. Disponible: " + totalDisponible + 
+                    ", solicitado: " + cantidadRequerida);
+        }
+        
+        Inventario seleccionado = disponibles.get(0);
+        log.info("[INVENTARIO B2B] Puesto seleccionado: puestoId={}, disponible={}", 
+            seleccionado.getPuesto().getId(), seleccionado.disponible());
+        
+        return seleccionado;
+    }
+
     @Transactional
     public Inventario actualizarStock(String productoId, String puestoId,
                                       int cantidadActual, int cantidadMinima) {

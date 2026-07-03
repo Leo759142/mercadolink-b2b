@@ -14,6 +14,8 @@ export default function PedidosProveedor() {
   const [pedidos, setPedidos] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [expandido, setExpandido] = useState({});
+  const [procesando, setProcesando] = useState({});
 
   const cargar = useCallback(async () => {
     logEvento('cargar_pedidos_proveedor', {});
@@ -34,9 +36,28 @@ export default function PedidosProveedor() {
     cargar();
   }, [cargar]);
 
-  const resumenItems = (p) => {
-    if (!p.items?.length) return '—';
-    return p.items.map((it) => `${it.producto?.descripcion || '?'} ×${it.cantidad}`).join(', ');
+  const confirmarSurtimiento = async (pedidoId, itemId) => {
+    const key = `${pedidoId}-${itemId}`;
+    setProcesando((prev) => ({ ...prev, [key]: true }));
+    try {
+      await pedidosAPI.confirmarSurtimiento(pedidoId, itemId);
+      logEvento('surtimiento_confirmado', { pedidoId, itemId });
+      // Recargar pedidos
+      const { data } = await pedidosAPI.miosProveedor();
+      setPedidos(data);
+    } catch (err) {
+      logEvento('surtimiento_error', { pedidoId, itemId, error: err.message });
+      alert(`Error: ${err.message}`);
+    } finally {
+      setProcesando((prev) => ({ ...prev, [key]: false }));
+    }
+  };
+
+  const toggleExpandido = (pedidoId) => {
+    setExpandido((prev) => ({
+      ...prev,
+      [pedidoId]: !prev[pedidoId],
+    }));
   };
 
   if (loading) {
@@ -62,40 +83,71 @@ export default function PedidosProveedor() {
           </button>
         </div>
 
-        <table className="tbl">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Cliente</th>
-              <th>Productos</th>
-              <th>Monto</th>
-              <th>Estado</th>
-              <th>Fecha</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pedidos.length === 0 ? (
-              <tr>
-                <td colSpan={6}>Sin pedidos de tus productos aún</td>
-              </tr>
-            ) : (
-              pedidos.map((p) => (
-                <tr key={p.id}>
-                  <td><code>{p.id.slice(0, 8)}…</code></td>
-                  <td>{p.cliente?.nombreComercial || '—'}</td>
-                  <td style={{ maxWidth: 250 }}>{resumenItems(p)}</td>
-                  <td>S/ {Number(p.montoTotal).toFixed(2)}</td>
-                  <td>
-                    <span className={`pill ${pillClass(p.estado)}`}>
-                      {labelEstado(p.estado)}
-                    </span>
-                  </td>
-                  <td>{new Date(p.fechaCreacion).toLocaleString('es-PE')}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+        <div style={{ overflowX: 'auto' }}>
+          {pedidos.length === 0 ? (
+            <div className="card">Sin pedidos de tus productos aún</div>
+          ) : (
+            pedidos.map((p) => (
+              <div key={p.id} style={{ marginBottom: '1rem', border: '1px solid #ddd', borderRadius: '4px', padding: '1rem' }}>
+                {/* Fila resumen */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }} onClick={() => toggleExpandido(p.id)}>
+                  <div style={{ display: 'flex', gap: '1rem', flex: 1 }}>
+                    <span style={{ fontWeight: 'bold', minWidth: 100 }}><code>{p.id.slice(0, 8)}…</code></span>
+                    <span>{p.cliente?.nombreComercial || '—'}</span>
+                    <span style={{ color: '#666' }}>S/ {Number(p.montoTotal).toFixed(2)}</span>
+                    <span className={`pill ${pillClass(p.estado)}`}>{labelEstado(p.estado)}</span>
+                  </div>
+                  <span style={{ fontSize: '12px', color: '#666' }}>{new Date(p.fechaCreacion).toLocaleString('es-PE')}</span>
+                  <span style={{ marginLeft: '1rem' }}>{expandido[p.id] ? '▼' : '▶'}</span>
+                </div>
+
+                {/* Items expandidos */}
+                {expandido[p.id] && p.items && (
+                  <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #eee' }}>
+                    <div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>Items:</div>
+                    {p.items.map((item) => {
+                      const key = `${p.id}-${item.id}`;
+                      return (
+                        <div key={item.id} style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '0.75rem',
+                          backgroundColor: '#f9f9f9',
+                          marginBottom: '0.5rem',
+                          borderRadius: '4px',
+                        }}>
+                          <div style={{ flex: 1 }}>
+                            <div><strong>{item.producto?.descripcion || '?'}</strong></div>
+                            <div style={{ fontSize: '12px', color: '#666' }}>
+                              Cantidad: {item.cantidad} | Puesto: {item.puesto?.nombre || 'N/A'} | Precio: S/ {Number(item.precioUnitario).toFixed(2)}
+                            </div>
+                            <div style={{ fontSize: '12px', color: '#666' }}>
+                              Estado: <span className={`pill ${pillClass(item.estadoItem)}`}>{item.estadoItem || 'PENDIENTE'}</span>
+                            </div>
+                          </div>
+                          {item.estadoItem === 'PENDIENTE' && (
+                            <button
+                              className="btn btn-primary btn-sm"
+                              onClick={() => confirmarSurtimiento(p.id, item.id)}
+                              disabled={procesando[key]}
+                              style={{ marginLeft: '1rem' }}
+                            >
+                              {procesando[key] ? '⏳' : '✓ Surtido'}
+                            </button>
+                          )}
+                          {item.estadoItem !== 'PENDIENTE' && (
+                            <div style={{ marginLeft: '1rem', fontSize: '12px', color: '#666' }}>✓ {item.estadoItem}</div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

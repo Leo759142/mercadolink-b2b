@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.time.Instant;
 
 /** Línea de pedido, asociada a un producto y un puesto. */
 @Entity
@@ -35,6 +36,22 @@ public class ItemPedido {
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal precioUnitario;
 
+    /** Estado del item individual (PENDIENTE, SURTIDO, ENTREGADO, RECHAZADO). */
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30, columnDefinition = "VARCHAR(30) DEFAULT 'PENDIENTE'")
+    private EstadoItem estadoItem = EstadoItem.PENDIENTE;
+
+    /** Fecha/hora en que el proveedor confirmó surtimiento. */
+    @Column(nullable = true)
+    private Instant fechaSurtimiento;
+
+    public enum EstadoItem {
+        PENDIENTE,      // Esperando surtimiento
+        SURTIDO,        // Proveedor ya envió
+        ENTREGADO,      // Cliente recibió
+        RECHAZADO       // No se pudo surtir
+    }
+
     public ItemPedido() {}
 
     public BigDecimal subtotal() {
@@ -54,4 +71,8 @@ public class ItemPedido {
     public void setCantidad(int cantidad) { this.cantidad = cantidad; }
     public BigDecimal getPrecioUnitario() { return precioUnitario; }
     public void setPrecioUnitario(BigDecimal p) { this.precioUnitario = p; }
+    public EstadoItem getEstadoItem() { return estadoItem; }
+    public void setEstadoItem(EstadoItem estadoItem) { this.estadoItem = estadoItem; }
+    public Instant getFechaSurtimiento() { return fechaSurtimiento; }
+    public void setFechaSurtimiento(Instant fechaSurtimiento) { this.fechaSurtimiento = fechaSurtimiento; }
 }

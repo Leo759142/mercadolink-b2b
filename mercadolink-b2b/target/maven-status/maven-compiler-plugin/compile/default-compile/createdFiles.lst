@@ -87,6 +87,7 @@ pe\aspropa\mercadolink\service\IzipayService$PaymentSession.class
 pe\aspropa\mercadolink\service\PedidoService$1.class
 pe\aspropa\mercadolink\MercadolinkApplication.class
 pe\aspropa\mercadolink\config\CorsConfig.class
+pe\aspropa\mercadolink\domain\ItemPedido$EstadoItem.class
 pe\aspropa\mercadolink\service\CulqiService.class
 pe\aspropa\mercadolink\controller\AuthController.class
 pe\aspropa\mercadolink\dto\ActualizarProveedorRequest.class

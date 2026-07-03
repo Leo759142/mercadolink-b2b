@@ -91,6 +91,8 @@ export const pedidosAPI = {
   obtener: (id) => apiClient.get(`/pedidos/${id}`),
   cambiarEstado: (id, estado) =>
     apiClient.patch(`/pedidos/${id}/estado`, { estado }),
+  confirmarSurtimiento: (pedidoId, itemId) =>
+    apiClient.patch(`/pedidos/${pedidoId}/items/${itemId}/surtir`),
 };
 
 export const pagosAPI = {

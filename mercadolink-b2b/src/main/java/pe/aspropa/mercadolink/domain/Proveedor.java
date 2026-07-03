@@ -14,6 +14,12 @@ public class Proveedor {
     @Column(length = 36)
     private String id = UUID.randomUUID().toString();
 
+    /** Relación 1:1 con Actor del rol PROVEEDOR. */
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "actor_id", nullable = false, unique = true)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Actor actor;
+
     @Column(nullable = false, length = 200)
     private String razonSocial;
 
@@ -41,10 +47,20 @@ public class Proveedor {
     @Column(nullable = false)
     private LocalDate fechaRegistro = LocalDate.now();
 
+    /** Fecha en que fue aprobado (null si aún en evaluación o rechazado). */
+    @Column(nullable = true)
+    private LocalDate fechaAprobacion;
+
+    /** ID del ADMINISTRADOR que aprobó. */
+    @Column(length = 36, nullable = true)
+    private String aprobadoPor;
+
     public Proveedor() {}
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
+    public Actor getActor() { return actor; }
+    public void setActor(Actor actor) { this.actor = actor; }
     public String getRazonSocial() { return razonSocial; }
     public void setRazonSocial(String razonSocial) { this.razonSocial = razonSocial; }
     public String getRuc() { return ruc; }
@@ -63,4 +79,8 @@ public class Proveedor {
     public void setDistrito(String distrito) { this.distrito = distrito; }
     public LocalDate getFechaRegistro() { return fechaRegistro; }
     public void setFechaRegistro(LocalDate fechaRegistro) { this.fechaRegistro = fechaRegistro; }
+    public LocalDate getFechaAprobacion() { return fechaAprobacion; }
+    public void setFechaAprobacion(LocalDate fechaAprobacion) { this.fechaAprobacion = fechaAprobacion; }
+    public String getAprobadoPor() { return aprobadoPor; }
+    public void setAprobadoPor(String aprobadoPor) { this.aprobadoPor = aprobadoPor; }
 }
