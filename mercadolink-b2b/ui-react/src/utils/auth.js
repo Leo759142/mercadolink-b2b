@@ -6,10 +6,61 @@ export const DEMO_USERS = {
 };
 
 const RBAC = {
-  vendedor: { dashboard: true, inventario: true, pedidos: true, productos: true, proveedores: false, logistica: true, proveedorInventario: false, auditoria: true },
-  proveedor: { dashboard: true, inventario: false, pedidos: true, productos: true, proveedores: true, logistica: true, proveedorInventario: true, auditoria: true },
-  mayorista: { dashboard: true, inventario: false, pedidos: true, productos: true, proveedores: false, logistica: false, proveedorInventario: false, auditoria: true },
-  admin: { dashboard: true, inventario: true, pedidos: true, productos: true, proveedores: true, logistica: true, proveedorInventario: true, auditoria: true },
+  // ✅ VENDEDOR: solo ve lo de su puesto, NO "Mis Pedidos" ni "Logística"
+  vendedor: { 
+    dashboard: true, 
+    inventario: true, 
+    pedidos: false,        // ← OCULTO: "Mis Pedidos"
+    productos: false, 
+    proveedores: false, 
+    logistica: false,      // ← OCULTO: "Logística"
+    proveedorInventario: false, 
+    proveedorPedidos: false,
+    pedidosVendedor: true,  // ← NUEVO: "Entregas" (pedidos de su puesto)
+    auditoria: true 
+  },
+  
+  // ✅ PROVEEDOR: solo ve su catálogo y pedidos recibidos, NO "Mis Pedidos" ni "Logística"
+  proveedor: { 
+    dashboard: true, 
+    inventario: false, 
+    pedidos: false,        // ← OCULTO: "Mis Pedidos"
+    productos: true, 
+    proveedores: true, 
+    logistica: false,      // ← OCULTO: "Logística"
+    proveedorInventario: true, 
+    proveedorPedidos: true, // ← "Pedidos recibidos"
+    pedidosVendedor: false,
+    auditoria: true 
+  },
+  
+  // ✅ MAYORISTA: cliente que compra
+  mayorista: { 
+    dashboard: true, 
+    inventario: false, 
+    pedidos: true,         // ← "Mis Pedidos" (sus compras)
+    productos: true, 
+    proveedores: false, 
+    logistica: false,      // ← OCULTO
+    proveedorInventario: false, 
+    proveedorPedidos: false,
+    pedidosVendedor: false,
+    auditoria: true 
+  },
+  
+  // ✅ ADMIN: ve todo
+  admin: { 
+    dashboard: true, 
+    inventario: true, 
+    pedidos: true, 
+    productos: true, 
+    proveedores: true, 
+    logistica: true, 
+    proveedorInventario: true, 
+    proveedorPedidos: true,
+    pedidosVendedor: true,
+    auditoria: true 
+  },
 };
 
 export function rolToKey(rol) {

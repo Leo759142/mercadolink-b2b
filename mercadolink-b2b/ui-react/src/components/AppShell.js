@@ -8,11 +8,11 @@ const NAV = [
   { id: 'productos', path: '/productos', icon: '🛒', label: 'Catálogo', module: 'productos' },
   { id: 'inventario', path: '/inventario', icon: '📦', label: 'Inventario', module: 'inventario' },
   { id: 'proveedorInv', path: '/proveedor-inventario', icon: '📋', label: 'Mi Inventario', module: 'proveedorInventario' },
-  { id: 'proveedorPed', path: '/proveedor-pedidos', icon: '📥', label: 'Pedidos recibidos', module: 'proveedores' },
+  { id: 'proveedorPed', path: '/proveedor-pedidos', icon: '📥', label: 'Pedidos recibidos', module: 'proveedorPedidos' },
   { id: 'pedidos', path: '/pedidos', icon: '📋', label: 'Mis Pedidos', module: 'pedidos' },
+  { id: 'pedidosVendedor', path: '/pedidos-vendedor', icon: '📦', label: 'Entregas', module: 'pedidosVendedor' },
   { id: 'proveedores', path: '/proveedores', icon: '🤝', label: 'Proveedores', module: 'proveedores' },
   { id: 'logistica', path: '/logistica', icon: '🚚', label: 'Logística', module: 'logistica' },
-  { id: 'pedidosVendedor', path: '/pedidos-vendedor', icon: '📦', label: 'Entregas', module: 'inventario' },
 ];
 
 export default function AppShell() {
