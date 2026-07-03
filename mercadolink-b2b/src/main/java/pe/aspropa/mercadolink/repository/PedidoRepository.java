@@ -14,4 +14,8 @@ public interface PedidoRepository extends JpaRepository<Pedido, String> {
 
     @Query("select distinct p from Pedido p join p.items i where i.producto.proveedor.id = :proveedorId order by p.fechaCreacion desc")
     List<Pedido> findByProveedorId(@Param("proveedorId") String proveedorId);
+
+    //NUEVO: Pedidos que tienen items asignados al puesto del vendedor
+    @Query("select distinct p from Pedido p join p.items i where i.puesto.id = :puestoId order by p.fechaCreacion desc")
+    List<Pedido> findByItemsPuestoId(@Param("puestoId") String puestoId);
 }

@@ -61,6 +61,14 @@ public class PedidoController {
         return pedidoService.listarPorCliente(principal.actorId());
     }
 
+    @GetMapping("/puesto/mios")
+    @PreAuthorize("hasAnyRole('VENDEDOR','ADMINISTRADOR')")
+    @Operation(summary = "Lista pedidos que incluyen productos del puesto del vendedor")
+    public List<Pedido> miosPorPuesto(@AuthenticationPrincipal AuthenticatedActor principal) {
+        log.debug("[API PEDIDOS] GET miosPorPuesto - actorId={}", principal.actorId());
+        return pedidoService.listarPorPuesto(principal.actorId());
+    }
+
     @GetMapping("/proveedor/mios")
     @PreAuthorize("hasAnyRole('PROVEEDOR','ADMINISTRADOR')")
     @Operation(summary = "Lista los pedidos que incluyen productos del proveedor")
@@ -81,11 +89,11 @@ public class PedidoController {
         return pedidoService.cambiarEstado(id, estado, principal.actorId());
     }
 
-    @PatchMapping("/{pedidoId}/items/{itemId}/surtir")
+    @PatchMapping("/{pedidoId}/surtir/{itemId}")
     @PreAuthorize("hasAnyRole('PROVEEDOR','ADMINISTRADOR')")
     @Operation(summary = "Marca un item del pedido como surtido por el proveedor")
     public Pedido surtirItem(@PathVariable String pedidoId,
-                              @PathVariable Long itemId,
+                              @PathVariable String itemId,
                               @AuthenticationPrincipal AuthenticatedActor principal) {
         log.info("[API PEDIDOS] PATCH surtir - pedidoId={}, itemId={}, proveedorId={}",
             pedidoId, itemId, principal.actorId());

@@ -12,6 +12,7 @@ const NAV = [
   { id: 'pedidos', path: '/pedidos', icon: '📋', label: 'Mis Pedidos', module: 'pedidos' },
   { id: 'proveedores', path: '/proveedores', icon: '🤝', label: 'Proveedores', module: 'proveedores' },
   { id: 'logistica', path: '/logistica', icon: '🚚', label: 'Logística', module: 'logistica' },
+  { id: 'pedidosVendedor', path: '/pedidos-vendedor', icon: '📦', label: 'Entregas', module: 'inventario' },
 ];
 
 export default function AppShell() {

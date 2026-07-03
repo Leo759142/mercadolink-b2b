@@ -200,3 +200,39 @@ Caused by: org.h2.mvstore.MVStoreException: The file is locked: D:/mercadolink-b
 	at org.h2.mvstore.SingleFileStore.open(SingleFileStore.java:81)
 	at org.h2.mvstore.MVStore.<init>(MVStore.java:286)
 	... 61 more
+2026-07-03 12:27:48.874150-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"
+Syntax error in SQL statement "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"; SQL statement:
+
+    alter table if exists items_pedido 
+       alter column estado_item set data type VARCHAR(30) DEFAULT 'PENDIENTE' [42000-224]
+2026-07-03 12:32:16.144407-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"
+Syntax error in SQL statement "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"; SQL statement:
+
+    alter table if exists items_pedido 
+       alter column estado_item set data type VARCHAR(30) DEFAULT 'PENDIENTE' [42000-224]
+2026-07-03 12:55:44.385716-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"
+Syntax error in SQL statement "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"; SQL statement:
+
+    alter table if exists items_pedido 
+       alter column estado_item set data type VARCHAR(30) DEFAULT 'PENDIENTE' [42000-224]
+2026-07-03 12:57:12.386260-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"
+Syntax error in SQL statement "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"; SQL statement:
+
+    alter table if exists items_pedido 
+       alter column estado_item set data type VARCHAR(30) DEFAULT 'PENDIENTE' [42000-224]
+2026-07-03 15:30:22.211657-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"
+Syntax error in SQL statement "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"; SQL statement:
+
+    alter table if exists items_pedido 
+       alter column estado_item set data type VARCHAR(30) DEFAULT 'PENDIENTE' [42000-224]
+2026-07-03 15:52:42.708007-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"
+Syntax error in SQL statement "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"; SQL statement:
+
+    alter table if exists items_pedido 
+       alter column estado_item set data type VARCHAR(30) DEFAULT 'PENDIENTE' [42000-224]

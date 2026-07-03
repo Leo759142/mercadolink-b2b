@@ -36,15 +36,29 @@ export default function PedidosProveedor() {
     cargar();
   }, [cargar]);
 
+  // Después de confirmar surtimiento, esperar un momento y recargar
   const confirmarSurtimiento = async (pedidoId, itemId) => {
     const key = `${pedidoId}-${itemId}`;
     setProcesando((prev) => ({ ...prev, [key]: true }));
     try {
       await pedidosAPI.confirmarSurtimiento(pedidoId, itemId);
       logEvento('surtimiento_confirmado', { pedidoId, itemId });
+      
+      // Esperar un poco para que el backend procese el auto-avance
+      await new Promise(r => setTimeout(r, 500));
+      
       // Recargar pedidos
       const { data } = await pedidosAPI.miosProveedor();
       setPedidos(data);
+      
+      // Mostrar mensaje de éxito con el estado actualizado
+      const pedidoActualizado = data.find(p => p.id === pedidoId);
+      if (pedidoActualizado) {
+        logEvento('pedido_estado_actualizado', { 
+          pedidoId, 
+          estado: pedidoActualizado.estado 
+        });
+      }
     } catch (err) {
       logEvento('surtimiento_error', { pedidoId, itemId, error: err.message });
       alert(`Error: ${err.message}`);

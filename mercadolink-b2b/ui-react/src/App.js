@@ -13,6 +13,7 @@ import Productos from './components/Productos';
 import Proveedores from './components/Proveedores';
 import ProveedorInventario from './components/ProveedorInventario';
 import Register from './components/Register';
+import PedidosVendedor from './components/PedidosVendedor';
 import RoleRoute from './components/RoleRoute';
 import './index.css';
 
@@ -50,6 +51,14 @@ export default function App() {
           element={
             <RoleRoute module="inventario">
               <Inventario />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="pedidos-vendedor"
+          element={
+            <RoleRoute module="inventario">  {/* o un nuevo module */}
+              <PedidosVendedor />
             </RoleRoute>
           }
         />

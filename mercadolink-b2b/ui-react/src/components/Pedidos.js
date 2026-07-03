@@ -66,6 +66,16 @@ export default function Pedidos() {
     }
   }, []);
 
+  // En Pedidos.js, agregar un useEffect para polling
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (tab === 'misPedidos') {
+        cargarPedidos(); // Recargar cada 10 segundos
+      }
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [tab, cargarPedidos]);
+
   useEffect(() => {
     const init = async () => {
       setLoading(true);
@@ -218,6 +228,12 @@ export default function Pedidos() {
                       <button type="button" className="btn btn-ghost btn-sm" onClick={() => setSelected(p)}>
                         Ver
                       </button>
+                      {/* Botón para vendedor/admin: marcar como ENTREGADO */}
+                      {p.estado === 'EN_DESPACHO' && PUEDE_GESTIONAR_ESTADO.includes(rol) && (
+                        <button type="button" className="btn btn-success btn-sm" onClick={() => avanzarEstado(p, 'ENTREGADO')}>
+                          📦 Entregado
+                        </button>
+                      )}
                       {p.estado === 'PENDIENTE_PAGO' && (
                         <>
                           <button type="button" className="btn btn-warning btn-sm" onClick={() => avanzarEstado(p, 'PAGADO')}>

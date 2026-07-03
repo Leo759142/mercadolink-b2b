@@ -185,6 +185,16 @@ public class PedidoService {
         return pedidoRepository.findByProveedorId(proveedorId);
     }
 
+    public List<Pedido> listarPorPuesto(String vendedorId) {
+        log.debug("[PEDIDO] Listando pedidos para puesto del vendedor: {}", vendedorId);
+        Actor vendedor = actorService.obtenerPorId(vendedorId);
+        if (vendedor.getPuesto() == null) {
+            return List.of();
+        }
+        String puestoId = vendedor.getPuesto().getId();
+        return pedidoRepository.findByItemsPuestoId(puestoId);
+    }
+
     @Transactional
     public Pedido cambiarEstado(String pedidoId, EstadoPedido nuevoEstado, String actorId) {
         log.info("[PEDIDO] Cambiando estado: id={}, de={} a={}", pedidoId, null, nuevoEstado);
@@ -206,16 +216,16 @@ public class PedidoService {
     }
 
     @Transactional
-    public Pedido surtirItem(String pedidoId, Long itemId, String proveedorActorId) {
+    public Pedido surtirItem(String pedidoId, String itemId, String proveedorActorId) {
         log.info("[PEDIDO] Surtiendo item: pedidoId={}, itemId={}, proveedorId={}",
             pedidoId, itemId, proveedorActorId);
         Pedido pedido = obtenerPedido(pedidoId);
 
         ItemPedido item = pedido.getItems().stream()
-                .filter(i -> i.getId().equals(itemId))
-                .findFirst()
-                .orElseThrow(() -> BusinessException.notFound("PED-405",
-                        "Item no encontrado en el pedido: " + itemId));
+            .filter(i -> i.getId().toString().equals(itemId))
+            .findFirst()
+            .orElseThrow(() -> BusinessException.notFound("PED-405",
+                    "Item no encontrado en el pedido: " + itemId));
 
         Actor proveedorProducto = item.getProducto().getProveedor();
         if (proveedorProducto == null || !proveedorProducto.getId().equals(proveedorActorId)) {
@@ -231,16 +241,40 @@ public class PedidoService {
                     "El item no está en estado PENDIENTE (actual: " + item.getEstadoItem() + ")");
         }
 
+        // 1. Marcar item como SURTIDO
         item.setEstadoItem(ItemPedido.EstadoItem.SURTIDO);
         item.setFechaSurtimiento(java.time.Instant.now());
+        log.info("[PEDIDO] Item {} marcado como SURTIDO", itemId);
 
+        // 2. Verificar si todos los items están surtidos
+        boolean todosSurtidos = pedido.getItems().stream()
+            .allMatch(i -> i.getEstadoItem() == ItemPedido.EstadoItem.SURTIDO);
+
+        // 3. Auto-avance de estados del pedido si aplica
+        if (todosSurtidos && pedido.getEstado() == EstadoPedido.PAGADO) {
+            pedido.setEstado(EstadoPedido.CONFIRMADO);
+            log.info("[PEDIDO] Todos los items surtidos. Pedido {} pasó a CONFIRMADO", pedidoId);
+            
+            // Guardar para que el cambio a CONFIRMADO persista antes de seguir
+            pedido = pedidoRepository.save(pedido);
+            
+            // Auto-avanzar a EN_DESPACHO
+            pedido.setEstado(EstadoPedido.EN_DESPACHO);
+            log.info("[PEDIDO] Auto-avance a EN_DESPACHO para pedido {}", pedidoId);
+            
+            auditoriaService.registrar(proveedorActorId, "PROVEEDOR", "GestionPedidos",
+                "AutoAvanceEstado", pedido.getId(), "EXITO", null,
+                "PAGADO → CONFIRMADO → EN_DESPACHO (todos los items surtidos)");
+        }
+
+        // 4. Guardar y retornar
         auditoriaService.registrar(proveedorActorId, "PROVEEDOR", "GestionPedidos",
                 "SurtirItem", pedido.getId(), "EXITO", null,
                 "Item " + itemId + " marcado como SURTIDO");
 
         Pedido saved = pedidoRepository.save(pedido);
         log.info("[PEDIDO] Item surtido exitosamente: pedidoId={}, itemId={}", pedidoId, itemId);
-        return saved;
+        return saved;  // ← ESTO ESTÁ BIEN EN EL CÓDIGO QUE SUBISTE...
     }
 
     private boolean transicionPermitida(EstadoPedido from, EstadoPedido to) {

@@ -92,8 +92,10 @@ export const pedidosAPI = {
   cambiarEstado: (id, estado) =>
     apiClient.patch(`/pedidos/${id}/estado`, { estado }),
   confirmarSurtimiento: (pedidoId, itemId) =>
-    apiClient.patch(`/pedidos/${pedidoId}/items/${itemId}/surtir`),
+    apiClient.patch(`/pedidos/${pedidoId}/surtir/${itemId}`),
+  miosPorPuesto: () => apiClient.get('/pedidos/puesto/mios'),
 };
+
 
 export const pagosAPI = {
   iniciar: (pedidoId) => apiClient.post(`/pagos/iniciar/${pedidoId}`),
