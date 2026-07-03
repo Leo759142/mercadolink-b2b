@@ -144,6 +144,12 @@ export const logisticaAPI = {
 export const auditoriaAPI = {
   listar: () => apiClient.get('/auditoria'),
 };
+export const chatAPI = {
+  contactos: () => apiClient.get('/chat/contactos'),
+  conversacion: (contactoId) => apiClient.get(`/chat/conversacion/${contactoId}`),
+  marcarLeidos: (contactoId) => apiClient.post(`/chat/leer/${contactoId}`),
+  noLeidos: () => apiClient.get('/chat/no-leidos'),
+};
 
 export const notificacionesAPI = {
   listar: () => apiClient.get('/notificaciones'),

@@ -10,6 +10,7 @@ pe\aspropa\mercadolink\config\SecurityConfig.class
 pe\aspropa\mercadolink\service\PagoService$IniciarPagoResult.class
 pe\aspropa\mercadolink\domain\Recepcion.class
 pe\aspropa\mercadolink\controller\PagoController.class
+pe\aspropa\mercadolink\repository\MensajeChatRepository.class
 pe\aspropa\mercadolink\domain\EstadoPedido.class
 pe\aspropa\mercadolink\service\CulqiRealService$CargoResponse.class
 pe\aspropa\mercadolink\controller\PedidoController.class
@@ -74,6 +75,7 @@ pe\aspropa\mercadolink\service\QulqiSimulationService$QulqiSession.class
 pe\aspropa\mercadolink\domain\Pago.class
 pe\aspropa\mercadolink\dto\ApiError.class
 pe\aspropa\mercadolink\dto\LoginResponse.class
+pe\aspropa\mercadolink\service\ChatService.class
 pe\aspropa\mercadolink\controller\LogisticaController.class
 pe\aspropa\mercadolink\service\ProveedorService.class
 pe\aspropa\mercadolink\domain\RecepcionItem.class
@@ -81,6 +83,7 @@ pe\aspropa\mercadolink\config\SpaWebConfig.class
 pe\aspropa\mercadolink\repository\InventarioRepository.class
 pe\aspropa\mercadolink\web\RequestLoggingFilter.class
 pe\aspropa\mercadolink\repository\NotificacionRepository.class
+pe\aspropa\mercadolink\controller\ChatController.class
 pe\aspropa\mercadolink\service\CulqiService$TokenResponse.class
 pe\aspropa\mercadolink\dto\CrearProveedorRequest.class
 pe\aspropa\mercadolink\service\IzipayService$PaymentSession.class
@@ -92,6 +95,7 @@ pe\aspropa\mercadolink\service\CulqiService.class
 pe\aspropa\mercadolink\controller\AuthController.class
 pe\aspropa\mercadolink\dto\ActualizarProveedorRequest.class
 pe\aspropa\mercadolink\controller\ProductoController.class
+pe\aspropa\mercadolink\domain\MensajeChat.class
 pe\aspropa\mercadolink\repository\PuestoRepository.class
 pe\aspropa\mercadolink\dto\ProductoResponse.class
 pe\aspropa\mercadolink\dto\CrearPedidoRequest.class
@@ -110,6 +114,7 @@ pe\aspropa\mercadolink\domain\Pedido.class
 pe\aspropa\mercadolink\domain\EstadoFisico.class
 pe\aspropa\mercadolink\exception\BusinessException.class
 pe\aspropa\mercadolink\repository\PedidoRepository.class
+pe\aspropa\mercadolink\config\WebSocketConfig.class
 pe\aspropa\mercadolink\security\AuthenticatedActor.class
 pe\aspropa\mercadolink\service\CulqiRealService.class
 pe\aspropa\mercadolink\service\PedidoService.class

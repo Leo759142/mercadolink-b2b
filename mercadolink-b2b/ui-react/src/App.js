@@ -12,6 +12,7 @@ import PrivateRoute, { PublicRoute } from './components/PrivateRoute';
 import Productos from './components/Productos';
 import Proveedores from './components/Proveedores';
 import ProveedorInventario from './components/ProveedorInventario';
+import Chat from './components/Chat';
 import Register from './components/Register';
 import PedidosVendedor from './components/PedidosVendedor';
 import RoleRoute from './components/RoleRoute';
@@ -59,6 +60,14 @@ export default function App() {
           element={
             <RoleRoute module="inventario">  {/* o un nuevo module */}
               <PedidosVendedor />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="chat"
+          element={
+            <RoleRoute module="chat">
+              <Chat />
             </RoleRoute>
           }
         />

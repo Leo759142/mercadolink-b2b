@@ -17,6 +17,7 @@ const RBAC = {
     proveedorInventario: false, 
     proveedorPedidos: false,
     pedidosVendedor: true,  // ← NUEVO: "Entregas" (pedidos de su puesto)
+    chat: true, 
     auditoria: true 
   },
   
@@ -31,6 +32,7 @@ const RBAC = {
     proveedorInventario: true, 
     proveedorPedidos: true, // ← "Pedidos recibidos"
     pedidosVendedor: false,
+    chat: true, 
     auditoria: true 
   },
   
@@ -45,6 +47,7 @@ const RBAC = {
     proveedorInventario: false, 
     proveedorPedidos: false,
     pedidosVendedor: false,
+    chat: false, 
     auditoria: true 
   },
   
@@ -59,6 +62,7 @@ const RBAC = {
     proveedorInventario: true, 
     proveedorPedidos: true,
     pedidosVendedor: true,
+    chat: true, 
     auditoria: true 
   },
 };

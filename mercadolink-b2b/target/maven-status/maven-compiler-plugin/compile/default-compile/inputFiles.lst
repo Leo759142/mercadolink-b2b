@@ -4,9 +4,11 @@ C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\a
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\config\OpenApiConfig.java
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\config\SecurityConfig.java
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\config\SpaWebConfig.java
+C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\config\WebSocketConfig.java
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\controller\ActoresUiController.java
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\controller\AuditoriaController.java
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\controller\AuthController.java
+C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\controller\ChatController.java
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\controller\CulqiWebhookController.java
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\controller\HealthController.java
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\controller\InventarioController.java
@@ -31,6 +33,7 @@ C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\a
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\domain\EstadoRecepcion.java
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\domain\Inventario.java
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\domain\ItemPedido.java
+C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\domain\MensajeChat.java
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\domain\NoConformidad.java
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\domain\Notificacion.java
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\domain\Pago.java
@@ -69,6 +72,7 @@ C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\a
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\repository\AuditoriaRepository.java
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\repository\EnvioRepository.java
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\repository\InventarioRepository.java
+C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\repository\MensajeChatRepository.java
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\repository\NoConformidadRepository.java
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\repository\NotificacionRepository.java
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\repository\PagoRepository.java
@@ -86,6 +90,7 @@ C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\a
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\service\ActorService.java
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\service\AuditoriaService.java
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\service\AuthService.java
+C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\service\ChatService.java
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\service\CulqiRealService.java
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\service\CulqiService.java
 C:\Users\W11\Documents\GitHub\mercadolink-b2b\mercadolink-b2b\src\main\java\pe\aspropa\mercadolink\service\InventarioService.java
