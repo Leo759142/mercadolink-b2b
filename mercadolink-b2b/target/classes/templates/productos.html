@@ -1,0 +1,113 @@
+<!doctype html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Productos — MercadoLink B2B</title>
+  <style>
+  :root {
+    --bg: #1b1410; --surface: rgba(35,25,18,0.72); --surface2: rgba(50,36,26,0.72); --border: rgba(120,90,60,0.35);
+    --text: #f3e7d3; --muted: #c9b89a; --accent: #e0a96d; --accent2: #b45b3a; --green: #6fbf73; --yellow: #e6b85c; --red: #d76b5c; --radius: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(180,120,60,0.12), transparent),
+      radial-gradient(1200px 600px at 90% 110%, rgba(160,90,50,0.10), transparent),
+      var(--bg);
+    color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh;
+  }
+  body { padding: 0; }
+  .navbar {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.9rem 1.2rem;
+    background: rgba(20,14,10,0.55); backdrop-filter: blur(14px) saturate(140%);
+    border-bottom: 1px solid var(--border);
+  }
+  .navbar .brand { font-weight: 700; letter-spacing: 0.3px; color: var(--text); }
+  .navbar .brand span { color: var(--accent); }
+  .nav-links { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .nav-links a {
+    color: var(--muted); text-decoration: none; font-size: 0.92rem;
+    padding: 0.35rem 0.7rem; border-radius: 999px; border: 1px solid transparent; transition: all .2s ease;
+  }
+  .nav-links a:hover { color: var(--text); border-color: var(--border); background: rgba(255,255,255,0.04); }
+  .nav-links a.cta { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #1a110c; border: none; font-weight: 600; }
+  .nav-links a.cta:hover { transform: translateY(-1px); filter: brightness(1.05); }
+
+  .container { max-width: 1000px; margin: 0 auto; padding: 1.2rem; }
+  .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+  h1 { font-size: 1.8rem; background: linear-gradient(to right, var(--yellow), #fac763); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  table {
+    width: 100%; border-collapse: separate; border-spacing: 0;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    backdrop-filter: blur(10px);
+  }
+  th, td { padding: 0.8rem 1rem; border-bottom: 1px solid rgba(120,90,60,0.2); vertical-align: middle; font-size: 0.9rem; }
+  th { background: rgba(20,14,10,0.45); color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.5px; }
+  tbody tr:hover td { background: rgba(224,169,109,0.08); }
+  tbody tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  .tag { display: inline-block; padding: 0.2rem 0.55rem; margin: 0.1rem; background: rgba(230,184,92,0.18); color: var(--yellow); border-radius: 999px; font-size: 0.78rem; border: 1px solid rgba(230,184,92,0.35); }
+  .empty { color: var(--muted); text-align: center; padding: 2rem; }
+
+  .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.55rem 1rem; border-radius: 999px; text-decoration: none; font-weight: 600; border: 1px solid transparent; transition: all .2s ease; }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #1a110c; }
+  .btn-primary:hover { transform: translateY(-2px); filter: brightness(1.05); }
+  .btn-secondary { background: rgba(255,255,255,0.06); color: var(--text); border-color: var(--border); }
+  .btn-secondary:hover { background: rgba(255,255,255,0.10); }
+  </style>
+</head>
+<body>
+  <nav class="navbar" aria-label="Principal">
+    <div class="brand">🛒 MercadoLink <span>B2B</span></div>
+    <div class="nav-links">
+      <a href="/">Inicio</a>
+      <a href="/productos">Productos</a>
+      <a href="/proveedores">Proveedores</a>
+      <a href="/vendedores">Vendedores</a>
+      <a href="/actores">Actores</a>
+      <a href="/app" class="cta">Entrar a la App</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="top">
+      <h1>Productos</h1>
+      <div>
+        <a class="btn btn-secondary" href="/">Volver</a>
+      </div>
+    </div>
+
+    <table th:if="${productos != null and !productos.empty}">
+      <thead>
+        <tr>
+          <th>SKU</th>
+          <th>Descripción</th>
+          <th>Precio</th>
+          <th>Proveedor</th>
+          <th>Tags</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="p : ${productos}">
+          <td th:text="${p.codigo}">SKU</td>
+          <td th:text="${p.descripcion}">Descripción</td>
+          <td th:text="${'S/ ' + p.precioReferencia}">100.00</td>
+          <td th:text="${p.proveedor != null} ? ${p.proveedor.nombreComercial} : '-'">Proveedor</td>
+          <td>
+            <span th:if="${p.etiquetas != null}" th:each="tag : ${#strings.arraySplit(p.etiquetas, ',')}">
+              <span class="tag" th:text="${tag}">tag</span>
+            </span>
+            <span th:if="${p.etiquetas == null}">-</span>
+          </td>
+          <td th:text="${p.activo} ? 'Activo' : 'Inactivo'">Activo</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="empty" th:if="${productos == null or productos.empty}">No hay productos registrados.</p>
+  </div>
+</body>
+</html>

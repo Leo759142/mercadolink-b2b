@@ -59,11 +59,11 @@ public class PagoController {
 
     @PostMapping("/simulacion/culqi")
     @Operation(summary = "[SIMULADO] Retorna datos para testing con Culqi mock")
-    public ResponseEntity<CulqiService.CulqiSession> simularCulqi(
+    public ResponseEntity<CulqiService.SesionResponse> simularCulqi(
             @RequestParam String orderId,
             @RequestParam String monto) {
         java.math.BigDecimal amount = new java.math.BigDecimal(monto);
-        CulqiService.CulqiSession session = culqiService
+        CulqiService.SesionResponse session = culqiService
             .createPaymentSession(orderId, amount, "PEN");
         return ResponseEntity.ok(session);
     }
