@@ -80,4 +80,15 @@ public class PedidoController {
         EstadoPedido estado = EstadoPedido.valueOf(nuevoEstado);
         return pedidoService.cambiarEstado(id, estado, principal.actorId());
     }
+
+    @PatchMapping("/{pedidoId}/items/{itemId}/surtir")
+    @PreAuthorize("hasAnyRole('PROVEEDOR','ADMINISTRADOR')")
+    @Operation(summary = "Marca un item del pedido como surtido por el proveedor")
+    public Pedido surtirItem(@PathVariable String pedidoId,
+                              @PathVariable Long itemId,
+                              @AuthenticationPrincipal AuthenticatedActor principal) {
+        log.info("[API PEDIDOS] PATCH surtir - pedidoId={}, itemId={}, proveedorId={}",
+            pedidoId, itemId, principal.actorId());
+        return pedidoService.surtirItem(pedidoId, itemId, principal.actorId());
+    }
 }

@@ -205,6 +205,44 @@ public class PedidoService {
         return pedido;
     }
 
+    @Transactional
+    public Pedido surtirItem(String pedidoId, Long itemId, String proveedorActorId) {
+        log.info("[PEDIDO] Surtiendo item: pedidoId={}, itemId={}, proveedorId={}",
+            pedidoId, itemId, proveedorActorId);
+        Pedido pedido = obtenerPedido(pedidoId);
+
+        ItemPedido item = pedido.getItems().stream()
+                .filter(i -> i.getId().equals(itemId))
+                .findFirst()
+                .orElseThrow(() -> BusinessException.notFound("PED-405",
+                        "Item no encontrado en el pedido: " + itemId));
+
+        Actor proveedorProducto = item.getProducto().getProveedor();
+        if (proveedorProducto == null || !proveedorProducto.getId().equals(proveedorActorId)) {
+            log.warn("[PEDIDO] Proveedor {} intentó surtir item {} que no le pertenece",
+                proveedorActorId, itemId);
+            throw BusinessException.forbidden("EX-AUTH-003",
+                    "El item no pertenece a productos de este proveedor");
+        }
+
+        if (item.getEstadoItem() != ItemPedido.EstadoItem.PENDIENTE) {
+            log.warn("[PEDIDO] Item no está PENDIENTE, estado actual={}", item.getEstadoItem());
+            throw BusinessException.conflict("EX-ORD-003",
+                    "El item no está en estado PENDIENTE (actual: " + item.getEstadoItem() + ")");
+        }
+
+        item.setEstadoItem(ItemPedido.EstadoItem.SURTIDO);
+        item.setFechaSurtimiento(java.time.Instant.now());
+
+        auditoriaService.registrar(proveedorActorId, "PROVEEDOR", "GestionPedidos",
+                "SurtirItem", pedido.getId(), "EXITO", null,
+                "Item " + itemId + " marcado como SURTIDO");
+
+        Pedido saved = pedidoRepository.save(pedido);
+        log.info("[PEDIDO] Item surtido exitosamente: pedidoId={}, itemId={}", pedidoId, itemId);
+        return saved;
+    }
+
     private boolean transicionPermitida(EstadoPedido from, EstadoPedido to) {
         return switch (from) {
             case BORRADOR -> to == EstadoPedido.PENDIENTE_PAGO || to == EstadoPedido.CANCELADO;
