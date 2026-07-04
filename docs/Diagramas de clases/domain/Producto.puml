@@ -1,0 +1,39 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+class Producto <<Entity>> {
+  {field} private String id
+  {field} private String codigo
+  {field} private String descripcion
+  {field} private String unidadMedida
+  {field} private BigDecimal precioReferencia
+  {field} private Actor proveedor
+  {field} private boolean activo
+  {field} private String etiquetas
+  {field} private Set<ProductoTag> tags
+  {method} public String getId()
+  {method} public void setId(String id)
+  {method} public String getCodigo()
+  {method} public void setCodigo(String codigo)
+  {method} public String getDescripcion()
+  {method} public void setDescripcion(String d)
+  {method} public String getUnidadMedida()
+  {method} public void setUnidadMedida(String u)
+  {method} public BigDecimal getPrecioReferencia()
+  {method} public void setPrecioReferencia(BigDecimal p)
+  {method} public Actor getProveedor()
+  {method} public void setProveedor(Actor proveedor)
+  {method} public boolean isActivo()
+  {method} public void setActivo(boolean activo)
+  {method} public String getEtiquetas()
+  {method} public void setEtiquetas(String etiquetas)
+  {method} public Set<ProductoTag> getTags()
+  {method} public void setTags(Set<ProductoTag> tags)
+  {method} public void addTag(Tag tag, int orden)
+  {method} public void removeTag(Tag tag)
+  {method} public java.util.List<String> getTagNombres()
+}
+note top of Producto
+  Package: pe.aspropa.mercadolink.domain
+end note
+@enduml

@@ -1,0 +1,16 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class InventarioController {
+  - InventarioService inventarioService
+  + InventarioController(InventarioService)
+  + List<Inventario> listarPorPuesto(String)
+  + Inventario actualizar(String, String, Map<String, Integer>)
+}
+
+note top of InventarioController
+  Package: pe.aspropa.mercadolink.controller
+end note
+
+@enduml

@@ -1,0 +1,33 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+class NoConformidad <<Entity>> {
+  {field} private String id
+  {field} private Recepcion recepcion
+  {field} private TipoNoConformidad tipo
+  {field} private String descripcion
+  {field} private String accionRequerida
+  {field} private boolean resuelta
+  {field} private Instant fechaReporte
+  {field} private Instant fechaResolucion
+  {method} public String getId()
+  {method} public void setId(String id)
+  {method} public Recepcion getRecepcion()
+  {method} public void setRecepcion(Recepcion recepcion)
+  {method} public TipoNoConformidad getTipo()
+  {method} public void setTipo(TipoNoConformidad tipo)
+  {method} public String getDescripcion()
+  {method} public void setDescripcion(String descripcion)
+  {method} public String getAccionRequerida()
+  {method} public void setAccionRequerida(String accionRequerida)
+  {method} public boolean isResuelta()
+  {method} public void setResuelta(boolean resuelta)
+  {method} public Instant getFechaReporte()
+  {method} public void setFechaReporte(Instant fechaReporte)
+  {method} public Instant getFechaResolucion()
+  {method} public void setFechaResolucion(Instant fechaResolucion)
+}
+note top of NoConformidad
+  Package: pe.aspropa.mercadolink.domain
+end note
+@enduml

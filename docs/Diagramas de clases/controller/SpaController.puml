@@ -1,0 +1,13 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class SpaController {
+  + ResponseEntity<Resource> appRoot() throws IOException
+}
+
+note top of SpaController
+  Package: pe.aspropa.mercadolink.controller
+end note
+
+@enduml

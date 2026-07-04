@@ -1,0 +1,15 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class PuestoController {
+  - PuestoRepository puestoRepository
+  + PuestoController(PuestoRepository)
+  + List<Puesto> listar()
+}
+
+note top of PuestoController
+  Package: pe.aspropa.mercadolink.controller
+end note
+
+@enduml

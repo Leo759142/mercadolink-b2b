@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Culqi Python SDK - Simulador</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { background: #00c853; color: white; padding: 30px; border-radius: 10px; margin-bottom: 20px; text-align: center; }
+        .header h1 { font-size: 2em; margin-bottom: 10px; }
+        .status-badge { background: #4caf50; color: white; padding: 5px 15px; border-radius: 20px; font-size: 12px; margin-top: 10px; display: inline-block; }
+        .status-badge.rsa-off { background: #f44336; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .card h2 { color: #00c853; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        button { background: #00c853; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; }
+        button:hover { background: #00b347; }
+        .test-cards { background: #fff3e0; padding: 15px; border-radius: 5px; margin-top: 20px; }
+        .test-cards h3 { color: #e65100; margin-bottom: 10px; }
+        .test-card { padding: 8px; margin: 5px 0; background: white; border-radius: 3px; font-family: monospace; }
+        .result { margin-top: 15px; padding: 15px; background: #f5f5f5; border-radius: 5px; max-height: 200px; overflow-y: auto; font-size: 12px; word-break: break-all; }
+        .success { background: #c8e6c9; }
+        .error { background: #ffcdd2; }
+        .tabs { display: flex; flex-wrap: wrap; margin-bottom: 20px; }
+        .tab { padding: 10px 20px; background: #eee; cursor: pointer; margin-right: 5px; border-radius: 5px 5px 0 0; }
+        .tab.active { background: #00c853; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .api-endpoint { background: #e3f2fd; padding: 10px; margin: 5px 0; border-radius: 5px; font-family: monospace; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Culqi Python SDK - Simulador</h1>
+            <p>Integración completa con APIs y RSA Encryption</p>
+            <div id="rsa-status">Verificando...</div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('token')">Token</div>
+            <div class="tab" onclick="showTab('cargo')">Cargo</div>
+            <div class="tab" onclick="showTab('cliente')">Cliente</div>
+            <div class="tab" onclick="showTab('tarjeta')">Tarjeta</div>
+            <div class="tab" onclick="showTab('plan')">Plan</div>
+            <div class="tab" onclick="showTab('suscripcion')">Suscripción</div>
+            <div class="tab" onclick="showTab('orden')">Orden</div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <div id="token" class="tab-content active">
+                    <h2>Crear Token</h2>
+                    <div class="form-group">
+                        <label>Número de Tarjeta</label>
+                        <input type="text" id="card_number" value="4111111111111111">
+                    </div>
+                    <div class="form-group">
+                        <label>CVV</label>
+                        <input type="text" id="cvv" value="123">
+                    </div>
+                    <div class="form-group">
+                        <label>Mes</label>
+                        <input type="text" id="exp_month" value="09">
+                    </div>
+                    <div class="form-group">
+                        <label>Año</label>
+                        <input type="text" id="exp_year" value="2026">
+                    </div>
+                    <div class="form-group">
+                        <label>Moneda</label>
+                        <select id="currency_code">
+                            <option value="PEN">PEN (Soles)</option>
+                            <option value="USD">USD (Dólares)</option>
+                        </select>
+                    </div>
+                    <button onclick="createToken()">Crear Token</button>
+                    <div id="token-result" class="result"></div>
+                </div>
+
+                <div id="cargo" class="tab-content">
+                    <h2>Crear Cargo</h2>
+                    <div class="form-group">
+                        <label>Monto (centavos)</label>
+                        <input type="number" id="amount" value="5000">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="email" value="cliente@correo.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Token ID</label>
+                        <input type="text" id="source_id" placeholder="Token generado">
+                    </div>
+                    <div class="form-group">
+                        <label>Moneda</label>
+                        <select id="charge_currency">
+                            <option value="PEN">PEN</option>
+                            <option value="USD">USD</option>
+                        </select>
+                    </div>
+                    <button onclick="createCharge()">Crear Cargo</button>
+                    <div id="charge-result" class="result"></div>
+                </div>
+
+                <div id="cliente" class="tab-content">
+                    <h2>Crear Cliente</h2>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="customer_email" value="cliente@correo.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" id="customer_name" value="Juan">
+                    </div>
+                    <div class="form-group">
+                        <label>Apellido</label>
+                        <input type="text" id="customer_last_name" value="Perez">
+                    </div>
+                    <button onclick="createCustomer()">Crear Cliente</button>
+                    <div id="customer-result" class="result"></div>
+                </div>
+
+                <div id="tarjeta" class="tab-content">
+                    <h2>Crear Tarjeta</h2>
+                    <div class="form-group">
+                        <label>Customer ID</label>
+                        <input type="text" id="card_customer_id" placeholder="ID del cliente">
+                    </div>
+                    <div class="form-group">
+                        <label>Token ID</label>
+                        <input type="text" id="card_token_id" placeholder="ID del token">
+                    </div>
+                    <button onclick="createCard()">Crear Tarjeta</button>
+                    <div id="card-result" class="result"></div>
+                </div>
+
+                <div id="plan" class="tab-content">
+                    <h2>Crear Plan</h2>
+                    <div class="form-group">
+                        <label>Nombre del Plan</label>
+                        <input type="text" id="plan_name" value="Plan Premium">
+                    </div>
+                    <div class="form-group">
+                        <label>Monto (centavos)</label>
+                        <input type="number" id="plan_amount" value="10000">
+                    </div>
+                    <div class="form-group">
+                        <label>Intervalo</label>
+                        <select id="plan_interval">
+                            <option value="dias">Días</option>
+                            <option value="semanas">Semanas</option>
+                            <option value="meses">Meses</option>
+                        </select>
+                    </div>
+                    <button onclick="createPlan()">Crear Plan</button>
+                    <div id="plan-result" class="result"></div>
+                </div>
+
+                <div id="suscripcion" class="tab-content">
+                    <h2>Crear Suscripción</h2>
+                    <div class="form-group">
+                        <label>Plan ID</label>
+                        <input type="text" id="sub_plan_id" placeholder="ID del plan">
+                    </div>
+                    <div class="form-group">
+                        <label>Customer ID</label>
+                        <input type="text" id="sub_customer_id" placeholder="ID del cliente">
+                    </div>
+                    <div class="form-group">
+                        <label>Token ID</label>
+                        <input type="text" id="sub_token_id" placeholder="ID del token">
+                    </div>
+                    <button onclick="createSubscription()">Crear Suscripción</button>
+                    <div id="subscription-result" class="result"></div>
+                </div>
+
+                <div id="orden" class="tab-content">
+                    <h2>Crear Orden</h2>
+                    <div class="form-group">
+                        <label>Monto (centavos)</label>
+                        <input type="number" id="order_amount" value="10000">
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <input type="text" id="order_description" value="Venta de producto">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Cliente</label>
+                        <input type="email" id="order_email" value="cliente@correo.com">
+                    </div>
+                    <button onclick="createOrder()">Crear Orden</button>
+                    <button onclick="createOrderPagoEfectivo()" style="background: #ff9800; margin-top: 10px;">Orden PagoEfectivo</button>
+                    <div id="order-result" class="result"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Tarjetas de Prueba</h2>
+                <div class="test-cards">
+                    <h3>✅ Aprobadas</h3>
+                    <div class="test-card">Visa: 4111111111111111</div>
+                    <div class="test-card">Mastercard: 5111111111111118</div>
+                    <div class="test-card">Amex: 341111111111111</div>
+                    <div class="test-card">Diners: 301111111111111</div>
+
+                    <h3 style="color: #d32f2f; margin-top: 15px;">❌ Rechazadas</h3>
+                    <div class="test-card">Fondos insuficientes: 4000000000000002</div>
+                    <div class="test-card">Expirada: 4000000000000069</div>
+                    <div class="test-card">Declinada: 4000000000000003</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 20px;">
+            <h2>APIs Disponibles</h2>
+            <div class="api-endpoint">POST /api/token - Crear token</div>
+            <div class="api-endpoint">POST /api/charge - Crear cargo</div>
+            <div class="api-endpoint">POST /api/customer - Crear cliente</div>
+            <div class="api-endpoint">POST /api/card - Crear tarjeta</div>
+            <div class="api-endpoint">POST /api/plan - Crear plan</div>
+            <div class="api-endpoint">POST /api/subscription - Crear suscripción</div>
+            <div class="api-endpoint">POST /api/order - Crear orden</div>
+        </div>
+    </div>
+
+    <script>
+        async function checkStatus() {
+            try {
+                const response = await fetch('/status');
+                const result = await response.json();
+                const badge = document.getElementById('rsa-status');
+                badge.innerHTML = result.rsa_configured ? 
+                    '<span class="status-badge">RSA: Activado</span>' :
+                    '<span class="status-badge rsa-off">RSA: Desactivado (configura .env con clave PEM)</span>';
+            } catch (error) {
+                document.getElementById('rsa-status').innerHTML = '<span class="status-badge rsa-off">Error de conexión</span>';
+            }
+        }
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        async function createToken() {
+            const data = {
+                card_number: document.getElementById('card_number').value,
+                cvv: document.getElementById('cvv').value,
+                expiration_month: document.getElementById('exp_month').value,
+                expiration_year: document.getElementById('exp_year').value,
+                currency_code: document.getElementById('currency_code').value
+            };
+
+            try {
+                const response = await fetch('/api/token', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                showResult('token-result', result);
+            } catch (error) {
+                showResult('token-result', {error: error.message}, true);
+            }
+        }
+
+        async function createCharge() {
+            const data = {
+                amount: parseInt(document.getElementById('amount').value),
+                currency_code: document.getElementById('charge_currency').value,
+                email: document.getElementById('email').value,
+                source_id: document.getElementById('source_id').value
+            };
+
+            try {
+                const response = await fetch('/api/charge', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                showResult('charge-result', result);
+            } catch (error) {
+                showResult('charge-result', {error: error.message}, true);
+            }
+        }
+
+        async function createCustomer() {
+            const data = {
+                email: document.getElementById('customer_email').value,
+                first_name: document.getElementById('customer_name').value,
+                last_name: document.getElementById('customer_last_name').value,
+                phone_number: "999999999",
+                address: "Av. Lima 123",
+                address_city: "Lima",
+                country_code: "PE"
+            };
+
+            try {
+                const response = await fetch('/api/customer', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                showResult('customer-result', result);
+            } catch (error) {
+                showResult('customer-result', {error: error.message}, true);
+            }
+        }
+
+        async function createCard() {
+            const data = {
+                customer_id: document.getElementById('card_customer_id').value,
+                token_id: document.getElementById('card_token_id').value
+            };
+
+            try {
+                const response = await fetch('/api/card', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                showResult('card-result', result);
+            } catch (error) {
+                showResult('card-result', {error: error.message}, true);
+            }
+        }
+
+        async function createPlan() {
+            const data = {
+                name: document.getElementById('plan_name').value,
+                currency_code: 'PEN',
+                amount: parseInt(document.getElementById('plan_amount').value),
+                interval: document.getElementById('plan_interval').value,
+                interval_count: 1
+            };
+
+            try {
+                const response = await fetch('/api/plan', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                showResult('plan-result', result);
+            } catch (error) {
+                showResult('plan-result', {error: error.message}, true);
+            }
+        }
+
+        async function createSubscription() {
+            const data = {
+                plan_id: document.getElementById('sub_plan_id').value,
+                customer_id: document.getElementById('sub_customer_id').value,
+                source_id: document.getElementById('sub_token_id').value
+            };
+
+            try {
+                const response = await fetch('/api/subscription', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                showResult('subscription-result', result);
+            } catch (error) {
+                showResult('subscription-result', {error: error.message}, true);
+            }
+        }
+
+        async function createOrder() {
+            const amount = parseInt(document.getElementById('order_amount').value);
+            const data = {
+                amount: amount,
+                currency_code: 'PEN',
+                description: document.getElementById('order_description').value,
+                client_details: {
+                    email: document.getElementById('order_email').value,
+                    first_name: "Cliente",
+                    last_name: "Demo",
+                    phone_number: "999999999"
+                },
+                items: [{name: document.getElementById('order_description').value, quantity: 1, unit_price: amount}]
+            };
+
+            try {
+                const response = await fetch('/api/order', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                showResult('order-result', result);
+            } catch (error) {
+                showResult('order-result', {error: error.message}, true);
+            }
+        }
+
+        async function createOrderPagoEfectivo() {
+            const amount = parseInt(document.getElementById('order_amount').value);
+            const data = {
+                amount: amount,
+                currency_code: 'PEN',
+                description: document.getElementById('order_description').value,
+                client_details: {
+                    email: document.getElementById('order_email').value,
+                    first_name: "Cliente",
+                    last_name: "Demo",
+                    phone_number: "999999999"
+                },
+                items: [{name: document.getElementById('order_description').value, quantity: 1, unit_price: amount}],
+                payment_methods: {card: {status: 'disabled'}, cash: {status: 'active'}}
+            };
+
+            try {
+                const response = await fetch('/api/order', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                showResult('order-result', result);
+            } catch (error) {
+                showResult('order-result', {error: error.message}, true);
+            }
+        }
+
+        function showResult(elementId, data, isError = false) {
+            const el = document.getElementById(elementId);
+            el.className = 'result ' + (isError ? 'error' : 'success');
+            el.textContent = JSON.stringify(data, null, 2);
+        }
+
+        checkStatus();
+    </script>
+</body>
+</html>

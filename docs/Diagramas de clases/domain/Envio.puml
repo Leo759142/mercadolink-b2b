@@ -1,0 +1,33 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+class Envio <<Entity>> {
+  {field} private String id
+  {field} private Pedido pedido
+  {field} private Actor proveedor
+  {field} private String transportista
+  {field} private String numeroGuia
+  {field} private Instant fechaDespacho
+  {field} private LocalDate fechaEstimadaEntrega
+  {field} private String observaciones
+  {method} public String getId()
+  {method} public void setId(String id)
+  {method} public Pedido getPedido()
+  {method} public void setPedido(Pedido pedido)
+  {method} public Actor getProveedor()
+  {method} public void setProveedor(Actor proveedor)
+  {method} public String getTransportista()
+  {method} public void setTransportista(String transportista)
+  {method} public String getNumeroGuia()
+  {method} public void setNumeroGuia(String numeroGuia)
+  {method} public Instant getFechaDespacho()
+  {method} public void setFechaDespacho(Instant fechaDespacho)
+  {method} public LocalDate getFechaEstimadaEntrega()
+  {method} public void setFechaEstimadaEntrega(LocalDate fechaEstimadaEntrega)
+  {method} public String getObservaciones()
+  {method} public void setObservaciones(String observaciones)
+}
+note top of Envio
+  Package: pe.aspropa.mercadolink.domain
+end note
+@enduml

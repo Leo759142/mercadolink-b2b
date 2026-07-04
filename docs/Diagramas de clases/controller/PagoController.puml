@@ -1,0 +1,20 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class PagoController {
+  - PagoService pagoService
+  - QulqiSimulationService qulqiService
+  - CulqiService culqiService
+  + PagoController(PagoService, QulqiSimulationService, CulqiService)
+  + ResponseEntity<PagoService.IniciarPagoResult> iniciar(String, AuthenticatedActor)
+  + Pago consultar(String)
+  + ResponseEntity<QulqiSimulationService.QulqiSession> simularQulqi(String, String)
+  + ResponseEntity<CulqiService.SesionResponse> simularCulqi(String, String)
+}
+
+note top of PagoController
+  Package: pe.aspropa.mercadolink.controller
+end note
+
+@enduml

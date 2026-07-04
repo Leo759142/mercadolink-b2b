@@ -1,0 +1,18 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class LoginRequest << (T,#FFAAAA) >> {
+  {field} private String email
+  {field} private String password
+  {method} public String getEmail()
+  {method} public void setEmail(String)
+  {method} public String getPassword()
+  {method} public void setPassword(String)
+}
+
+note top of LoginRequest
+  Package: pe.aspropa.mercadolink.dto
+end note
+
+@enduml

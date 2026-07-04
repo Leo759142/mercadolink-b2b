@@ -1,0 +1,27 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+class RecepcionItem <<Entity>> {
+  {field} private Integer id
+  {field} private Recepcion recepcion
+  {field} private Producto producto
+  {field} private Integer cantidadPedida
+  {field} private Integer cantidadRecibida
+  {field} private EstadoFisico estadoFisico
+  {method} public Integer getId()
+  {method} public void setId(Integer id)
+  {method} public Recepcion getRecepcion()
+  {method} public void setRecepcion(Recepcion recepcion)
+  {method} public Producto getProducto()
+  {method} public void setProducto(Producto producto)
+  {method} public Integer getCantidadPedida()
+  {method} public void setCantidadPedida(Integer cantidadPedida)
+  {method} public Integer getCantidadRecibida()
+  {method} public void setCantidadRecibida(Integer cantidadRecibida)
+  {method} public EstadoFisico getEstadoFisico()
+  {method} public void setEstadoFisico(EstadoFisico estadoFisico)
+}
+note top of RecepcionItem
+  Package: pe.aspropa.mercadolink.domain
+end note
+@enduml

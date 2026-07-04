@@ -1,0 +1,16 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class ProductosUiController {
+  - ProductoRepository productoRepository
+  - ActorRepository actorRepository
+  + ProductosUiController(ProductoRepository, ActorRepository)
+  + String productos(Model)
+}
+
+note top of ProductosUiController
+  Package: pe.aspropa.mercadolink.controller
+end note
+
+@enduml

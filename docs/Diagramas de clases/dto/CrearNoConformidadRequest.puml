@@ -1,0 +1,24 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class CrearNoConformidadRequest << (T,#FFAAAA) >> {
+  {field} private String recepcionId
+  {field} private String tipo
+  {field} private String descripcion
+  {field} private String accionRequerida
+  {method} public String getRecepcionId()
+  {method} public void setRecepcionId(String)
+  {method} public String getTipo()
+  {method} public void setTipo(String)
+  {method} public String getDescripcion()
+  {method} public void setDescripcion(String)
+  {method} public String getAccionRequerida()
+  {method} public void setAccionRequerida(String)
+}
+
+note top of CrearNoConformidadRequest
+  Package: pe.aspropa.mercadolink.dto
+end note
+
+@enduml

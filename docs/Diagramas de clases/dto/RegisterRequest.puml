@@ -1,0 +1,30 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class RegisterRequest << (T,#FFAAAA) >> {
+  {field} private String nombreComercial
+  {field} private String email
+  {field} private String password
+  {field} private String documento
+  {field} private Rol rol
+  {field} private String puestoId
+  {method} public String getNombreComercial()
+  {method} public void setNombreComercial(String)
+  {method} public String getEmail()
+  {method} public void setEmail(String)
+  {method} public String getPassword()
+  {method} public void setPassword(String)
+  {method} public String getDocumento()
+  {method} public void setDocumento(String)
+  {method} public Rol getRol()
+  {method} public void setRol(Rol)
+  {method} public String getPuestoId()
+  {method} public void setPuestoId(String)
+}
+
+note top of RegisterRequest
+  Package: pe.aspropa.mercadolink.dto
+end note
+
+@enduml

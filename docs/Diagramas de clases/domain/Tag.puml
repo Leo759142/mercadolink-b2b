@@ -1,0 +1,27 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+class Tag <<Entity>> {
+  {field} private String id
+  {field} private String nombre
+  {field} private String slug
+  {field} private boolean activo
+  {field} private Instant fechaRegistro
+  {field} private Set<ProductoTag> productoTags
+  {method} public String getId()
+  {method} public void setId(String id)
+  {method} public String getNombre()
+  {method} public void setNombre(String nombre)
+  {method} public String getSlug()
+  {method} public void setSlug(String slug)
+  {method} public boolean isActivo()
+  {method} public void setActivo(boolean activo)
+  {method} public Instant getFechaRegistro()
+  {method} public void setFechaRegistro(Instant fechaRegistro)
+  {method} public Set<ProductoTag> getProductoTags()
+  {method} public void setProductoTags(Set<ProductoTag> productoTags)
+}
+note top of Tag
+  Package: pe.aspropa.mercadolink.domain
+end note
+@enduml

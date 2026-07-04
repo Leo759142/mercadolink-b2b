@@ -1,0 +1,18 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class CrearPedidoRequest << (T,#FFAAAA) >> {
+  {field} private List<ItemPedidoRequest> items
+  {field} private String observaciones
+  {method} public List<ItemPedidoRequest> getItems()
+  {method} public void setItems(List<ItemPedidoRequest>)
+  {method} public String getObservaciones()
+  {method} public void setObservaciones(String)
+}
+
+note top of CrearPedidoRequest
+  Package: pe.aspropa.mercadolink.dto
+end note
+
+@enduml

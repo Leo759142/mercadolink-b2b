@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2B Nexus - Sistema de Comercio B2B</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <div id="loading-screen">
+            <div class="loader"></div>
+            <p>Iniciando sistema B2B...</p>
+        </div>
+        
+        <div id="socket-indicator">
+            <span class="pulse"></span>
+            <span id="socket-text">Conectando al servidor...</span>
+        </div>
+
+        <div id="main-interface">
+            <aside id="sidebar">
+                <div class="brand">
+                    <h2>⬡ B2B Nexus</h2>
+                    <p id="company-name">Distribuidora Norte</p>
+                </div>
+                <nav>
+                    <button class="nav-btn active" onclick="showSection('dashboard')">
+                        <span class="icon">📊</span> Dashboard
+                    </button>
+                    <button class="nav-btn" onclick="showSection('catalog')">
+                        <span class="icon">📦</span> Catálogo
+                    </button>
+                    <button class="nav-btn" onclick="showSection('orders')">
+                        <span class="icon">📋</span> Pedidos
+                    </button>
+                    <button class="nav-btn" onclick="showSection('tracking')">
+                        <span class="icon">🚚</span> Seguimiento
+                    </button>
+                    <button class="nav-btn" onclick="showSection('chat')">
+                        <span class="icon">💬</span> Comunicación
+                        <span class="badge" id="chat-badge">0</span>
+                    </button>
+                </nav>
+            </aside>
+
+            <main id="content">
+                <header id="topbar">
+                    <div class="search-bar">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="search-input" placeholder="Buscar productos, órdenes...">
+                    </div>
+                    <div class="profile">
+                        <span id="profile-company">Empresa: Tecnología Plus</span>
+                        <button class="btn-primary" onclick="showNewOrderModal()">+ Nueva Orden</button>
+                    </div>
+                </header>
+
+                <section id="dashboard">
+                    <h1>Panel Principal</h1>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Pedidos Activos</div>
+                            <div class="stat-value" id="stat-orders">0</div>
+                            <div class="stat-change positive">↗ +3 esta semana</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">En Transporte</div>
+                            <div class="stat-value" id="stat-transit">0</div>
+                            <div class="stat-change info">⏱ Actualizado en vivo</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Total Pendiente Pago</div>
+                            <div class="stat-value" id="stat-pending">$0.00</div>
+                            <div class="stat-change warning">⚠ Vence en 5 días</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Satisfacción</div>
+                            <div class="stat-value">94%</div>
+                            <div class="stat-change positive">✓ Excelente</div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-layout">
+                        <div class="recent-orders">
+                            <h3>Pedidos Recientes</h3>
+                            <div id="recent-orders-list"></div>
+                        </div>
+                        <div class="activity-feed">
+                            <h3>Actividad del Sistema</h3>
+                            <div id="activity-log"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="catalog" class="hidden">
+                    <h1>Catálogo de Productos</h1>
+                    <div class="catalog-filters">
+                        <button class="filter-btn active" onclick="filterProducts('all')">Todos</button>
+                        <button class="filter-btn" onclick="filterProducts('electronics')">Electrónica</button>
+                        <button class="filter-btn" onclick="filterProducts('textiles')">Textiles</button>
+                        <button class="filter-btn" onclick="filterProducts('raw-materials')">Materia Prima</button>
+                        <button class="filter-btn" onclick="filterProducts('food')">Alimentos</button>
+                    </div>
+                    <div id="products-grid" class="products-grid"></div>
+                </section>
+
+                <section id="orders" class="hidden">
+                    <h1>Todos los Pedidos</h1>
+                    <div class="orders-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table-body"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="tracking" class="hidden">
+                    <h1>Seguimiento de Transporte</h1>
+                    <div id="tracking-list"></div>
+                </section>
+
+                <section id="chat" class="hidden">
+                    <h1>Centro de Comunicaciones B2B</h1>
+                    <div class="chat-container">
+                        <div class="chat-contacts" id="chat-contacts"></div>
+                        <div class="chat-main">
+                            <div class="chat-header" id="chat-header">Seleccione una conversación</div>
+                            <div class="chat-messages" id="chat-messages"></div>
+                            <div class="chat-input-area">
+                                <input type="text" id="chat-input" placeholder="Escriba su mensaje..." onkeypress="handleChatKey(event)">
+                                <button class="btn-primary" onclick="sendChatMessage()">Enviar</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <div id="modal-overlay" class="hidden">
+        <div id="modal-content"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

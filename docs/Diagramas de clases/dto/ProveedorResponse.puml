@@ -1,0 +1,33 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class ProveedorResponse << (T,#FFAAAA) >> {
+  {field} private String id
+  {field} private String razonSocial
+  {field} private String ruc
+  {field} private String estado
+  {field} private String nombreContacto
+  {field} private String telefono
+  {field} private String email
+  {field} private String direccion
+  {field} private String distrito
+  {field} private String fechaRegistro
+  {method} public ProveedorResponse(Proveedor)
+  {method} public String getId()
+  {method} public String getRazonSocial()
+  {method} public String getRuc()
+  {method} public String getEstado()
+  {method} public String getNombreContacto()
+  {method} public String getTelefono()
+  {method} public String getEmail()
+  {method} public String getDireccion()
+  {method} public String getDistrito()
+  {method} public String getFechaRegistro()
+}
+
+note top of ProveedorResponse
+  Package: pe.aspropa.mercadolink.dto
+end note
+
+@enduml

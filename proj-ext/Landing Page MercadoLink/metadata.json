@@ -1,0 +1,6 @@
+{
+  "name": "MercadoLink B2B",
+  "description": "Mercado Mayorista Rústico B2B - Conectando productores rurales con vendedores de mercados populares de forma directa.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,27 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+class Notificacion <<Entity>> {
+  {field} private Long id
+  {field} private String tipo
+  {field} private String titulo
+  {field} private String mensaje
+  {field} private boolean leida
+  {field} private Instant creadaEn
+  {method} public Long getId()
+  {method} public void setId(Long id)
+  {method} public String getTipo()
+  {method} public void setTipo(String tipo)
+  {method} public String getTitulo()
+  {method} public void setTitulo(String titulo)
+  {method} public String getMensaje()
+  {method} public void setMensaje(String mensaje)
+  {method} public boolean isLeida()
+  {method} public void setLeida(boolean leida)
+  {method} public Instant getCreadaEn()
+  {method} public void setCreadaEn(Instant creadaEn)
+}
+note top of Notificacion
+  Package: pe.aspropa.mercadolink.domain
+end note
+@enduml

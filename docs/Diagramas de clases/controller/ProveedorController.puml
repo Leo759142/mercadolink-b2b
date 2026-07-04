@@ -1,0 +1,20 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class ProveedorController {
+  - Logger log
+  - ProveedorService proveedorService
+  + ProveedorController(ProveedorService)
+  + List<ProveedorResponse> listar()
+  + ProveedorResponse obtener(String)
+  + ResponseEntity<ProveedorResponse> crear(AuthenticatedActor, CrearProveedorRequest)
+  + ProveedorResponse actualizar(String, ActualizarProveedorRequest, AuthenticatedActor)
+  + ResponseEntity<Void> cambiarEstado(String, Map<String, String>, AuthenticatedActor)
+}
+
+note top of ProveedorController
+  Package: pe.aspropa.mercadolink.controller
+end note
+
+@enduml

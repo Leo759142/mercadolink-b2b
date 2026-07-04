@@ -1,0 +1,35 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class LoginResponse << (T,#FFAAAA) >> {
+  {field} private String token
+  {field} private String tokenType
+  {field} private long expiresInSeconds
+  {field} private String actorId
+  {field} private String nombreComercial
+  {field} private Rol rol
+  {field} private String puestoId
+  {method} public LoginResponse()
+  {method} public LoginResponse(String, long, String, String, Rol, String)
+  {method} public String getToken()
+  {method} public void setToken(String)
+  {method} public String getTokenType()
+  {method} public void setTokenType(String)
+  {method} public long getExpiresInSeconds()
+  {method} public void setExpiresInSeconds(long)
+  {method} public String getActorId()
+  {method} public void setActorId(String)
+  {method} public String getNombreComercial()
+  {method} public void setNombreComercial(String)
+  {method} public Rol getRol()
+  {method} public void setRol(Rol)
+  {method} public String getPuestoId()
+  {method} public void setPuestoId(String)
+}
+
+note top of LoginResponse
+  Package: pe.aspropa.mercadolink.dto
+end note
+
+@enduml

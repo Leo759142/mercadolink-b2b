@@ -1,0 +1,24 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class CrearRecepcionItemRequest << (T,#FFAAAA) >> {
+  {field} private String productoId
+  {field} private Integer cantidadPedida
+  {field} private Integer cantidadRecibida
+  {field} private String estadoFisico
+  {method} public String getProductoId()
+  {method} public void setProductoId(String)
+  {method} public Integer getCantidadPedida()
+  {method} public void setCantidadPedida(Integer)
+  {method} public Integer getCantidadRecibida()
+  {method} public void setCantidadRecibida(Integer)
+  {method} public String getEstadoFisico()
+  {method} public void setEstadoFisico(String)
+}
+
+note top of CrearRecepcionItemRequest
+  Package: pe.aspropa.mercadolink.dto
+end note
+
+@enduml

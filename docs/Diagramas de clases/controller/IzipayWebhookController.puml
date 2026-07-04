@@ -1,0 +1,18 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class IzipayWebhookController {
+  - Logger log
+  - IzipayService izipayService
+  - PagoService pagoService
+  + IzipayWebhookController(IzipayService, PagoService)
+  + ResponseEntity<Map<String, String>> webhook(IzipayWebhookRequest)
+  + Map<String, String> firmar(Map<String, String>)
+}
+
+note top of IzipayWebhookController
+  Package: pe.aspropa.mercadolink.controller
+end note
+
+@enduml

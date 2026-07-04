@@ -1,0 +1,39 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+class Pago <<Entity>> {
+  {field} private String id
+  {field} private String orderId
+  {field} private Pedido pedido
+  {field} private BigDecimal monto
+  {field} private String moneda
+  {field} private EstadoPago estado
+  {field} private String formToken
+  {field} private String transactionId
+  {field} private Instant fechaCreacion
+  {field} private Instant fechaActualizacion
+  {method} public String getId()
+  {method} public void setId(String id)
+  {method} public String getOrderId()
+  {method} public void setOrderId(String orderId)
+  {method} public Pedido getPedido()
+  {method} public void setPedido(Pedido pedido)
+  {method} public BigDecimal getMonto()
+  {method} public void setMonto(BigDecimal monto)
+  {method} public String getMoneda()
+  {method} public void setMoneda(String moneda)
+  {method} public EstadoPago getEstado()
+  {method} public void setEstado(EstadoPago estado)
+  {method} public String getFormToken()
+  {method} public void setFormToken(String f)
+  {method} public String getTransactionId()
+  {method} public void setTransactionId(String t)
+  {method} public Instant getFechaCreacion()
+  {method} public void setFechaCreacion(Instant f)
+  {method} public Instant getFechaActualizacion()
+  {method} public void setFechaActualizacion(Instant f)
+}
+note top of Pago
+  Package: pe.aspropa.mercadolink.domain
+end note
+@enduml

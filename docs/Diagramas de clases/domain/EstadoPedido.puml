@@ -1,0 +1,18 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+class EstadoPedido <<Enumeration>> {
+  BORRADOR
+  PENDIENTE_PAGO
+  PAGADO
+  CONFIRMADO
+  EN_DESPACHO
+  ENTREGADO
+  CANCELADO
+  EN_DISPUTA
+  RECHAZADO
+}
+note top of EstadoPedido
+  Package: pe.aspropa.mercadolink.domain
+end note
+@enduml

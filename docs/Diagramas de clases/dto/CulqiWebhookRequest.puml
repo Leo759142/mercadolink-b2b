@@ -1,0 +1,27 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class CulqiWebhookRequest << (T,#FFAAAA) >> {
+  {field} private String orderId
+  {field} private String chargeId
+  {field} private String transactionId
+  {field} private String status
+  {field} private String amount
+  {method} public String getOrderId()
+  {method} public void setOrderId(String)
+  {method} public String getChargeId()
+  {method} public void setChargeId(String)
+  {method} public String getTransactionId()
+  {method} public void setTransactionId(String)
+  {method} public String getStatus()
+  {method} public void setStatus(String)
+  {method} public String getAmount()
+  {method} public void setAmount(String)
+}
+
+note top of CulqiWebhookRequest
+  Package: pe.aspropa.mercadolink.dto
+end note
+
+@enduml

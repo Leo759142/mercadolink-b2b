@@ -1,0 +1,36 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+class Actor <<Entity>> {
+  {field} private String id
+  {field} private String nombreComercial
+  {field} private String email
+  {field} private String passwordHash
+  {field} private String documento
+  {field} private Rol rol
+  {field} private boolean activo
+  {field} private Puesto puesto
+  {field} private Instant fechaRegistro
+  {method} public String getId()
+  {method} public void setId(String id)
+  {method} public String getNombreComercial()
+  {method} public void setNombreComercial(String n)
+  {method} public String getEmail()
+  {method} public void setEmail(String email)
+  {method} public String getPasswordHash()
+  {method} public void setPasswordHash(String p)
+  {method} public String getDocumento()
+  {method} public void setDocumento(String d)
+  {method} public Rol getRol()
+  {method} public void setRol(Rol r)
+  {method} public boolean isActivo()
+  {method} public void setActivo(boolean a)
+  {method} public Puesto getPuesto()
+  {method} public void setPuesto(Puesto p)
+  {method} public Instant getFechaRegistro()
+  {method} public void setFechaRegistro(Instant f)
+}
+note top of Actor
+  Package: pe.aspropa.mercadolink.domain
+end note
+@enduml

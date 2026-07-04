@@ -1,0 +1,21 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+class ProductoTag <<Entity>> {
+  {field} private String id
+  {field} private Producto producto
+  {field} private Tag tag
+  {field} private Integer orden
+  {method} public String getId()
+  {method} public void setId(String id)
+  {method} public Producto getProducto()
+  {method} public void setProducto(Producto producto)
+  {method} public Tag getTag()
+  {method} public void setTag(Tag tag)
+  {method} public Integer getOrden()
+  {method} public void setOrden(Integer orden)
+}
+note top of ProductoTag
+  Package: pe.aspropa.mercadolink.domain
+end note
+@enduml

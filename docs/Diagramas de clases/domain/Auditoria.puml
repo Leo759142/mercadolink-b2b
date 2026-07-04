@@ -1,0 +1,39 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+class Auditoria <<Entity>> {
+  {field} private Long id
+  {field} private String actorId
+  {field} private String tipoActor
+  {field} private String servicio
+  {field} private String operacion
+  {field} private String referenciaId
+  {field} private String resultado
+  {field} private String correlationId
+  {field} private String detalle
+  {field} private Instant timestampOp
+  {method} public Long getId()
+  {method} public void setId(Long id)
+  {method} public String getActorId()
+  {method} public void setActorId(String actorId)
+  {method} public String getTipoActor()
+  {method} public void setTipoActor(String tipoActor)
+  {method} public String getServicio()
+  {method} public void setServicio(String servicio)
+  {method} public String getOperacion()
+  {method} public void setOperacion(String operacion)
+  {method} public String getReferenciaId()
+  {method} public void setReferenciaId(String referenciaId)
+  {method} public String getResultado()
+  {method} public void setResultado(String resultado)
+  {method} public String getCorrelationId()
+  {method} public void setCorrelationId(String c)
+  {method} public String getDetalle()
+  {method} public void setDetalle(String d)
+  {method} public Instant getTimestampOp()
+  {method} public void setTimestampOp(Instant t)
+}
+note top of Auditoria
+  Package: pe.aspropa.mercadolink.domain
+end note
+@enduml

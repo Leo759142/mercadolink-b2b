@@ -1,0 +1,14 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class HealthController {
+  + Map<String, Object> root()
+  + Map<String, String> health()
+}
+
+note top of HealthController
+  Package: pe.aspropa.mercadolink.controller
+end note
+
+@enduml

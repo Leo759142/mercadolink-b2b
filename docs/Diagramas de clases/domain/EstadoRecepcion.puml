@@ -1,0 +1,14 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+class EstadoRecepcion <<Enumeration>> {
+  CONFORME
+  CON_FALTANTE
+  CON_DANIO
+  CON_DIFERENCIA_DE_PRECIO
+  DEVUELTO
+}
+note top of EstadoRecepcion
+  Package: pe.aspropa.mercadolink.domain
+end note
+@enduml

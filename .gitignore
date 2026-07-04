@@ -6,6 +6,7 @@
 .DS_Store
 .kilo
 .env
+.docs
 
 # Build artifacts (Spring Boot/Maven)
 target/*.jar

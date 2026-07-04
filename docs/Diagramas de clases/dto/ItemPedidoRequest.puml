@@ -1,0 +1,21 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class ItemPedidoRequest << (T,#FFAAAA) >> {
+  {field} private String productoId
+  {field} private String puestoId
+  {field} private Integer cantidad
+  {method} public String getProductoId()
+  {method} public void setProductoId(String)
+  {method} public String getPuestoId()
+  {method} public void setPuestoId(String)
+  {method} public Integer getCantidad()
+  {method} public void setCantidad(Integer)
+}
+
+note top of ItemPedidoRequest
+  Package: pe.aspropa.mercadolink.dto
+end note
+
+@enduml

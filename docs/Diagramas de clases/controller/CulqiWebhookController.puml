@@ -1,0 +1,21 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class CulqiWebhookController {
+  - Logger log
+  - CulqiService culqiService
+  - PagoService pagoService
+  + CulqiWebhookController(CulqiService, PagoService)
+  + ResponseEntity<Map<String, String>> webhook(String, CulqiWebhookRequest)
+  + ResponseEntity<CulqiService.SesionResponse> iniciarPago(String, String)
+  + Map<String, String> firmar(Map<String, String>)
+  + CulqiService.CulqiResponse getConfig()
+  - String mapEstadoCulqi(String)
+}
+
+note top of CulqiWebhookController
+  Package: pe.aspropa.mercadolink.controller
+end note
+
+@enduml

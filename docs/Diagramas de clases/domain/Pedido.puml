@@ -1,0 +1,37 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+class Pedido <<Entity>> {
+  {field} private String id
+  {field} private String idempotencyKey
+  {field} private Actor cliente
+  {field} private EstadoPedido estado
+  {field} private BigDecimal montoTotal
+  {field} private List<ItemPedido> items
+  {field} private Instant fechaCreacion
+  {field} private Instant fechaActualizacion
+  {field} private String observaciones
+  {method} public void recalcularTotal()
+  {method} public String getId()
+  {method} public void setId(String id)
+  {method} public String getIdempotencyKey()
+  {method} public void setIdempotencyKey(String k)
+  {method} public Actor getCliente()
+  {method} public void setCliente(Actor cliente)
+  {method} public EstadoPedido getEstado()
+  {method} public void setEstado(EstadoPedido e)
+  {method} public BigDecimal getMontoTotal()
+  {method} public void setMontoTotal(BigDecimal m)
+  {method} public List<ItemPedido> getItems()
+  {method} public void setItems(List<ItemPedido> items)
+  {method} public Instant getFechaCreacion()
+  {method} public void setFechaCreacion(Instant f)
+  {method} public Instant getFechaActualizacion()
+  {method} public void setFechaActualizacion(Instant f)
+  {method} public String getObservaciones()
+  {method} public void setObservaciones(String o)
+}
+note top of Pedido
+  Package: pe.aspropa.mercadolink.domain
+end note
+@enduml

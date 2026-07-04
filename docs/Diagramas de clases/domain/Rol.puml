@@ -1,0 +1,13 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+class Rol <<Enumeration>> {
+  VENDEDOR
+  PROVEEDOR
+  CLIENTE_MAYORISTA
+  ADMINISTRADOR
+}
+note top of Rol
+  Package: pe.aspropa.mercadolink.domain
+end note
+@enduml

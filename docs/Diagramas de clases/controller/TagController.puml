@@ -1,0 +1,20 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class TagController {
+  - TagService tagService
+  + TagController(TagService)
+  + List<Map<String, Object>> listar()
+  + List<Tag> buscar(String)
+  + List<Map<String, Object>> populares()
+  + ResponseEntity<Tag> crear(Map<String, String>)
+  + ResponseEntity<Tag> renombrar(String, Map<String, String>)
+  + ResponseEntity<Void> eliminar(String)
+}
+
+note top of TagController
+  Package: pe.aspropa.mercadolink.controller
+end note
+
+@enduml

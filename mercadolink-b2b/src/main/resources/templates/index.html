@@ -5,422 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>MercadoLink B2B — Mercado Mayorista Rustico</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <style>
-    :root {
-      --bg: #2d1e14;
-      --surface: #3a281a;
-      --surface2: #4a3422;
-      --border: #8b6d47;
-      --text: #f0e6d2;
-      --muted: #c9b494;
-      --accent: #d4a35e;
-      --accent2: #b47a4a;
-      --green: #7cae5f;
-      --yellow: #e8c15e;
-      --red: #c96a5a;
-      --wood: #5d462d;
-      --radius: 12px;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: 
-        radial-gradient(ellipse at 15% 15%, rgba(139,109,71,0.4), transparent 40%),
-        radial-gradient(ellipse at 85% 85%, rgba(180,122,74,0.3), transparent 50%),
-        var(--bg);
-      color: var(--text);
-      font-family: 'Georgia', 'Times New Roman', serif;
-      min-height: 100vh;
-      line-height: 1.6;
-    }
-    .container { max-width: 1200px; margin: 0 auto; padding: 1rem; }
-
-    .navbar {
-      background: linear-gradient(180deg, rgba(93,70,45,0.95), rgba(61,44,26,0.95));
-      border-bottom: 4px solid var(--wood);
-      padding: 0.8rem 1.2rem;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    }
-    .navbar .brand {
-      font-weight: 800;
-      font-size: 1.4rem;
-      color: var(--text);
-      letter-spacing: 1px;
-    }
-    .navbar .brand span { color: var(--accent); }
-    .nav-links { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-    .nav-links a {
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 0.95rem;
-      padding: 0.5rem 1rem;
-      border-radius: var(--radius);
-      border: 2px solid transparent;
-      transition: all .3s ease;
-      background: rgba(139,109,71,0.25);
-      font-weight: 500;
-    }
-    .nav-links a:hover {
-      color: var(--text);
-      border-color: var(--border);
-      background: rgba(212,163,94,0.4);
-      transform: translateY(-2px);
-    }
-    .nav-links a.cta {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: #1a110c;
-      font-weight: 700;
-      border: 2px solid var(--wood);
-    }
-    .nav-links a.cta:hover { filter: brightness(1.15); transform: translateY(-2px); }
-
-    .hero {
-      margin: 2rem auto;
-      padding: 3rem 2rem;
-      background: 
-        linear-gradient(135deg, rgba(93,70,45,0.5), rgba(74,52,34,0.7)),
-        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="none"/><path d="M0,100 Q100,50 200,100 T400,100" stroke="%238b6d47" stroke-width="1" opacity="0.1"/></svg>');
-      border: 4px solid var(--wood);
-      border-radius: 16px;
-      box-shadow: 
-        0 12px 30px rgba(0,0,0,0.4),
-        inset 0 0 40px rgba(0,0,0,0.3);
-      text-align: center;
-      position: relative;
-      max-width: 900px;
-    }
-    .hero::before {
-      content: "";
-      position: absolute;
-      top: -20px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 4rem;
-      opacity: 0.15;
-    }
-    .hero h1 {
-      font-size: 2.8rem;
-      color: var(--accent);
-      margin-bottom: 0.5rem;
-      text-shadow: 3px 3px 0 rgba(0,0,0,0.4);
-      letter-spacing: -0.5px;
-    }
-    .hero h2 {
-      font-size: 1.4rem;
-      color: var(--muted);
-      margin: 0 0 1.5rem;
-      font-weight: 500;
-    }
-    .hero p {
-      color: var(--text);
-      font-size: 1.1rem;
-      max-width: 700px;
-      margin: 0 auto 1.5rem;
-      line-height: 1.7;
-    }
-    .hero .cta-row { margin-top: 1.5rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6rem;
-      padding: 0.8rem 1.5rem;
-      border-radius: 999px;
-      text-decoration: none;
-      font-weight: 600;
-      border: 2px solid var(--wood);
-      transition: all .3s ease;
-      font-size: 1rem;
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: #1a110c;
-      box-shadow: 0 4px 12px rgba(212,163,94,0.3);
-    }
-    .btn-primary:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 6px 20px rgba(212,163,94,0.4);
-      filter: brightness(1.1);
-    }
-    .btn-secondary {
-      background: rgba(139,109,71,0.35);
-      color: var(--text);
-      border-color: var(--border);
-    }
-    .btn-secondary:hover {
-      background: rgba(212,163,94,0.5);
-      transform: translateY(-3px);
-    }
-
-    .section-header {
-      text-align: center;
-      margin: 3rem 0 1.5rem;
-      padding-bottom: 0.8rem;
-      border-bottom: 3px solid var(--wood);
-    }
-    .section-header h2 {
-      color: var(--green);
-      font-size: 2rem;
-      display: inline-block;
-      margin: 0;
-      text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
-    }
-
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
-      margin: 2rem 0;
-    }
-    .feature-card {
-      background: rgba(74,52,34,0.55);
-      border: 3px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.8rem 1.4rem;
-      text-align: center;
-      transition: all .35s ease;
-      position: relative;
-      overflow: hidden;
-    }
-    .feature-card:hover {
-      background: rgba(139,109,71,0.3);
-      transform: translateY(-8px) scale(1.02);
-      border-color: var(--accent);
-    }
-    .feature-card::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--green), var(--accent), var(--yellow));
-    }
-    .feature-card i {
-      font-size: 3rem;
-      color: var(--accent);
-      margin-bottom: 1rem;
-    }
-    .feature-card h3 {
-      color: var(--text);
-      margin: 0.5rem 0;
-      font-size: 1.2rem;
-    }
-    .feature-card p {
-      color: var(--muted);
-      font-size: 0.95rem;
-      line-height: 1.5;
-    }
-
-    .templates-carousel-section {
-      margin: 3rem 0;
-      padding: 2rem 0;
-      background: rgba(61,44,26,0.3);
-      border-radius: var(--radius);
-      border: 3px solid var(--border);
-    }
-    .templates-carousel-section .section-header h2 {
-      color: var(--yellow);
-    }
-    .templates-carousel {
-      display: flex;
-      gap: 1.5rem;
-      overflow-x: auto;
-      scroll-behavior: smooth;
-      padding: 1rem 0.5rem;
-      scroll-snap-type: x mandatory;
-    }
-    .template-preview {
-      scroll-snap-align: start;
-      min-width: 320px;
-      max-width: 380px;
-      background: var(--surface);
-      border: 2px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      transition: all .3s ease;
-    }
-    .template-preview:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-    }
-    .template-preview h3 {
-      color: var(--accent);
-      margin: 0 0 1rem;
-      font-size: 1.3rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .template-preview ul {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 1rem;
-    }
-    .template-preview li {
-      padding: 0.4rem 0;
-      color: var(--muted);
-      font-size: 0.92rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .template-preview li::before {
-      content: "🌾";
-      font-size: 0.8rem;
-    }
-    .template-preview .thumb {
-      height: 140px;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-      background-size: cover;
-      background-position: center;
-      border: 2px solid var(--border);
-      position: relative;
-    }
-    .template-preview .thumb::after {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.3));
-    }
-
-    .carousel-btn {
-      background: var(--surface2);
-      border: 2px solid var(--border);
-      color: var(--text);
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 1.3rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: all .3s ease;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    }
-    .carousel-btn:hover {
-      background: var(--accent);
-      color: #1a110c;
-      transform: scale(1.15);
-      box-shadow: 0 6px 15px rgba(212,163,94,0.4);
-    }
-
-    .stats-row {
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-      margin: 2.5rem 0;
-      flex-wrap: wrap;
-    }
-    .stat-item {
-      text-align: center;
-      padding: 1rem 1.5rem;
-      background: rgba(139,109,71,0.25);
-      border: 2px solid var(--border);
-      border-radius: var(--radius);
-      min-width: 140px;
-    }
-    .stat-item .val {
-      font-size: 2.5rem;
-      font-weight: 800;
-      color: var(--accent);
-      text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
-    }
-    .stat-item .label {
-      font-size: 0.95rem;
-      color: var(--muted);
-      margin-top: 0.3rem;
-    }
-
-    .testimonials {
-      margin: 3rem 0;
-    }
-    .testimonials-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
-    }
-    .testimonial {
-      background: rgba(93,70,45,0.3);
-      border-left: 4px solid var(--green);
-      padding: 1.5rem;
-      border-radius: 0 var(--radius);
-      position: relative;
-    }
-    .testimonial::before {
-      content: """;
-      font-size: 4rem;
-      position: absolute;
-      top: -15px;
-      left: 10px;
-      color: var(--accent);
-      opacity: 0.3;
-      font-family: Georgia, serif;
-    }
-    .testimonial p {
-      font-style: italic;
-      margin-bottom: 1rem;
-      color: var(--text);
-      font-size: 1rem;
-      line-height: 1.6;
-    }
-    .testimonial .author {
-      color: var(--muted);
-      font-size: 0.95rem;
-      text-align: right;
-    }
-
-    footer.landing-footer {
-      margin-top: 4rem;
-      padding: 2.5rem 1rem 1.5rem;
-      text-align: center;
-      color: var(--muted);
-      border-top: 4px solid var(--wood);
-      background: 
-        linear-gradient(180deg, rgba(61,44,26,0.6), rgba(45,30,20,0.8)),
-        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M0,50 L100,50 M50,0 L50,100" stroke="%238b6d47" stroke-width="0.5" opacity="0.15"/></svg>');
-    }
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 1.5rem;
-      margin-bottom: 1.2rem;
-      flex-wrap: wrap;
-    }
-    .footer-links a {
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 1rem;
-      padding: 0.3rem 0.8rem;
-      border-radius: var(--radius);
-      transition: all .2s;
-    }
-    .footer-links a:hover {
-      color: var(--accent);
-      background: rgba(212,163,94,0.2);
-    }
-    .copyright {
-      font-size: 0.9rem;
-      opacity: 0.8;
-    }
-
-    .rustic-divider {
-      height: 25px;
-      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="25" viewBox="0 0 100 25"><path d="M0,12 Q25,2 50,12 T100,12 L100,25 L0,25 Z" fill="%235d462d" opacity="0.4"/></svg>') repeat-x;
-      margin: 2.5rem 0;
-    }
-
-    @media (max-width: 768px) {
-      .hero { padding: 2rem 1rem; }
-      .hero h1 { font-size: 2rem; }
-      .hero h2 { font-size: 1.1rem; }
-      .section-header h2 { font-size: 1.6rem; }
-      .stats-row { gap: 1rem; }
-    }
-  </style>
+  <link rel="stylesheet" th:href="@{/css/landing.css}" href="/css/landing.css" />
 </head>
 <body>
   <nav class="navbar" aria-label="Principal">
@@ -434,6 +19,16 @@
       <a href="/app" class="cta">Entrar al Mercado</a>
     </div>
   </nav>
+
+  <div id="loading-screen">
+    <div class="loader"></div>
+    <p>Iniciando MercadoLink...</p>
+  </div>
+
+  <div id="socket-indicator">
+    <span class="pulse"></span>
+    <span id="socket-text">Conectando al servidor...</span>
+  </div>
 
   <div class="container">
     <div class="hero">
@@ -460,6 +55,11 @@
     <div class="section-header">
       <h2>¿Por qué elegir MercadoLink?</h2>
     </div>
+    <p class="section-summary" style="max-width: 840px; margin: 0 auto 2rem; text-align:center; color: var(--muted); line-height:1.6;">
+      En una sola plataforma conectamos a productores rurales, vendedores de mercados y gestores de pedidos.
+      Más de <strong>50 proveedores rurales</strong> listos para vender, <strong>1.200 pedidos</strong> diarios simulados,
+      <strong>98% de entregas a tiempo</strong> y gestión de inventario automatizada con alertas en tiempo real.
+    </p>
     <div class="features-grid">
       <div class="feature-card">
         <i class="fas fa-leaf"></i>
@@ -495,20 +95,61 @@
 
     <div class="rustic-divider"></div>
 
-    <div class="stats-row" th:if="${productos != null or proveedores != null or vendedores != null}">
-      <div class="stat-item">
-        <div class="val" th:text="${productos != null} ? ${productos.size()} : 0">0</div>
-        <div class="label">Productos Disponibles</div>
+    <section id="dashboard" class="dashboard-section">
+      <div class="section-header">
+        <h2><i class="fas fa-chart-line"></i> Panel de Control B2B</h2>
       </div>
-      <div class="stat-item">
-        <div class="val" th:text="${proveedores != null} ? ${proveedores.size()} : 0">0</div>
-        <div class="label">Proveedores Rurales</div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Pedidos Activos</div>
+          <div class="stat-value" id="stat-orders">0</div>
+          <div class="stat-change positive">↗ En progreso</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">En Tránsito</div>
+          <div class="stat-value" id="stat-transit">0</div>
+          <div class="stat-change info">⏱ Actualizado</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pendiente Pago</div>
+          <div class="stat-value" id="stat-pending">S/ 0.00</div>
+          <div class="stat-change warning">⚠ Verifica</div>
+        </div>
       </div>
-      <div class="stat-item">
-        <div class="val" th:text="${vendedores != null} ? ${vendedores.size()} : 0">0</div>
-        <div class="label">Vendedores Activos</div>
+      <div class="dashboard-layout">
+        <div class="recent-orders">
+          <h3><i class="fas fa-clock"></i> Pedidos Recientes</h3>
+          <div id="recent-orders-list"><div class="empty-state">Sin pedidos recientes</div></div>
+        </div>
+        <div class="activity-feed">
+          <h3><i class="fas fa-bolt"></i> Actividad</h3>
+          <div id="activity-log"><div class="empty-state">Sin actividad</div></div>
+        </div>
       </div>
-    </div>
+    </section>
+
+    <div class="rustic-divider"></div>
+
+    <section id="catalog" class="catalog-section">
+      <div class="section-header">
+        <h2><i class="fas fa-box-open"></i> Catálogo de Productos</h2>
+      </div>
+      <div class="catalog-filters">
+        <button class="filter-btn active" onclick="filterProducts('all')">Todos</button>
+        <button class="filter-btn" onclick="filterProducts('food')">Alimentos</button>
+        <button class="filter-btn" onclick="filterProducts('raw-materials')">Materia Prima</button>
+      </div>
+      <div id="products-grid" class="products-grid"></div>
+    </section>
+
+    <div class="rustic-divider"></div>
+
+    <section id="tracking" class="tracking-section">
+      <div class="section-header">
+        <h2><i class="fas fa-truck"></i> Seguimiento de Envíos</h2>
+      </div>
+      <div id="tracking-list" class="tracking-list"><div class="empty-state">Verifica pedidos en la app para tracking</div></div>
+    </section>
 
     <div class="rustic-divider"></div>
 
@@ -621,10 +262,23 @@
       </div>
     </section>
 
-    <section th:if="${proveedores == null or proveedores.empty} and ${vendedores == null or vendedores.empty}" style="text-align:center; padding:2rem;">
-      <p style="color: var(--muted); font-size:1.1rem; max-width:600px; margin:0 auto;">
-        Aún no hay datos registrados. ¡Sé el primero en <a href="/app" style="color:var(--accent);">entrar a la app</a> y comenzar a cargar tu catálogo o explorar productos disponibles.
-      </p>
+    <section id="chat" class="chat-section">
+      <div class="section-header">
+        <h2><i class="fas fa-comments"></i> Centro de Comunicaciones B2B</h2>
+      </div>
+      <div class="chat-container">
+        <div class="chat-contacts" id="chat-contacts"></div>
+        <div class="chat-main">
+          <div class="chat-header" id="chat-header">Seleccione una conversación</div>
+          <div class="chat-messages" id="chat-messages">
+            <div class="empty-state">Seleccione un contacto para comenzar</div>
+          </div>
+          <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Escriba su mensaje..." onkeypress="handleChatKey(event)">
+            <button class="btn-primary btn-sm" onclick="sendChatMessage()">Enviar</button>
+          </div>
+        </div>
+      </div>
     </section>
   </div>
 
@@ -642,24 +296,162 @@
     </div>
   </footer>
 
+  <div id="modal-overlay" class="hidden">
+    <div id="modal-content"></div>
+  </div>
+
   <script>
+    const store = { products: [], contacts: [], messages: [], orders: [], tracking: [], currentChat: null };
+    
+    async function loadStore() {
+      try {
+        const res = await fetch('/api/v1/productos');
+        if (!res.ok) throw new Error('No se obtuvieron productos desde la API');
+        const data = await res.json();
+        store.products = data.map((p, idx) => ({
+          id: p.id || idx + 1,
+          name: p.descripcion || p.codigo || ('Producto ' + (idx+1)),
+          category: (p.etiquetas && p.etiquetas.length) ? p.etiquetas[0] : 'general',
+          price: Number(p.precioReferencia || 0),
+          stock: 100,
+          icon: '📦',
+          codigo: p.codigo,
+          proveedor: p.proveedor
+        }));
+        // keep other structures empty (landing shows limited demo info)
+        store.contacts = [];
+        store.messages = [];
+        store.orders = [];
+        store.tracking = [];
+        // cache optional
+        try { localStorage.setItem('mercado_link_landing', JSON.stringify(store)); } catch(e) { /* ignore */ }
+      } catch (e) {
+        console.warn('Fallo al cargar productos desde la API, usar datos en blanco:', e);
+        store.products = [];
+        store.contacts = [];
+        store.messages = [];
+        store.orders = [];
+        store.tracking = [];
+      }
+    }
+
+    function saveStore() { try { localStorage.setItem('mercado_link_landing', JSON.stringify(store)); } catch(e) { /* ignore */ } }
+    
+    function $(id) { return document.getElementById(id); }
+    function formatMoney(n) { return 'S/ ' + Number(n).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+    function formatTime(ts) { if (!ts) return '---'; return new Date(ts).toLocaleString('es-PE', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }); }
+    
+    function setStatus(key, text) { const el = $(key); if (el) el.textContent = text; }
+    function setPulse(state) { const el = $('socket-indicator'); if (!el) return; const dot = el.querySelector('.pulse'); dot.className = 'pulse ' + state; }
+    
+    function renderDashboard() {
+      $('stat-orders').textContent = store.orders.filter(o => ['pending','processing','shipped'].includes(o.status)).length;
+      $('stat-transit').textContent = store.tracking.filter(t => t.status === 'in_transit').length;
+      $('stat-pending').textContent = formatMoney(store.orders.filter(o => o.status === 'pending').reduce((s, o) => s + o.total, 0));
+      $('recent-orders-list').innerHTML = store.orders.slice(0, 5).reverse().map(o => {
+        const cls = `status-${o.status}`;
+        const label = { pending: 'Pendiente', processing: 'En proceso', shipped: 'Enviado', completed: 'Completado' }[o.status] || o.status;
+        return `<div class="order-item"><div><div class="order-id">#${o.id}</div><div style="color:var(--muted);font-size:12px;">${o.product} · x${o.qty}</div></div><div class="order-status ${cls}">${label}</div></div>`;
+      }).join('') || '<div class="empty-state">Sin pedidos recientes</div>';
+      $('activity-log').innerHTML = store.messages.slice(-6).reverse().map(m => {
+        const c = store.contacts.find(x => x.id === m.contactId);
+        return `<div class="activity-item"><div class="activity-dot"></div><div><div style="font-weight:600;">${c ? c.name : 'Sistema'}</div><div style="color:var(--muted);font-size:12px;">${m.text}</div><div style="color:var(--muted);font-size:11px;margin-top:2px;">${formatTime(m.time)}</div></div></div>`;
+      }).join('') || '<div class="empty-state">Sin actividad</div>';
+    }
+    
+    function renderCatalog(category) {
+      const grid = $('products-grid');
+      grid.innerHTML = '<div class="empty-state">Cargando catálogo...</div>';
+      const products = category === 'all' ? store.products : store.products.filter(p => p.category === category);
+      if (!products.length) { grid.innerHTML = '<div class="empty-state">No hay productos</div>'; return; }
+      grid.innerHTML = products.map(p => {
+        return `<div class="product-card"><div class="product-image"><div style="font-size:48px;display:flex;align-items:center;justify-content:center;height:100%;">${p.icon || '📦'}</div></div><div class="product-details"><div class="product-category">${p.category || 'General'}</div><div class="product-name">${p.name}</div><div class="product-meta"><div><div class="product-price">${formatMoney(p.price)}</div><div class="product-stock">Stock: ${p.stock}</div></div><button class="btn-primary btn-sm" onclick="addToOrder(${p.id})">Pedir</button></div></div>`;
+      }).join('');
+    }
+    
+    function renderTracking() {
+      const container = $('tracking-list');
+      if (!store.tracking.length) {
+        container.innerHTML = '<div class="empty-state">Verifica pedidos en la app para tracking</div>';
+        return;
+      }
+      container.innerHTML = store.tracking.map(t => {
+        const completed = t.stages.filter(s => s.done).length;
+        const percent = Math.round((completed / t.stages.length) * 100);
+        const statusLabel = { pending: 'Pendiente', in_transit: 'En tránsito', delivered: 'Entregado' }[t.status] || t.status;
+        return `<div class="tracking-card"><div class="tracking-header"><div><div class="tracking-id">${t.id}</div><div class="tracking-meta">${t.carrier} · Pedido #${t.orderId}</div></div><div class="order-status status-${t.status === 'in_transit' ? 'shipped' : 'pending'}">${statusLabel}</div></div><div class="tracking-body">${t.stages.map(s => `<div class="tracking-event ${s.done ? 'done' : (s.active ? 'active' : '')}"><div class="event-title">${s.label}</div><div class="event-time">${formatTime(s.time)}</div></div>`).join('')}</div><div class="time-bar-wrap"><div class="time-bar-label"><span>Progreso</span><span>${percent}%</span></div><div class="time-bar"><div class="time-bar-fill" style="width:${percent}%"></div></div></div></div>`;
+      }).join('');
+    }
+    
+    function renderChat() {
+      $('chat-contacts').innerHTML = store.contacts.map(c => `<div class="chat-contact${store.currentChat === c.id ? ' active' : ''}" onclick="selectChat(${c.id})"><div class="contact-avatar">${c.initials}</div><div class="contact-meta"><strong>${c.name}</strong><small>Sin mensajes nuevos</small></div></div>`).join('');
+      if (!store.currentChat) { $('chat-header').textContent = 'Seleccione una conversación'; $('chat-messages').innerHTML = '<div class="empty-state">Seleccione un contacto para comenzar</div>'; return; }
+      const contact = store.contacts.find(c => c.id === store.currentChat);
+      $('chat-header').textContent = contact ? `${contact.name} · En línea` : 'Conversación';
+      const msgs = store.messages.filter(m => m.contactId === store.currentChat);
+      $('chat-messages').innerHTML = msgs.map(m => `<div class="chat-message ${m.from === 'me' ? 'sent' : 'received'}"><div>${m.text}</div><span class="chat-time">${formatTime(m.time)}</span></div>`).join('');
+    }
+    
     function scrollCarousel(carouselId, dir) {
       const el = document.getElementById(carouselId);
       if (!el) return;
       el.scrollBy({ left: dir * 350, behavior: 'smooth' });
     }
     
+    function init() {
+      setStatus('socket-text', 'Iniciando...');
+      setPulse('');
+      loadStore();
+      setStatus('socket-text', 'Listo');
+      setPulse('online');
+      setTimeout(() => { $('loading-screen').classList.add('hidden'); }, 800);
+      renderDashboard();
+      renderCatalog('all');
+      renderTracking();
+      renderChat();
+    }
+    
+    function filterProducts(category) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      renderCatalog(category);
+    }
+    
+    function addToOrder(productId) {
+      const qty = prompt('Cantidad:', '1');
+      if (!qty || Number(qty) <= 0) return;
+      const product = store.products.find(p => p.id === productId);
+      const order = { id: 1000 + store.orders.length + 1, product: product.name, qty: Number(qty), total: product.price * Number(qty), status: 'pending', date: Date.now() };
+      store.orders.push(order);
+      product.stock = Math.max(0, product.stock - order.qty);
+      saveStore();
+      alert(`Pedido creado #${order.id}`);
+      renderDashboard();
+      renderCatalog('all');
+    }
+    
+    function selectChat(contactId) { store.currentChat = contactId; renderChat(); }
+    
+    function sendChatMessage() {
+      const input = $('chat-input');
+      const text = input.value.trim();
+      if (!text || !store.currentChat) return;
+      store.messages.push({ id: Date.now(), contactId: store.currentChat, from: 'me', text, time: Date.now() });
+      input.value = '';
+      saveStore();
+      renderChat();
+    }
+    
+    function handleChatKey(e) { if (e.key === 'Enter') sendChatMessage(); }
+    
     document.addEventListener('DOMContentLoaded', function() {
-      const carousels = document.querySelectorAll('.templates-carousel, .carousel-preview');
+      const carousels = document.querySelectorAll('.templates-carousel');
       carousels.forEach(c => {
-        let auto = setInterval(() => {
-          scrollCarousel(c.id, 1);
-        }, 6000);
+        let auto = setInterval(() => scrollCarousel(c.id, 1), 6000);
         c.addEventListener('mouseenter', () => clearInterval(auto));
-        c.addEventListener('mouseleave', () => {
-          auto = setInterval(() => scrollCarousel(c.id, 1), 6000);
-        });
+        c.addEventListener('mouseleave', () => { auto = setInterval(() => scrollCarousel(c.id, 1), 6000); });
       });
+      init();
     });
   </script>
 </body>

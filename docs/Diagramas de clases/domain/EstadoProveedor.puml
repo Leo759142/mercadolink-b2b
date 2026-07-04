@@ -1,0 +1,14 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+class EstadoProveedor <<Enumeration>> {
+  EN_EVALUACION
+  APROBADO
+  ACTIVO
+  SUSPENDIDO
+  DESCARTADO
+}
+note top of EstadoProveedor
+  Package: pe.aspropa.mercadolink.domain
+end note
+@enduml

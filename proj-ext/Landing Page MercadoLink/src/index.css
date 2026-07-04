@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-serif: "Playfair Display", Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-rustic-bg: #2d1e14;
+  --color-rustic-surface: #3a281a;
+  --color-rustic-surface2: #4a3422;
+  --color-rustic-border: #8b6d47;
+  --color-rustic-text: #f0e6d2;
+  --color-rustic-muted: #c9b494;
+  --color-rustic-accent: #d4a35e;
+  --color-rustic-accent2: #b47a4a;
+  --color-rustic-green: #7cae5f;
+  --color-rustic-yellow: #e8c15e;
+  --color-rustic-red: #c96a5a;
+  --color-rustic-wood: #5d462d;
+
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #2d1e14;
+}
+::-webkit-scrollbar-thumb {
+  background: #5d462d;
+  border-radius: 4px;
+  border: 1px solid #8b6d47;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8b6d47;
+}
+
+body {
+  background-color: #2d1e14;
+  color: #f0e6d2;
+  font-family: var(--font-serif);
+  min-height: 100vh;
+}
+
+/* Custom Rustic Texture & Wood Plank Styles */
+.rustic-wood-grain {
+  background-image: radial-gradient(rgba(212, 163, 94, 0.03) 1px, transparent 1px),
+                    radial-gradient(rgba(212, 163, 94, 0.03) 1px, transparent 1px);
+  background-size: 16px 16px;
+  background-position: 0 0, 8px 8px;
+}
+
+.rustic-wood-planks {
+  background-image: linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.25) 0px,
+    rgba(0, 0, 0, 0.25) 1px,
+    transparent 1px,
+    transparent 100%
+  );
+  background-size: 100% 48px;
+}
+
+.rustic-kraft-paper {
+  background-color: #3a281a;
+  background-image: 
+    repeating-linear-gradient(45deg, rgba(212, 163, 94, 0.01) 0px, rgba(212, 163, 94, 0.01) 2px, transparent 2px, transparent 10px),
+    repeating-linear-gradient(-45deg, rgba(212, 163, 94, 0.01) 0px, rgba(212, 163, 94, 0.01) 2px, transparent 2px, transparent 10px);
+}
+
+.rustic-double-border {
+  border: 4px double #8b6d47;
+}
+
+.rustic-dashed-border {
+  border: 2px dashed #8b6d47;
+}
+
+/* High Contrast & Smoothness */
+.custom-focus:focus-visible {
+  outline: 2px solid #d4a35e;
+  outline-offset: 2px;
+}
+
+/* Carousel Scroll Snap */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

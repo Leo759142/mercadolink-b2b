@@ -1,0 +1,25 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class LogisticaController {
+  - Logger log
+  - LogisticaService logisticaService
+  + LogisticaController(LogisticaService)
+  + List<Envio> listarEnvios()
+  + ResponseEntity<Envio> crearEnvio(AuthenticatedActor, CrearEnvioRequest)
+  + Envio obtenerEnvio(String)
+  + List<Recepcion> listarRecepciones()
+  + ResponseEntity<Recepcion> crearRecepcion(AuthenticatedActor, CrearRecepcionRequest)
+  + Recepcion obtenerRecepcion(String)
+  + Recepcion actualizarEstadoRecepcion(String, Map<String, String>, AuthenticatedActor)
+  + List<NoConformidad> listarNoConformidades()
+  + ResponseEntity<NoConformidad> crearNoConformidad(AuthenticatedActor, CrearNoConformidadRequest)
+  + NoConformidad resolverNoConformidad(String, AuthenticatedActor)
+}
+
+note top of LogisticaController
+  Package: pe.aspropa.mercadolink.controller
+end note
+
+@enduml

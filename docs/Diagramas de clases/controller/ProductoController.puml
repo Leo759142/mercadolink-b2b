@@ -1,0 +1,22 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class ProductoController {
+  - ProductoRepository productoRepository
+  - ActorService actorService
+  - TagService tagService
+  + ProductoController(ProductoRepository, ActorService, TagService)
+  + List<ProductoResponse> listar(String, String)
+  - List<String> getEtiquetasString(Producto)
+  + List<ProductoResponse> listarMisProductos(AuthenticatedActor)
+  + List<String> sugerenciasEtiquetas()
+  + ResponseEntity<ProductoResponse> crear(Map<String, Object>, AuthenticatedActor)
+  + ResponseEntity<ProductoResponse> actualizarEtiquetas(String, Map<String, String>, AuthenticatedActor)
+}
+
+note top of ProductoController
+  Package: pe.aspropa.mercadolink.controller
+end note
+
+@enduml

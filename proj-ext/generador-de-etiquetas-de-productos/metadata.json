@@ -1,0 +1,6 @@
+{
+  "name": "Generador de Etiquetas de Productos",
+  "description": "Aplicación para el diseño, gestión y creación de etiquetas de productos con control de stock, categorías y códigos de barra.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

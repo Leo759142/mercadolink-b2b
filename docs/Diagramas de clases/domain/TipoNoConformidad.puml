@@ -1,0 +1,13 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+class TipoNoConformidad <<Enumeration>> {
+  FALTANTE
+  DANIO
+  DIFERENCIA_PRECIO
+  PRODUCTO_INCORRECTO
+}
+note top of TipoNoConformidad
+  Package: pe.aspropa.mercadolink.domain
+end note
+@enduml

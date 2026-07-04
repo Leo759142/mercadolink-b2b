@@ -1,0 +1,27 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class ActoresUiController {
+  - ActorRepository actorRepository
+  - PuestoRepository puestoRepository
+  - ProductoRepository productoRepository
+  + ActoresUiController(ActorRepository, PuestoRepository, ProductoRepository)
+  + String inicio(Model)
+  + String actores(Model)
+  + String proveedores(Model)
+  + String vendedores(Model)
+  + String nuevoProveedor(Model)
+  + String nuevoVendedor(Model)
+  + String editarProveedor(String, Model)
+  + String editarVendedor(String, Model)
+  + String guardarActor(Actor, String)
+  + String login()
+  + String eliminarActor(String)
+}
+
+note top of ActoresUiController
+  Package: pe.aspropa.mercadolink.controller
+end note
+
+@enduml

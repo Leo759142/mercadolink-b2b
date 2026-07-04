@@ -1,0 +1,20 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class PedidoController {
+  - Logger log
+  - PedidoService pedidoService
+  + PedidoController(PedidoService)
+  + ResponseEntity<Pedido> crear(String, AuthenticatedActor, CrearPedidoRequest)
+  + Pedido obtener(String)
+  + List<Pedido> mios(AuthenticatedActor)
+  + List<Pedido> miosProveedor(AuthenticatedActor)
+  + Pedido cambiarEstado(String, Map<String, String>, AuthenticatedActor)
+}
+
+note top of PedidoController
+  Package: pe.aspropa.mercadolink.controller
+end note
+
+@enduml

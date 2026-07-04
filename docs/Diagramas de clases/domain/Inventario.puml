@@ -1,0 +1,34 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+class Inventario <<Entity>> {
+  {field} private String id
+  {field} private Producto producto
+  {field} private Puesto puesto
+  {field} private int cantidadActual
+  {field} private int cantidadReservada
+  {field} private int cantidadMinima
+  {field} private Long version
+  {field} private Instant ultimaActualizacion
+  {method} public int disponible()
+  {method} public String getId()
+  {method} public void setId(String id)
+  {method} public Producto getProducto()
+  {method} public void setProducto(Producto producto)
+  {method} public Puesto getPuesto()
+  {method} public void setPuesto(Puesto puesto)
+  {method} public int getCantidadActual()
+  {method} public void setCantidadActual(int c)
+  {method} public int getCantidadReservada()
+  {method} public void setCantidadReservada(int c)
+  {method} public int getCantidadMinima()
+  {method} public void setCantidadMinima(int c)
+  {method} public Long getVersion()
+  {method} public void setVersion(Long v)
+  {method} public Instant getUltimaActualizacion()
+  {method} public void setUltimaActualizacion(Instant u)
+}
+note top of Inventario
+  Package: pe.aspropa.mercadolink.domain
+end note
+@enduml

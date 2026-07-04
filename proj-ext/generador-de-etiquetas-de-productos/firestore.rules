@@ -1,0 +1,202 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. Global Safety Net - Default Deny Catch-All
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Global Helper Functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == "U20307868@utp.edu.pe"
+        || request.auth.token.email == "admin@etiquetas.com"
+      );
+    }
+
+    // Helper to validate the Product model
+    function isValidProduct(data) {
+      return data.keys().hasAll(['name', 'sku', 'price', 'stock', 'category', 'ownerId', 'createdAt', 'updatedAt'])
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 150
+        && data.sku is string && data.sku.size() >= 3 && data.sku.size() <= 32 && data.sku.matches('^[a-zA-Z0-9_\\-]+$')
+        && (data.price is number || data.price is int) && data.price >= 0.0
+        && data.stock is int && data.stock >= 0
+        && data.category is string && data.category.size() > 0 && data.category.size() <= 100
+        && data.ownerId is string && data.ownerId == request.auth.uid
+        && (data.description == null || (data.description is string && data.description.size() <= 1000))
+        && (data.imageUrl == null || (data.imageUrl is string && data.imageUrl.size() <= 2048))
+        && (data.brand == null || (data.brand is string && data.brand.size() <= 100))
+        && (data.templateId == null || (data.templateId is string && data.templateId.size() <= 100));
+    }
+
+    // Helper to validate the UserLabelTemplate model
+    function isValidTemplate(data) {
+      return data.keys().hasAll(['name', 'backgroundColor', 'textColor', 'borderColor', 'borderStyle', 'borderWidth', 'fontFamily', 'showName', 'showPrice', 'showSku', 'ownerId', 'createdAt', 'updatedAt'])
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 150
+        && data.backgroundColor is string && data.backgroundColor.size() <= 100
+        && data.textColor is string && data.textColor.size() <= 100
+        && data.borderColor is string && data.borderColor.size() <= 100
+        && data.borderStyle is string && data.borderStyle.size() <= 50
+        && data.borderWidth is int && data.borderWidth >= 0 && data.borderWidth <= 20
+        && data.fontFamily is string && data.fontFamily.size() <= 50
+        && data.showName is bool
+        && data.showPrice is bool
+        && data.showSku is bool
+        && (data.description == null || (data.description is string && data.description.size() <= 1000))
+        && (data.borderRadius == null || (data.borderRadius is int && data.borderRadius >= 0 && data.borderRadius <= 50))
+        && (data.paddingStyle == null || (data.paddingStyle is string && data.paddingStyle.size() <= 20))
+        && (data.fontSizeStyle == null || (data.fontSizeStyle is string && data.fontSizeStyle.size() <= 20))
+        && (data.badgeIcon == null || (data.badgeIcon is string && data.badgeIcon.size() <= 30))
+        && (data.showBrand == null || data.showBrand is bool)
+        && (data.showCategory == null || data.showCategory is bool)
+        && (data.showBarcode == null || data.showBarcode is bool)
+        && (data.customNote == null || (data.customNote is string && data.customNote.size() <= 200))
+        && data.ownerId is string && data.ownerId == request.auth.uid;
+    }
+
+    // Helper to validate PricingSettings model
+    function isValidPricingSettings(data) {
+      return data.keys().hasAll(['ownerId', 'markupFactor', 'lowStockThreshold', 'scarcityMarkup', 'highStockDiscount', 'bundleDiscount', 'updatedAt'])
+        && data.ownerId is string && data.ownerId == request.auth.uid
+        && (data.markupFactor is number || data.markupFactor is int) && data.markupFactor >= 0.5 && data.markupFactor <= 5.0
+        && data.lowStockThreshold is int && data.lowStockThreshold >= 0 && data.lowStockThreshold <= 1000
+        && (data.scarcityMarkup is number || data.scarcityMarkup is int) && data.scarcityMarkup >= 0.0 && data.scarcityMarkup <= 1.0
+        && (data.highStockDiscount is number || data.highStockDiscount is int) && data.highStockDiscount >= 0.0 && data.highStockDiscount <= 1.0
+        && (data.bundleDiscount is number || data.bundleDiscount is int) && data.bundleDiscount >= 0.0 && data.bundleDiscount <= 1.0;
+    }
+
+    // Helper to validate Bundle model
+    function isValidBundle(data) {
+      return data.keys().hasAll(['ownerId', 'primaryProductId', 'secondaryProductId', 'discount', 'isActive', 'createdAt', 'updatedAt'])
+        && data.ownerId is string && data.ownerId == request.auth.uid
+        && data.primaryProductId is string && data.primaryProductId.size() <= 128
+        && data.secondaryProductId is string && data.secondaryProductId.size() <= 128
+        && (data.discount is number || data.discount is int) && data.discount >= 0.0 && data.discount <= 1.0
+        && data.isActive is bool
+        && (data.customTitle == null || (data.customTitle is string && data.customTitle.size() <= 100));
+    }
+
+    // 3. Products Rules Matcher
+    match /products/{productId} {
+      allow get: if isSignedIn() && existing().ownerId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+
+      allow create: if isSignedIn()
+        && isValidId(productId)
+        && isValidProduct(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isSignedIn()
+        && isValidId(productId)
+        && isValidProduct(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().ownerId == existing().ownerId
+        && existing().ownerId == request.auth.uid
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'name', 'sku', 'price', 'stock', 'category', 'description', 'imageUrl', 'brand', 'templateId', 'updatedAt'
+        ]);
+
+      allow delete: if isSignedIn()
+        && isValidId(productId)
+        && existing().ownerId == request.auth.uid;
+    }
+
+    // 4. Templates Rules Matcher
+    match /templates/{templateId} {
+      allow get: if isSignedIn() && existing().ownerId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+
+      allow create: if isSignedIn()
+        && isValidId(templateId)
+        && isValidTemplate(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isSignedIn()
+        && isValidId(templateId)
+        && isValidTemplate(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().ownerId == existing().ownerId
+        && existing().ownerId == request.auth.uid
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'name', 'description', 'backgroundColor', 'textColor', 'borderColor', 'borderStyle', 'borderWidth', 'borderRadius', 'paddingStyle', 'fontSizeStyle', 'badgeIcon', 'fontFamily', 'showName', 'showPrice', 'showSku', 'showBrand', 'showCategory', 'showBarcode', 'customNote', 'updatedAt'
+        ]);
+
+      allow delete: if isSignedIn()
+        && isValidId(templateId)
+        && existing().ownerId == request.auth.uid;
+    }
+
+    // 5. PricingSettings Rules Matcher
+    match /pricingSettings/{settingsId} {
+      allow get: if isSignedIn() && existing().ownerId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+
+      allow create: if isSignedIn()
+        && isValidId(settingsId)
+        && isValidPricingSettings(incoming())
+        && incoming().updatedAt == request.time;
+
+      allow update: if isSignedIn()
+        && isValidId(settingsId)
+        && isValidPricingSettings(incoming())
+        && incoming().ownerId == existing().ownerId
+        && existing().ownerId == request.auth.uid
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'markupFactor', 'lowStockThreshold', 'scarcityMarkup', 'highStockDiscount', 'bundleDiscount', 'updatedAt'
+        ]);
+
+      allow delete: if isSignedIn()
+        && isValidId(settingsId)
+        && existing().ownerId == request.auth.uid;
+    }
+
+    // 6. Bundles Rules Matcher
+    match /bundles/{bundleId} {
+      allow get: if isSignedIn() && existing().ownerId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+
+      allow create: if isSignedIn()
+        && isValidId(bundleId)
+        && isValidBundle(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isSignedIn()
+        && isValidId(bundleId)
+        && isValidBundle(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().ownerId == existing().ownerId
+        && existing().ownerId == request.auth.uid
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'primaryProductId', 'secondaryProductId', 'discount', 'isActive', 'customTitle', 'updatedAt'
+        ]);
+
+      allow delete: if isSignedIn()
+        && isValidId(bundleId)
+        && existing().ownerId == request.auth.uid;
+    }
+  }
+}

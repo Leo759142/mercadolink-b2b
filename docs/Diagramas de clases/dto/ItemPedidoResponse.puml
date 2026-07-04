@@ -1,0 +1,37 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class ItemPedidoResponse << (T,#FFAAAA) >> {
+  {field} private Long id
+  {field} private String productoId
+  {field} private String productoDescripcion
+  {field} private String productoCodigo
+  {field} private String puestoId
+  {field} private String puestoNombre
+  {field} private int cantidad
+  {field} private BigDecimal precioUnitario
+  {method} public Long getId()
+  {method} public void setId(Long)
+  {method} public String getProductoId()
+  {method} public void setProductoId(String)
+  {method} public String getProductoDescripcion()
+  {method} public void setProductoDescripcion(String)
+  {method} public String getProductoCodigo()
+  {method} public void setProductoCodigo(String)
+  {method} public String getPuestoId()
+  {method} public void setPuestoId(String)
+  {method} public String getPuestoNombre()
+  {method} public void setPuestoNombre(String)
+  {method} public int getCantidad()
+  {method} public void setCantidad(int)
+  {method} public BigDecimal getPrecioUnitario()
+  {method} public void setPrecioUnitario(BigDecimal)
+  {method} public BigDecimal getSubtotal()
+}
+
+note top of ItemPedidoResponse
+  Package: pe.aspropa.mercadolink.dto
+end note
+
+@enduml

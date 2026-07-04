@@ -1,0 +1,33 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class CrearEnvioRequest << (T,#FFAAAA) >> {
+  {field} private String pedidoId
+  {field} private String proveedorId
+  {field} private String transportista
+  {field} private String numeroGuia
+  {field} private Instant fechaDespacho
+  {field} private LocalDate fechaEstimadaEntrega
+  {field} private String observaciones
+  {method} public String getPedidoId()
+  {method} public void setPedidoId(String)
+  {method} public String getProveedorId()
+  {method} public void setProveedorId(String)
+  {method} public String getTransportista()
+  {method} public void setTransportista(String)
+  {method} public String getNumeroGuia()
+  {method} public void setNumeroGuia(String)
+  {method} public Instant getFechaDespacho()
+  {method} public void setFechaDespacho(Instant)
+  {method} public LocalDate getFechaEstimadaEntrega()
+  {method} public void setFechaEstimadaEntrega(LocalDate)
+  {method} public String getObservaciones()
+  {method} public void setObservaciones(String)
+}
+
+note top of CrearEnvioRequest
+  Package: pe.aspropa.mercadolink.dto
+end note
+
+@enduml

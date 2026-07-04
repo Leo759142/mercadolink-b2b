@@ -1,0 +1,16 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class NotificacionController {
+  - NotificacionRepository repository
+  + NotificacionController(NotificacionRepository)
+  + ResponseEntity<List<Notificacion>> listar()
+  + ResponseEntity<Long> contarNoLeidas()
+}
+
+note top of NotificacionController
+  Package: pe.aspropa.mercadolink.controller
+end note
+
+@enduml

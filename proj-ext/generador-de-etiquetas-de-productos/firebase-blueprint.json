@@ -1,0 +1,275 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "A product document containing core fields such as name, category, stock, price, barcode and design template.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the product"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the product"
+        },
+        "sku": {
+          "type": "string",
+          "description": "Stock Keeping Unit or barcode value"
+        },
+        "description": {
+          "type": "string",
+          "description": "Short description of the product"
+        },
+        "price": {
+          "type": "number",
+          "description": "Price of the product"
+        },
+        "stock": {
+          "type": "integer",
+          "description": "Current stock count of the product"
+        },
+        "category": {
+          "type": "string",
+          "description": "Product category"
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "Product image URL"
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "UID of the user who owns the product"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the product was created"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the product was last updated"
+        },
+        "templateId": {
+          "type": "string",
+          "description": "ID of the label template used for printing"
+        },
+        "brand": {
+          "type": "string",
+          "description": "Brand name of the product"
+        }
+      },
+      "required": ["name", "sku", "price", "stock", "category", "ownerId", "createdAt", "updatedAt"]
+    },
+    "UserLabelTemplate": {
+      "title": "UserLabelTemplate",
+      "description": "A custom label template created by the user with advanced visual configurations.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the template"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the template"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the template"
+        },
+        "backgroundColor": {
+          "type": "string",
+          "description": "Hex or Tailwind color for label background"
+        },
+        "textColor": {
+          "type": "string",
+          "description": "Hex or Tailwind color for label text"
+        },
+        "borderColor": {
+          "type": "string",
+          "description": "Hex or Tailwind color for label border"
+        },
+        "borderStyle": {
+          "type": "string",
+          "description": "Border style like solid, dashed, double, etc."
+        },
+        "borderWidth": {
+          "type": "integer",
+          "description": "Border width in pixels"
+        },
+        "borderRadius": {
+          "type": "integer",
+          "description": "Border radius in pixels (0 for none, 4 for small, 8 for medium, 16 for large, 24 for full)"
+        },
+        "paddingStyle": {
+          "type": "string",
+          "description": "Padding density: tight, normal, loose"
+        },
+        "fontSizeStyle": {
+          "type": "string",
+          "description": "Font size scaling: compact, standard, large"
+        },
+        "badgeIcon": {
+          "type": "string",
+          "description": "Badge icon type: none, star, crown, leaf, check, premium"
+        },
+        "fontFamily": {
+          "type": "string",
+          "description": "Font family name"
+        },
+        "showName": {
+          "type": "boolean",
+          "description": "Whether to display product name"
+        },
+        "showPrice": {
+          "type": "boolean",
+          "description": "Whether to display product price"
+        },
+        "showSku": {
+          "type": "boolean",
+          "description": "Whether to display product barcode/SKU"
+        },
+        "showBrand": {
+          "type": "boolean",
+          "description": "Whether to display product brand"
+        },
+        "showCategory": {
+          "type": "boolean",
+          "description": "Whether to display product category"
+        },
+        "showBarcode": {
+          "type": "boolean",
+          "description": "Whether to show visual barcode"
+        },
+        "customNote": {
+          "type": "string",
+          "description": "Custom bottom note on label"
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "UID of the user who owns the template"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the template was created"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the template was last updated"
+        }
+      },
+      "required": ["name", "backgroundColor", "textColor", "borderColor", "borderStyle", "borderWidth", "fontFamily", "showName", "showPrice", "showSku", "ownerId", "createdAt", "updatedAt"]
+    },
+    "PricingSettings": {
+      "title": "PricingSettings",
+      "description": "Master configurations for indirect pricing intelligence set by an administrator.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique settings ID (usually matching ownerId)"
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "UID of the admin user"
+        },
+        "markupFactor": {
+          "type": "number",
+          "description": "Global markup margin factor (e.g. 1.3 for 30% margin)"
+        },
+        "minCompetitorIndex": {
+          "type": "number",
+          "description": "Threshold price factor below competitor average to flag"
+        },
+        "lowStockThreshold": {
+          "type": "integer",
+          "description": "Threshold to apply dynamic scarcity markup"
+        },
+        "scarcityMarkup": {
+          "type": "number",
+          "description": "Percent markup to apply to low stock products (e.g. 0.05)"
+        },
+        "highStockDiscount": {
+          "type": "number",
+          "description": "Percent discount to apply to overstock products (e.g. 0.15)"
+        },
+        "bundleDiscount": {
+          "type": "number",
+          "description": "Standard suggested bundle discount (e.g. 0.10)"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when configuration was saved"
+        }
+      },
+      "required": ["ownerId", "markupFactor", "lowStockThreshold", "scarcityMarkup", "highStockDiscount", "bundleDiscount", "updatedAt"]
+    },
+    "Bundle": {
+      "title": "Bundle",
+      "description": "Joint product cross-selling rule configured by the administrator.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the bundle rule"
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "UID of the creator admin"
+        },
+        "primaryProductId": {
+          "type": "string",
+          "description": "ID of the primary product triggered"
+        },
+        "secondaryProductId": {
+          "type": "string",
+          "description": "ID of the suggested complementary product"
+        },
+        "discount": {
+          "type": "number",
+          "description": "Custom bundle discount override for the set"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Whether this cross-selling rule is enabled"
+        },
+        "customTitle": {
+          "type": "string",
+          "description": "Optional custom promotional text for the bundle (e.g. Combo Oficina)"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["ownerId", "primaryProductId", "secondaryProductId", "discount", "isActive", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "The collection of products managed by users."
+    },
+    "/templates/{templateId}": {
+      "schema": "UserLabelTemplate",
+      "description": "Custom label templates created by the user."
+    },
+    "/pricingSettings/{settingsId}": {
+      "schema": "PricingSettings",
+      "description": "Indirect pricing intelligence master variables."
+    },
+    "/bundles/{bundleId}": {
+      "schema": "Bundle",
+      "description": "Cross-selling and product group suggestion associations."
+    }
+  }
+}

@@ -1,0 +1,39 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+class Proveedor <<Entity>> {
+  {field} private String id
+  {field} private String razonSocial
+  {field} private String ruc
+  {field} private String estado
+  {field} private String nombreContacto
+  {field} private String telefono
+  {field} private String email
+  {field} private String direccion
+  {field} private String distrito
+  {field} private LocalDate fechaRegistro
+  {method} public String getId()
+  {method} public void setId(String id)
+  {method} public String getRazonSocial()
+  {method} public void setRazonSocial(String razonSocial)
+  {method} public String getRuc()
+  {method} public void setRuc(String ruc)
+  {method} public String getEstado()
+  {method} public void setEstado(String estado)
+  {method} public String getNombreContacto()
+  {method} public void setNombreContacto(String nombreContacto)
+  {method} public String getTelefono()
+  {method} public void setTelefono(String telefono)
+  {method} public String getEmail()
+  {method} public void setEmail(String email)
+  {method} public String getDireccion()
+  {method} public void setDireccion(String direccion)
+  {method} public String getDistrito()
+  {method} public void setDistrito(String distrito)
+  {method} public LocalDate getFechaRegistro()
+  {method} public void setFechaRegistro(LocalDate fechaRegistro)
+}
+note top of Proveedor
+  Package: pe.aspropa.mercadolink.domain
+end note
+@enduml

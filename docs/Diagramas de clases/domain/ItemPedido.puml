@@ -1,0 +1,28 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+class ItemPedido <<Entity>> {
+  {field} private Long id
+  {field} private Pedido pedido
+  {field} private Producto producto
+  {field} private Puesto puesto
+  {field} private int cantidad
+  {field} private BigDecimal precioUnitario
+  {method} public BigDecimal subtotal()
+  {method} public Long getId()
+  {method} public void setId(Long id)
+  {method} public Pedido getPedido()
+  {method} public void setPedido(Pedido pedido)
+  {method} public Producto getProducto()
+  {method} public void setProducto(Producto producto)
+  {method} public Puesto getPuesto()
+  {method} public void setPuesto(Puesto puesto)
+  {method} public int getCantidad()
+  {method} public void setCantidad(int cantidad)
+  {method} public BigDecimal getPrecioUnitario()
+  {method} public void setPrecioUnitario(BigDecimal p)
+}
+note top of ItemPedido
+  Package: pe.aspropa.mercadolink.domain
+end note
+@enduml

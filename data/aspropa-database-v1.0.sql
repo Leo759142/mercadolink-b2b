@@ -71,6 +71,221 @@ INSERT INTO categorias_producto (nombre) VALUES
     ('ABARROTES'), ('FRUTAS_VERDURAS'), ('CARNES_EMBUTIDOS'),
     ('LACTEOS'), ('LIMPIEZA'), ('BEBIDAS'), ('OTROS');
 
+-- ================================================================
+-- DATOS DE PRUEBA - PUESTOS
+-- ================================================================
+
+INSERT INTO puestos (puesto_id, numero_puesto, nombre, seccion) VALUES
+    (gen_random_uuid()::TEXT, 'A-101', 'Frutas del Valle', 'SECCION_A'),
+    (gen_random_uuid()::TEXT, 'A-102', 'Verduras Frescas', 'SECCION_A'),
+    (gen_random_uuid()::TEXT, 'B-201', 'Carnes Premium', 'SECCION_B'),
+    (gen_random_uuid()::TEXT, 'B-202', 'Abarrotes El Ahorro', 'SECCION_B'),
+    (gen_random_uuid()::TEXT, 'C-301', 'Lácteos y Huevos', 'SECCION_C'),
+    (gen_random_uuid()::TEXT, 'C-302', 'Limpieza Total', 'SECCION_C');
+
+-- ================================================================
+-- DATOS DE PRUEBA - VENDEDORES
+-- ================================================================
+
+INSERT INTO vendedores (vendedor_id, puesto_id, nombre_completo, dni, telefono, email)
+SELECT gen_random_uuid()::TEXT, p.puesto_id,
+    CASE p.numero_puesto
+        WHEN 'A-101' THEN 'María González López'
+        WHEN 'A-102' THEN 'Carlos Ramírez Mendoza'
+        WHEN 'B-201' THEN 'Ana Patricia Torres Ruiz'
+        WHEN 'B-202' THEN 'Luis Fernando Quispe Castro'
+        WHEN 'C-301' THEN 'Rosa María Delgado Vásquez'
+        WHEN 'C-302' THEN 'Jorge Armando Silva Ríos'
+    END,
+    CASE p.numero_puesto
+        WHEN 'A-101' THEN '12345678'
+        WHEN 'A-102' THEN '23456789'
+        WHEN 'B-201' THEN '34567890'
+        WHEN 'B-202' THEN '45678901'
+        WHEN 'C-301' THEN '56789012'
+        WHEN 'C-302' THEN '67890123'
+    END,
+    CASE p.numero_puesto
+        WHEN 'A-101' THEN '987654321'
+        WHEN 'A-102' THEN '987654322'
+        WHEN 'B-201' THEN '987654323'
+        WHEN 'B-202' THEN '987654324'
+        WHEN 'C-301' THEN '987654325'
+        WHEN 'C-302' THEN '987654326'
+    END,
+    CASE p.numero_puesto
+        WHEN 'A-101' THEN 'maria.gonzalez@email.com'
+        WHEN 'A-102' THEN 'carlos.ramirez@email.com'
+        WHEN 'B-201' THEN 'ana.torres@email.com'
+        WHEN 'B-202' THEN 'luis.quispe@email.com'
+        WHEN 'C-301' THEN 'rosa.delgado@email.com'
+        WHEN 'C-302' THEN 'jorge.silva@email.com'
+    END
+FROM puestos p;
+
+-- ================================================================
+-- DATOS DE PRUEBA - ENCARGADOS
+-- ================================================================
+
+INSERT INTO encargados (encargado_id, nombre_completo, dni, rol, email, telefono) VALUES
+    (gen_random_uuid()::TEXT, 'Roberto Mendoza Silva', '11111111', 'ADMINISTRADOR', 'roberto.mendoza@aspropa.gob.pe', '999999999'),
+    (gen_random_uuid()::TEXT, 'Patricia Gómez Ríos', '22222222', 'ALMACEN', 'patricia.gomez@aspropa.gob.pe', '999999998'),
+    (gen_random_uuid()::TEXT, 'Miguel Torres Castro', '33333333', 'COMPRAS', 'miguel.torres@aspropa.gob.pe', '999999997'),
+    (gen_random_uuid()::TEXT, 'Elena Quispe Fernández', '44444444', 'RECEPCION', 'elena.quispe@aspropa.gob.pe', '999999996');
+
+-- ================================================================
+-- DATOS DE PRUEBA - PRODUCTOS
+-- ================================================================
+
+INSERT INTO productos (producto_id, codigo, descripcion, categoria_id, unidad_medida, precio_referencia) VALUES
+    (gen_random_uuid()::TEXT, 'PROD-0001', 'Plátanos Hass kg', 2, 'KG', 4.50),
+    (gen_random_uuid()::TEXT, 'PROD-0002', 'Naranjas Naranjas kg', 2, 'KG', 3.20),
+    (gen_random_uuid()::TEXT, 'PROD-0003', 'Papas Amarillas kg', 2, 'KG', 2.80),
+    (gen_random_uuid()::TEXT, 'PROD-0004', 'Pollo entero kg', 3, 'KG', 12.50),
+    (gen_random_uuid()::TEXT, 'PROD-0005', 'Carne molida res kg', 3, 'KG', 18.00),
+    (gen_random_uuid()::TEXT, 'PROD-0006', 'Arroz Extra kg', 1, 'KG', 3.50),
+    (gen_random_uuid()::TEXT, 'PROD-0007', 'Azúcar Blanca kg', 1, 'KG', 2.90),
+    (gen_random_uuid()::TEXT, 'PROD-0008', 'Aceite Vegetal litro', 1, 'LITRO', 8.50),
+    (gen_random_uuid()::TEXT, 'PROD-0009', 'Leche Evaporada lata', 4, 'UNIDAD', 3.80),
+    (gen_random_uuid()::TEXT, 'PROD-0010', 'Huevos gallina roja docena', 4, 'DOCENA', 6.50),
+    (gen_random_uuid()::TEXT, 'PROD-0011', 'Detergente Polvo kg', 5, 'KG', 4.20),
+    (gen_random_uuid()::TEXT, 'PROD-0012', 'Inca Cola 500ml retornable', 6, 'UNIDAD', 2.00);
+
+-- ================================================================
+-- DATOS DE PRUEBA - STOCK ALMACÉN
+-- ================================================================
+
+INSERT INTO stock_almacen (stock_id, producto_id, cantidad_disponible)
+SELECT gen_random_uuid()::TEXT, producto_id,
+    CASE codigo
+        WHEN 'PROD-0001' THEN 150
+        WHEN 'PROD-0002' THEN 200
+        WHEN 'PROD-0003' THEN 300
+        WHEN 'PROD-0004' THEN 100
+        WHEN 'PROD-0005' THEN 80
+        WHEN 'PROD-0006' THEN 500
+        WHEN 'PROD-0007' THEN 400
+        WHEN 'PROD-0008' THEN 200
+        WHEN 'PROD-0009' THEN 150
+        WHEN 'PROD-0010' THEN 120
+        WHEN 'PROD-0011' THEN 100
+        WHEN 'PROD-0012' THEN 300
+    END
+FROM productos;
+
+-- ================================================================
+-- DATOS DE PRUEBA - STOCK PUESTO
+-- ================================================================
+
+INSERT INTO stock_puesto (stock_id, producto_id, puesto_id, cantidad_actual, cantidad_minima)
+SELECT gen_random_uuid()::TEXT, pr.producto_id, pu.puesto_id,
+    CASE 
+        WHEN pr.codigo = 'PROD-0001' AND pu.numero_puesto = 'A-101' THEN 25
+        WHEN pr.codigo = 'PROD-0002' AND pu.numero_puesto = 'A-101' THEN 15
+        WHEN pr.codigo = 'PROD-0003' AND pu.numero_puesto = 'A-102' THEN 30
+        WHEN pr.codigo = 'PROD-0004' AND pu.numero_puesto = 'B-201' THEN 10
+        WHEN pr.codigo = 'PROD-0005' AND pu.numero_puesto = 'B-201' THEN 8
+        WHEN pr.codigo = 'PROD-0006' AND pu.numero_puesto = 'B-202' THEN 50
+        WHEN pr.codigo = 'PROD-0007' AND pu.numero_puesto = 'B-202' THEN 40
+        WHEN pr.codigo = 'PROD-0008' AND pu.numero_puesto = 'B-202' THEN 20
+        WHEN pr.codigo = 'PROD-0009' AND pu.numero_puesto = 'C-301' THEN 30
+        WHEN pr.codigo = 'PROD-0010' AND pu.numero_puesto = 'C-301' THEN 15
+        WHEN pr.codigo = 'PROD-0011' AND pu.numero_puesto = 'C-302' THEN 25
+        WHEN pr.codigo = 'PROD-0012' AND pu.numero_puesto = 'C-302' THEN 60
+        ELSE 5
+    END,
+    5
+FROM productos pr
+CROSS JOIN puestos pu
+WHERE (pr.codigo LIKE 'PROD-0001' AND pu.numero_puesto IN ('A-101', 'A-102'))
+   OR (pr.codigo LIKE 'PROD-0002' AND pu.numero_puesto = 'A-101')
+   OR (pr.codigo = 'PROD-0003' AND pu.numero_puesto = 'A-102')
+   OR (pr.codigo LIKE 'PROD-0004' AND pu.numero_puesto = 'B-201')
+   OR (pr.codigo LIKE 'PROD-0005' AND pu.numero_puesto = 'B-201')
+   OR (pr.codigo LIKE 'PROD-0006' AND pu.numero_puesto = 'B-202')
+   OR (pr.codigo LIKE 'PROD-0007' AND pu.numero_puesto = 'B-202')
+   OR (pr.codigo LIKE 'PROD-0008' AND pu.numero_puesto = 'B-202')
+   OR (pr.codigo LIKE 'PROD-0009' AND pu.numero_puesto = 'C-301')
+   OR (pr.codigo LIKE 'PROD-0010' AND pu.numero_puesto = 'C-301')
+   OR (pr.codigo LIKE 'PROD-0011' AND pu.numero_puesto = 'C-302')
+   OR (pr.codigo LIKE 'PROD-0012' AND pu.numero_puesto = 'C-302');
+
+-- ================================================================
+-- DATOS DE PRUEBA - PROVEEDORES
+-- ================================================================
+
+INSERT INTO proveedores (proveedor_id, razon_social, ruc, estado, nombre_contacto, telefono, email, direccion, distrito) VALUES
+    (gen_random_uuid()::TEXT, 'Frutas del Campo S.A.', '20123456789', 'ACTIVO', 'Pedro Sánchez', '987654321', 'pedro.sanchez@frutasdelcampo.com', 'Av. Agraria 1234, Lima', 'San Juan de Lurigancho'),
+    (gen_random_uuid()::TEXT, 'Carnes del Norte EIRL', '20234567890', 'ACTIVO', 'Liliana Rojas', '987654322', 'ventas@carnesdelnorte.com', 'Jr. Carnes 567, Lima', 'Cercado de Lima'),
+    (gen_random_uuid()::TEXT, 'Productos del Sur SAC', '20345678901', 'ACTIVO', 'Marco Paredes', '987654323', 'contacto@productosdelsur.com', 'Av. Producción 890, Lima', 'Villa El Salvador'),
+    (gen_random_uuid()::TEXT, 'Distribuidora Lima S.A.', '20456789012', 'ACTIVO', 'Carmen Linares', '987654324', 'info@distrilima.com', 'Calle Mercado 456, Lima', 'Lince'),
+    (gen_random_uuid()::TEXT, 'Huevos del Valle S.A.C.', '20567890123', 'EN_EVALUACION', 'Raúl Benavides', '987654325', 'raul@huevosdelvalle.com', 'Av. Avicola 789, Lima', 'Ate');
+
+-- ================================================================
+-- DATOS DE PRUEBA - PROVEEDOR-CATEGORÍAS
+-- ================================================================
+
+INSERT INTO proveedor_categorias (proveedor_id, categoria_id)
+SELECT p.proveedor_id, cp.categoria_id
+FROM proveedores p
+JOIN categorias_producto cp ON (
+    (p.razon_social = 'Frutas del Campo S.A.' AND cp.nombre IN ('FRUTAS_VERDURAS')) OR
+    (p.razon_social = 'Carnes del Norte EIRL' AND cp.nombre IN ('CARNES_EMBUTIDOS')) OR
+    (p.razon_social = 'Productos del Sur SAC' AND cp.nombre IN ('ABARROTES', 'LIMPIEZA')) OR
+    (p.razon_social = 'Distribuidora Lima S.A.' AND cp.nombre IN ('LACTEOS', 'BEBIDAS')) OR
+    (p.razon_social = 'Huevos del Valle S.A.C.' AND cp.nombre IN ('LACTEOS'))
+);
+
+-- ================================================================
+-- DATOS DE PRUEBA - SOLICITUDES DE REPOSICIÓN
+-- ================================================================
+
+INSERT INTO solicitudes_reposicion (solicitud_id, producto_id, puesto_id, vendedor_id, cantidad_pedida, estado, atendida_internamente)
+SELECT gen_random_uuid()::TEXT, pr.producto_id, pu.puesto_id, v.vendedor_id,
+    CASE 
+        WHEN pr.codigo = 'PROD-0001' THEN 20
+        WHEN pr.codigo = 'PROD-0003' THEN 15
+        WHEN pr.codigo = 'PROD-0006' THEN 30
+    END,
+    'PENDIENTE', FALSE
+FROM productos pr
+JOIN puestos pu ON pu.numero_puesto IN ('A-101', 'A-102', 'B-202')
+JOIN vendedores v ON v.puesto_id = pu.puesto_id
+WHERE pr.codigo IN ('PROD-0001', 'PROD-0003', 'PROD-0006');
+
+-- ================================================================
+-- DATOS DE PRUEBA - MOVIMIENTOS DE INVENTARIO
+-- ================================================================
+
+INSERT INTO movimientos_inventario (movimiento_id, producto_id, tipo_movimiento, cantidad, responsable_id, tipo_responsable)
+SELECT gen_random_uuid()::TEXT, pr.producto_id, 'ENTRADA',
+    CASE pr.codigo
+        WHEN 'PROD-0001' THEN 500
+        WHEN 'PROD-0002' THEN 400
+        WHEN 'PROD-0003' THEN 600
+        WHEN 'PROD-0004' THEN 200
+        WHEN 'PROD-0005' THEN 150
+        WHEN 'PROD-0006' THEN 1000
+        WHEN 'PROD-0007' THEN 800
+        WHEN 'PROD-0008' THEN 400
+        WHEN 'PROD-0009' THEN 300
+        WHEN 'PROD-0010' THEN 200
+        WHEN 'PROD-0011' THEN 150
+        WHEN 'PROD-0012' THEN 500
+    END,
+    e.encargado_id, 'ENCARGADO'
+FROM productos pr
+CROSS JOIN encargados e
+WHERE e.rol = 'ALMACEN';
+
+INSERT INTO movimientos_inventario (movimiento_id, producto_id, puesto_id, tipo_movimiento, cantidad, responsable_id, tipo_responsable)
+SELECT gen_random_uuid()::TEXT, sp.producto_id, sp.puesto_id, 'SALIDA', 5,
+    v.vendedor_id, 'VENDEDOR'
+FROM stock_puesto sp
+JOIN puestos p ON sp.puesto_id = p.puesto_id
+JOIN vendedores v ON v.puesto_id = p.puesto_id
+WHERE sp.cantidad_actual > 0;
+
 CREATE TABLE productos (
     producto_id     VARCHAR(36)  PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
     codigo          VARCHAR(30)  NOT NULL UNIQUE,
@@ -402,6 +617,222 @@ COMMENT ON TABLE auditoria_operaciones IS 'Registro transversal de todas las ope
 CREATE INDEX idx_auditoria_actor     ON auditoria_operaciones(actor_id);
 CREATE INDEX idx_auditoria_servicio  ON auditoria_operaciones(servicio);
 CREATE INDEX idx_auditoria_timestamp ON auditoria_operaciones(timestamp_op);
+
+-- ================================================================
+-- DATOS DE PRUEBA - COTIZACIONES
+-- ================================================================
+
+INSERT INTO cotizaciones (cotizacion_id, proveedor_id, solicitante_id, estado, observaciones)
+SELECT gen_random_uuid()::TEXT, p.proveedor_id, e.encargado_id,
+    CASE 
+        WHEN p.razon_social = 'Frutas del Campo S.A.' THEN 'ACEPTADA'
+        ELSE 'RESPONDIDA'
+    END,
+    CASE 
+        WHEN p.razon_social = 'Frutas del Campo S.A.' THEN 'Cotización para abastecimiento semanal'
+        ELSE 'Cotización mensual estándar'
+    END
+FROM proveedores p
+CROSS JOIN encargados e
+WHERE e.rol = 'COMPRAS'
+LIMIT 2;
+
+-- ================================================================
+-- DATOS DE PRUEBA - ÍTEMS DE COTIZACIÓN
+-- ================================================================
+
+INSERT INTO cotizacion_items (cotizacion_id, producto_id, precio_ofertado, cantidad_minima, plazo_entrega_dias, condiciones)
+SELECT c.cotizacion_id, pr.producto_id,
+    pr.precio_referencia * (CASE WHEN p.razon_social = 'Frutas del Campo S.A.' THEN 0.9 ELSE 1.05 END),
+    10, 2, 'Crédito 30 días'
+FROM cotizaciones c
+JOIN proveedores p ON c.proveedor_id = p.proveedor_id
+JOIN categorias_producto cp ON cp.nombre IN ('FRUTAS_VERDURAS', 'ABARROTES', 'LIMPIEZA')
+JOIN productos pr ON pr.categoria_id = cp.categoria_id
+LIMIT 6;
+
+-- ================================================================
+-- DATOS DE PRUEBA - EVALUACIONES DE PROVEEDOR
+-- ================================================================
+
+INSERT INTO evaluaciones_proveedor (evaluacion_id, proveedor_id, evaluador_id, puntaje_total, cumple_calidad, accion_tomada, observaciones)
+SELECT gen_random_uuid()::TEXT, p.proveedor_id, e.encargado_id, 8.5, TRUE, 'MANTENER', 'Proveedor cumplidor'
+FROM proveedores p
+CROSS JOIN encargados e
+WHERE e.rol = 'COMPRAS'
+LIMIT 4;
+
+-- ================================================================
+-- DATOS DE PRUEBA - CRITERIOS DE EVALUACIÓN
+-- ================================================================
+
+INSERT INTO evaluacion_criterios (evaluacion_id, criterio, puntaje, comentario)
+SELECT ev.evaluacion_id,
+    CASE ev.puntaje_total * (ev.evaluacion_id::INTEGER % 4)
+        WHEN 0 THEN 'precio'
+        WHEN 1 THEN 'calidad'
+        WHEN 2 THEN 'puntualidad'
+        ELSE 'cumplimiento'
+    END,
+    CASE ev.puntaje_total * (ev.evaluacion_id::INTEGER % 4)
+        WHEN 0 THEN 9.0
+        WHEN 1 THEN 8.5
+        WHEN 2 THEN 8.0
+        ELSE 7.5
+    END,
+    'Cumple el criterio según evaluación'
+FROM evaluaciones_proveedor ev;
+
+-- ================================================================
+-- DATOS DE PRUEBA - EXPERIENCIAS DE VENDEDOR
+-- ================================================================
+
+INSERT INTO experiencias_vendedor (experiencia_id, proveedor_id, vendedor_id, calificacion, comentario)
+SELECT gen_random_uuid()::TEXT, p.proveedor_id, v.vendedor_id, 5, 'Atención excelente'
+FROM proveedores p
+JOIN vendedores v ON v.puesto_id IN (SELECT puesto_id FROM puestos WHERE numero_puesto IN ('A-101', 'B-201', 'C-301'))
+LIMIT 6;
+
+-- ================================================================
+-- DATOS DE PRUEBA - PEDIDOS
+-- ================================================================
+
+INSERT INTO pedidos (pedido_id, idempotency_key, vendedor_id, encargado_id, estado, monto_total, fecha_requerida)
+SELECT gen_random_uuid()::TEXT, gen_random_uuid()::TEXT, v.vendedor_id, e.encargado_id,
+    CASE v.puesto_id::INTEGER % 4
+        WHEN 0 THEN 'ENTREGADO'
+        WHEN 1 THEN 'CONFIRMADO'
+        WHEN 2 THEN 'EN_PREPARACION'
+        ELSE 'PENDIENTE'
+    END, 150.00, CURRENT_DATE + INTERVAL '3 days'
+FROM vendedores v
+CROSS JOIN encargados e
+WHERE e.rol = 'ALMACEN'
+LIMIT 4;
+
+-- ================================================================
+-- DATOS DE PRUEBA - ÍTEMS DE PEDIDO
+-- ================================================================
+
+INSERT INTO items_pedido (pedido_id, producto_id, puesto_id, cantidad, precio_unitario)
+SELECT p.pedido_id, pr.producto_id, pu.puesto_id, 10, pr.precio_referencia
+FROM pedidos p
+JOIN vendedores v ON p.vendedor_id = v.vendedor_id
+JOIN puestos pu ON v.puesto_id = pu.puesto_id
+JOIN productos pr ON pr.codigo = 'PROD-0006';
+
+-- ================================================================
+-- DATOS DE PRUEBA - ENVÍOS
+-- ================================================================
+
+INSERT INTO envios (envio_id, pedido_id, proveedor_id, transportista, numero_guia, fecha_despacho, fecha_estimada_entrega, observaciones)
+SELECT gen_random_uuid()::TEXT, p.pedido_id, prv.proveedor_id, 'Transportes Andinos S.A.', 
+    'GUIA-' || substring(p.pedido_id::TEXT, 1, 8),
+    p.fecha_creacion + INTERVAL '1 day', p.fecha_requerida, 'Entrega programada'
+FROM pedidos p
+CROSS JOIN proveedores prv
+WHERE prv.razon_social = 'Frutas del Campo S.A.' AND p.estado = 'ENTREGADO';
+
+-- ================================================================
+-- DATOS DE PRUEBA - RECEPCIONES
+-- ================================================================
+
+INSERT INTO recepciones (recepcion_id, pedido_id, encargado_id, estado_recepcion, observaciones)
+SELECT gen_random_uuid()::TEXT, p.pedido_id, e.encargado_id, 'CONFORME', 'Recepción completada sin observaciones'
+FROM pedidos p
+CROSS JOIN encargados e
+WHERE e.rol = 'RECEPCION' AND p.estado = 'ENTREGADO';
+
+-- ================================================================
+-- DATOS DE PRUEBA - ÍTEMS DE RECEPCIÓN
+-- ================================================================
+
+INSERT INTO recepcion_items (recepcion_id, producto_id, cantidad_pedida, cantidad_recibida, estado_fisico)
+SELECT r.recepcion_id, ip.producto_id, ip.cantidad, ip.cantidad - 1, 'BUENO'
+FROM recepciones r
+JOIN pedidos p ON r.pedido_id = p.pedido_id
+JOIN items_pedido ip ON ip.pedido_id = p.pedido_id;
+
+-- ================================================================
+-- DATOS DE PRUEBA - DISTRIBUCIONES INTERNAS
+-- ================================================================
+
+INSERT INTO distribuciones_internas (distribucion_id, recepcion_id, responsable_id, completada)
+SELECT gen_random_uuid()::TEXT, r.recepcion_id, e.encargado_id, TRUE
+FROM recepciones r
+CROSS JOIN encargados e
+WHERE e.rol = 'ALMACEN';
+
+-- ================================================================
+-- DATOS DE PRUEBA - ÍTEMS DE DISTRIBUCIÓN
+-- ================================================================
+
+INSERT INTO distribucion_items (distribucion_id, producto_id, puesto_id, cantidad)
+SELECT d.distribucion_id, ri.producto_id, p.puesto_id, ri.cantidad_recibida / 3
+FROM distribuciones_internas d
+JOIN recepciones r ON d.recepcion_id = r.recepcion_id
+JOIN recepcion_items ri ON r.recepcion_id = ri.recepcion_id
+CROSS JOIN puestos p
+WHERE p.numero_puesto IN ('B-202', 'C-301');
+
+-- ================================================================
+-- DATOS DE PRUEBA - CONFIRMACIONES DE PUESTO
+-- ================================================================
+
+INSERT INTO confirmaciones_puesto (confirmacion_id, distribucion_id, puesto_id, vendedor_id, cantidad_confirmada, conforme, observaciones)
+SELECT gen_random_uuid()::TEXT, d.distribucion_id, p.puesto_id, v.vendedor_id, di.cantidad, TRUE, 'Confirmación exitosa'
+FROM distribuciones_internas d
+JOIN distribucion_items di ON d.distribucion_id = di.distribucion_id
+JOIN puestos p ON di.puesto_id = p.puesto_id
+JOIN vendedores v ON v.puesto_id = p.puesto_id;
+
+-- ================================================================
+-- DATOS DE PRUEBA - NO CONFORMIDADES
+-- ================================================================
+
+INSERT INTO no_conformidades (nc_id, recepcion_id, tipo, descripcion, accion_requerida, resuelta)
+SELECT gen_random_uuid()::TEXT, r.recepcion_id, 'FALTANTE', 'Producto faltante reportado en la entrega', 'Reemplazar producto', FALSE
+FROM recepciones r
+LIMIT 2;
+
+-- ================================================================
+-- DATOS DE PRUEBA - REGISTROS DE AUDITORÍA
+-- ================================================================
+
+INSERT INTO auditoria_operaciones (actor_id, tipo_actor, servicio, operacion, referencia_id, resultado, detalle, ip_origen)
+SELECT 
+    CASE a.actor_type
+        WHEN 'VENDEDOR' THEN v.vendedor_id
+        WHEN 'ENCARGADO' THEN e.encargado_id
+        ELSE p.proveedor_id
+    END,
+    a.actor_type,
+    'GestionPedidos',
+    a.operacion,
+    gen_random_uuid()::TEXT,
+    a.resultado,
+    'Operación de prueba registrada en auditoría', '127.0.0.1'
+FROM (
+    VALUES 
+        ('VENDEDOR', 'CREAR_PEDIDO', 'EXITO'),
+        ('ENCARGADO', 'CONFIRMAR_PEDIDO', 'EXITO'),
+        ('PROVEEDOR', 'ACTUALIZAR_ESTADO', 'ERROR'),
+        ('VENDEDOR', 'CANCELAR_PEDIDO', 'RECHAZADO'),
+        ('ENCARGADO', 'CONSULTAR_ESTADO', 'EXITO'),
+        ('VENDEDOR', 'CREAR_PEDIDO', 'EXITO'),
+        ('ENCARGADO', 'CONFIRMAR_PEDIDO', 'EXITO'),
+        ('PROVEEDOR', 'ACTUALIZAR_ESTADO', 'EXITO'),
+        ('VENDEDOR', 'CANCELAR_PEDIDO', 'ERROR'),
+        ('ENCARGADO', 'CONSULTAR_ESTADO', 'RECHAZADO'),
+        ('VENDEDOR', 'CREAR_PEDIDO', 'EXITO'),
+        ('PROVEEDOR', 'ACTUALIZAR_ESTADO', 'RECHAZADO'),
+        ('ENCARGADO', 'CONFIRMAR_PEDIDO', 'ERROR'),
+        ('VENDEDOR', 'CONSULTAR_ESTADO', 'EXITO'),
+        ('PROVEEDOR', 'CREAR_PEDIDO', 'ERROR')
+) AS a(actor_type, operacion, resultado)
+LEFT JOIN vendedores v ON a.actor_type = 'VENDEDOR'
+LEFT JOIN encargados e ON a.actor_type = 'ENCARGADO'
+LEFT JOIN proveedores p ON a.actor_type = 'PROVEEDOR';
 
 -- ================================================================
 -- FIN DEL SCRIPT

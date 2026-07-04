@@ -1,0 +1,35 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class ApiError << (T,#FFAAAA) >> {
+  {field} private String code
+  {field} private int status
+  {field} private String title
+  {field} private String detail
+  {field} private String correlationId
+  {field} private List<String> fieldErrors
+  {field} private Instant timestamp
+  {method} public ApiError()
+  {method} public ApiError(String, int, String, String, String)
+  {method} public String getCode()
+  {method} public void setCode(String)
+  {method} public int getStatus()
+  {method} public void setStatus(int)
+  {method} public String getTitle()
+  {method} public void setTitle(String)
+  {method} public String getDetail()
+  {method} public void setDetail(String)
+  {method} public String getCorrelationId()
+  {method} public void setCorrelationId(String)
+  {method} public List<String> getFieldErrors()
+  {method} public void setFieldErrors(List<String>)
+  {method} public Instant getTimestamp()
+  {method} public void setTimestamp(Instant)
+}
+
+note top of ApiError
+  Package: pe.aspropa.mercadolink.dto
+end note
+
+@enduml

@@ -1,0 +1,33 @@
+@startuml
+left to right direction
+skinparam classAttributeAlignment left
+
+class CrearProveedorRequest << (T,#FFAAAA) >> {
+  {field} private String razonSocial
+  {field} private String ruc
+  {field} private String nombreContacto
+  {field} private String telefono
+  {field} private String email
+  {field} private String direccion
+  {field} private String distrito
+  {method} public String getRazonSocial()
+  {method} public void setRazonSocial(String)
+  {method} public String getRuc()
+  {method} public void setRuc(String)
+  {method} public String getNombreContacto()
+  {method} public void setNombreContacto(String)
+  {method} public String getTelefono()
+  {method} public void setTelefono(String)
+  {method} public String getEmail()
+  {method} public void setEmail(String)
+  {method} public String getDireccion()
+  {method} public void setDireccion(String)
+  {method} public String getDistrito()
+  {method} public void setDistrito(String)
+}
+
+note top of CrearProveedorRequest
+  Package: pe.aspropa.mercadolink.dto
+end note
+
+@enduml
