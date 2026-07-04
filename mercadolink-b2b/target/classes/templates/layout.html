@@ -1,0 +1,272 @@
+<!doctype html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title th:text="${appName}">MercadoLink B2B</title>
+  <style>
+  :root {
+    --bg: #1b1410;
+    --surface: rgba(35,25,18,0.72);
+    --surface2: rgba(50,36,26,0.72);
+    --border: rgba(120,90,60,0.35);
+    --text: #f3e7d3;
+    --muted: #c9b89a;
+    --accent: #e0a96d;
+    --accent2: #b45b3a;
+    --green: #6fbf73;
+    --yellow: #e6b85c;
+    --red: #d76b5c;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(180,120,60,0.12), transparent),
+      radial-gradient(1200px 600px at 90% 110%, rgba(160,90,50,0.10), transparent),
+      var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+  }
+  body { padding: 0; }
+
+  .navbar {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.9rem 1.2rem;
+    background: rgba(20,14,10,0.55);
+    backdrop-filter: blur(14px) saturate(140%);
+    border-bottom: 1px solid var(--border);
+  }
+  .navbar .brand {
+    font-weight: 700; letter-spacing: 0.3px;
+    color: var(--text);
+  }
+  .navbar .brand span { color: var(--accent); }
+  .nav-links { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .nav-links a {
+    color: var(--muted); text-decoration: none; font-size: 0.92rem;
+    padding: 0.35rem 0.7rem; border-radius: 999px;
+    border: 1px solid transparent;
+    transition: all .2s ease;
+  }
+  .nav-links a:hover { color: var(--text); border-color: var(--border); background: rgba(255,255,255,0.04); }
+  .nav-links a.cta {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #1a110c; border: none; font-weight: 600;
+  }
+  .nav-links a.cta:hover { transform: translateY(-1px); filter: brightness(1.05); }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 1.2rem; }
+
+  .hero {
+    margin: 1.2rem 0 1.6rem;
+    padding: 1.6rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+  }
+  .hero h1 {
+    font-size: 2rem; font-weight: 800; line-height: 1.15;
+    background: linear-gradient(135deg, var(--accent), #f3d7a9);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero p { color: var(--muted); line-height: 1.6; max-width: 780px; margin-top: 0.6rem; }
+  .hero .cta-row { margin-top: 1rem; display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.7rem 1.1rem; border-radius: 999px; text-decoration: none;
+    font-weight: 600; font-size: 0.95rem; border: 1px solid transparent;
+    transition: all .2s ease; cursor: pointer;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #1a110c;
+  }
+  .btn-primary:hover { transform: translateY(-2px); filter: brightness(1.05); }
+  .btn-ghost {
+    background: rgba(255,255,255,0.04); color: var(--text);
+    border-color: var(--border);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.08); }
+
+  .stats-row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.8rem; margin-top: 1rem;
+  }
+  .stat {
+    padding: 0.9rem 1rem; border-radius: 14px; text-align: center;
+    background: var(--surface2); border: 1px solid var(--border);
+  }
+  .stat .val { font-size: 1.4rem; font-weight: 800; color: var(--accent); }
+  .stat .label { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25); transition: transform .25s ease, box-shadow .25s ease;
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(0,0,0,0.35); }
+  .card h3 { margin: 0 0 0.4rem; font-size: 1.05rem; color: var(--text); }
+  .card p { color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
+  .card .meta { margin-top: 0.6rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+  .section-header {
+    display: flex; align-items: center; gap: 0.6rem;
+    margin: 1.6rem 0 0.8rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);
+  }
+  .section-header h2 { font-size: 1.25rem; color: var(--accent); margin: 0; }
+
+  .carousel-wrapper { position: relative; display: flex; align-items: center; gap: 0.5rem; }
+  .carousel {
+    display: flex; gap: 1rem; overflow-x: auto; scroll-behavior: smooth; flex: 1; padding-bottom: 0.6rem;
+    scroll-snap-type: x mandatory;
+  }
+  .carousel .card { scroll-snap-align: start; min-width: 270px; max-width: 300px; }
+  .carousel .card .thumb {
+    height: 110px; border-radius: 12px; margin-bottom: 0.6rem;
+    background: linear-gradient(135deg, rgba(224,169,109,0.25), rgba(180,91,58,0.25));
+    border: 1px solid var(--border);
+  }
+  .carousel-btn {
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    width: 38px; height: 38px; border-radius: 50%; cursor: pointer; font-size: 1.1rem;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    transition: all .2s ease;
+  }
+  .carousel-btn:hover { background: var(--border); transform: scale(1.05); }
+
+  .pill {
+    display: inline-block; padding: 0.25rem 0.55rem; border-radius: 999px; font-size: 0.78rem;
+    background: rgba(224,169,109,0.18); color: var(--accent); border: 1px solid rgba(224,169,109,0.35);
+  }
+
+  footer.landing-footer {
+    margin-top: 2rem; padding: 1.2rem; text-align: center; color: var(--muted); font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,0.25));
+  }
+
+  @media (max-width: 640px) {
+    .navbar { flex-direction: column; align-items: stretch; gap: 0.6rem; }
+    .nav-links { justify-content: center; }
+    .hero h1 { font-size: 1.5rem; }
+  }
+  </style>
+</head>
+<body>
+  <nav class="navbar" aria-label="Principal">
+    <div class="brand">🛒 MercadoLink <span>B2B</span></div>
+    <div class="nav-links">
+      <a href="/">Inicio</a>
+      <a href="/productos">Productos</a>
+      <a href="/proveedores">Proveedores</a>
+      <a href="/vendedores">Vendedores</a>
+      <a href="/actores">Actores</a>
+      <a href="/app" class="cta">Entrar a la App</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="hero">
+      <h1>El mercado mayorista digital para Aspropa</h1>
+      <p>
+        Compra por catálogo, coordina pedidos, controla inventario y sigue envíos desde un solo lugar.
+        Acceso seguro por rol para vendedores, proveedores y mayoristas.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="/app">📱 Entrar a la App</a>
+        <a class="btn btn-ghost" href="#destacados">🛒 Ver destacados</a>
+      </div>
+      <div class="stats-row" th:if="${productos != null or proveedores != null}">
+        <div class="stat"><div class="val" th:text="${productos != null} ? ${productos.size()} : 0">0</div><div class="label">Productos</div></div>
+        <div class="stat"><div class="val" th:text="${proveedores != null} ? ${proveedores.size()} : 0">0</div><div class="label">Proveedores</div></div>
+        <div class="stat"><div class="val" th:text="${vendedores != null} ? ${vendedores.size()} : 0">0</div><div class="label">Vendedores</div></div>
+      </div>
+    </div>
+
+    <section id="beneficios">
+      <div class="section-header">
+        <svg class="icon" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3 6 6 1-4 4 1 6-6-3-6 3 1-6-4-4 6-1z" fill="var(--green)"/></svg>
+        <h2>Beneficios</h2>
+      </div>
+      <div class="grid">
+        <div class="card"><h3>🛒 Compra mayorista</h3><p>Pedidos claros desde el catálogo con entrega coordinada.</p></div>
+        <div class="card"><h3>📦 Inventario digital</h3><p>Control por puesto, mínimos y alertas tempranas.</p></div>
+        <div class="card"><h3>🤝 Proveedores</h3><p>Publica catálogo, recibe pedidos y despacha.</p></div>
+        <div class="card"><h3>🚚 Logística</h3><p>Seguimiento de envíos, recepciones y conformidades.</p></div>
+      </div>
+    </section>
+
+    <section id="roles">
+      <div class="section-header">
+        <svg class="icon" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="var(--accent)"/><path d="M4 20c0-4 4-7 8-7s8 3 8 7" fill="var(--accent)"/></svg>
+        <h2>Roles</h2>
+      </div>
+      <div class="grid">
+        <div class="card"><h3>🏪 Vendedor</h3><p>Gestiona tu puesto, stock y pedidos del día.</p><div class="meta"><span class="pill">Inventario</span><span class="pill">Pedidos</span></div></div>
+        <div class="card"><h3>🚚 Proveedor</h3><p>Publica productos, gestiona pedidos y logística.</p><div class="meta"><span class="pill">Catálogo</span><span class="pill">Despacho</span></div></div>
+        <div class="card"><h3>🛒 Mayorista</h3><p>Compra al por mayor con reglas claras.</p><div class="meta"><span class="pill">Catálogo</span><span class="pill">Pedidos</span></div></div>
+        <div class="card"><h3>🛡️ Admin</h3><p>Supervisión global: actores, auditoría y reglas.</p><div class="meta"><span class="pill">Control</span><span class="pill">Reportes</span></div></div>
+      </div>
+    </section>
+
+    <section id="destacados" th:if="${productos != null and !productos.empty}" style="margin-top: 1.6rem;">
+      <div class="section-header">
+        <svg class="icon" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" fill="var(--yellow)"/></svg>
+        <h2>Destacados</h2>
+      </div>
+      <div class="carousel-wrapper">
+        <button class="carousel-btn prev" onclick="scrollCarousel(-1)" aria-label="Anterior">&#10094;</button>
+        <div class="carousel" id="productCarousel">
+          <div class="card" th:each="pr : ${productos}">
+            <div class="thumb"></div>
+            <h3 th:text="${pr.descripcion}">Producto</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; gap: 0.6rem;">
+              <span class="pill" th:text="${pr.codigo}">SKU</span>
+              <strong th:text="${'S/ ' + pr.precioReferencia}">100.00</strong>
+            </div>
+            <div class="field" th:if="${pr.proveedor != null}">
+              <span class="field-label">Proveedor:</span>
+              <span class="field-value" th:text="${pr.proveedor.nombreComercial}">Proveedor</span>
+            </div>
+            <div class="field" th:if="${pr.etiquetas != null and !pr.etiquetas.isEmpty()}">
+              <span class="field-label">Categoría:</span>
+              <span class="field-value" th:text="${#strings.arraySplit(pr.etiquetas, ',')[0]}">General</span>
+            </div>
+            <div style="margin-top:0.6rem;">
+              <a class="btn btn-primary" style="width:100%; justify-content:center;" href="/app">Solicitar</a>
+            </div>
+          </div>
+        </div>
+        <button class="carousel-btn next" onclick="scrollCarousel(1)" aria-label="Siguiente">&#10095;</button>
+      </div>
+    </section>
+
+    <section th:if="${proveedores == null or proveedores.empty} and ${vendedores == null or vendedores.empty}">
+      <p style="color: var(--muted); text-align: center; padding: 2rem;">Comienza ingresando a la app para ver el catálogo completo.</p>
+    </section>
+
+    <footer class="landing-footer">
+      <span th:text="${appName}">MercadoLink B2B</span> · <span>Aspropa</span>
+    </footer>
+  </div>
+
+  <script>
+    const carousel = document.getElementById('productCarousel');
+    let auto = setInterval(() => scrollCarousel(1), 4000);
+    if (carousel) {
+      carousel.addEventListener('mouseenter', () => clearInterval(auto));
+      carousel.addEventListener('mouseleave', () => { auto = setInterval(() => scrollCarousel(1), 4000); });
+    }
+    function scrollCarousel(dir) {
+      const el = document.getElementById('productCarousel');
+      if (!el) return;
+      el.scrollBy({ left: dir * 300, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>

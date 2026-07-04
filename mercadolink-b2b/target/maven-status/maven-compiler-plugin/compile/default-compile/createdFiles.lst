@@ -1,0 +1,13 @@
+pe\aspropa\mercadolink\domain\Rol.class
+pe\aspropa\mercadolink\domain\Actor.class
+pe\aspropa\mercadolink\domain\ProductoTag.class
+pe\aspropa\mercadolink\repository\ProductoRepository.class
+pe\aspropa\mercadolink\TagMigrationRunner.class
+pe\aspropa\mercadolink\domain\Producto.class
+pe\aspropa\mercadolink\MercadolinkApplication.class
+pe\aspropa\mercadolink\config\CorsConfig.class
+pe\aspropa\mercadolink\domain\Puesto.class
+pe\aspropa\mercadolink\domain\Tag.class
+pe\aspropa\mercadolink\service\TagService.class
+pe\aspropa\mercadolink\repository\TagRepository.class
+pe\aspropa\mercadolink\config\AsyncConfig.class

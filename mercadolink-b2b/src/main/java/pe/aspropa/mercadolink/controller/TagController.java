@@ -8,6 +8,7 @@ import pe.aspropa.mercadolink.domain.Tag;
 import pe.aspropa.mercadolink.exception.BusinessException;
 import pe.aspropa.mercadolink.service.TagService;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,14 +25,16 @@ public class TagController {
 
     @GetMapping
     @Operation(summary = "Lista todas las etiquetas activas con cantidad de productos")
-    public List<Object> listar() {
+    public List<Map<String, Object>> listar() {
         return tagService.listarTodas().stream()
-                .map(t -> Map.of(
-                        "id", t.getId(),
-                        "nombre", t.getNombre(),
-                        "slug", t.getSlug(),
-                        "cantidadProductos", tagService.contarProductosPorTag(t)
-                ))
+                .map(t -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", t.getId());
+                    map.put("nombre", t.getNombre());
+                    map.put("slug", t.getSlug());
+                    map.put("cantidadProductos", tagService.contarProductosPorTag(t));
+                    return map;
+                })
                 .toList();
     }
 
@@ -43,14 +46,16 @@ public class TagController {
 
     @GetMapping("/populares")
     @Operation(summary = "Lista etiquetas más usadas ordenadas por cantidad de productos")
-    public List<Object> populares() {
+    public List<Map<String, Object>> populares() {
         return tagService.populares().stream()
-                .map(t -> Map.of(
-                        "id", t.getId(),
-                        "nombre", t.getNombre(),
-                        "slug", t.getSlug(),
-                        "cantidadProductos", tagService.contarProductosPorTag(t)
-                ))
+                .map(t -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", t.getId());
+                    map.put("nombre", t.getNombre());
+                    map.put("slug", t.getSlug());
+                    map.put("cantidadProductos", tagService.contarProductosPorTag(t));
+                    return map;
+                })
                 .toList();
     }
 
