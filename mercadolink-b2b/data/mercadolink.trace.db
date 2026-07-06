@@ -248,3 +248,63 @@ Syntax error in SQL statement "\000d\000a    alter table if exists items_pedido 
 
     alter table if exists items_pedido 
        alter column estado_item set data type VARCHAR(30) DEFAULT 'PENDIENTE' [42000-224]
+2026-07-06 09:15:52.607275-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"
+Syntax error in SQL statement "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"; SQL statement:
+
+    alter table if exists items_pedido 
+       alter column estado_item set data type VARCHAR(30) DEFAULT 'PENDIENTE' [42000-224]
+2026-07-06 09:35:55.197293-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"
+Syntax error in SQL statement "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"; SQL statement:
+
+    alter table if exists items_pedido 
+       alter column estado_item set data type VARCHAR(30) DEFAULT 'PENDIENTE' [42000-224]
+2026-07-06 11:10:33.787421-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"
+Syntax error in SQL statement "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"; SQL statement:
+
+    alter table if exists items_pedido 
+       alter column estado_item set data type VARCHAR(30) DEFAULT 'PENDIENTE' [42000-224]
+2026-07-06 11:12:10.934794-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"
+Syntax error in SQL statement "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"; SQL statement:
+
+    alter table if exists items_pedido 
+       alter column estado_item set data type VARCHAR(30) DEFAULT 'PENDIENTE' [42000-224]
+2026-07-06 11:16:31.911879-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"
+Syntax error in SQL statement "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"; SQL statement:
+
+    alter table if exists items_pedido 
+       alter column estado_item set data type VARCHAR(30) DEFAULT 'PENDIENTE' [42000-224]
+2026-07-06 11:23:25.392713-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"
+Syntax error in SQL statement "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"; SQL statement:
+
+    alter table if exists items_pedido 
+       alter column estado_item set data type VARCHAR(30) DEFAULT 'PENDIENTE' [42000-224]
+2026-07-06 11:29:19.202925-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"
+Syntax error in SQL statement "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"; SQL statement:
+
+    alter table if exists items_pedido 
+       alter column estado_item set data type VARCHAR(30) DEFAULT 'PENDIENTE' [42000-224]
+2026-07-06 11:47:02.972877-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"
+Syntax error in SQL statement "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"; SQL statement:
+
+    alter table if exists items_pedido 
+       alter column estado_item set data type VARCHAR(30) DEFAULT 'PENDIENTE' [42000-224]
+2026-07-06 11:57:43.314488-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"
+Syntax error in SQL statement "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"; SQL statement:
+
+    alter table if exists items_pedido 
+       alter column estado_item set data type VARCHAR(30) DEFAULT 'PENDIENTE' [42000-224]
+2026-07-06 11:59:49.147038-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"
+Syntax error in SQL statement "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"; SQL statement:
+
+    alter table if exists items_pedido 
+       alter column estado_item set data type VARCHAR(30) DEFAULT 'PENDIENTE' [42000-224]

@@ -3,6 +3,7 @@ package pe.aspropa.mercadolink.domain;
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.UUID;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "mensajes_chat")
@@ -22,10 +23,12 @@ public class MensajeChat {
     private String contenido;
 
     @Column(nullable = false)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     private Instant timestamp = Instant.now();
 
     @Column(nullable = false)
     private boolean leido = false;
+    
 
     public MensajeChat() {}
 

@@ -27,7 +27,7 @@ const RBAC = {
     inventario: false, 
     pedidos: false,        // ← OCULTO: "Mis Pedidos"
     productos: true, 
-    proveedores: true, 
+    proveedores: false, 
     logistica: false,      // ← OCULTO: "Logística"
     proveedorInventario: true, 
     proveedorPedidos: true, // ← "Pedidos recibidos"
@@ -47,7 +47,7 @@ const RBAC = {
     proveedorInventario: false, 
     proveedorPedidos: false,
     pedidosVendedor: false,
-    chat: false, 
+    chat: true, 
     auditoria: true 
   },
   

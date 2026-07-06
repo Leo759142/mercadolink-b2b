@@ -49,7 +49,8 @@ public class SecurityConfig {
                     "/actores/**", "/static/**",
                     "/api/v1/productos", "/api/v1/etiquetas", "/api/v1/etiquetas/**",
                     "/ws-chat", "/ws-chat/**",
-                    "/api/v1/chat/**"
+                    "/api/v1/chat/**",
+                    "/api/v1/notificaciones", "/api/v1/notificaciones/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             )

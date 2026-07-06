@@ -12,4 +12,5 @@ public interface ActorRepository extends JpaRepository<Actor, String> {
     boolean existsByEmail(String email);
     boolean existsByDocumento(String documento);
     List<Actor> findByRol(Rol rol);
+    List<Actor> findByActivoTrue();
 }

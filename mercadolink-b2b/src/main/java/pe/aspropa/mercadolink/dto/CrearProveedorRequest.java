@@ -30,6 +30,8 @@ public class CrearProveedorRequest {
     @Size(max = 100)
     private String distrito;
 
+    @NotBlank @Size(max = 100) private String password; 
+
     public String getRazonSocial() { return razonSocial; }
     public void setRazonSocial(String razonSocial) { this.razonSocial = razonSocial; }
     public String getRuc() { return ruc; }
