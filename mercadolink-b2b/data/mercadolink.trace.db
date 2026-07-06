@@ -236,3 +236,15 @@ Syntax error in SQL statement "\000d\000a    alter table if exists items_pedido 
 
     alter table if exists items_pedido 
        alter column estado_item set data type VARCHAR(30) DEFAULT 'PENDIENTE' [42000-224]
+2026-07-03 17:03:37.723645-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"
+Syntax error in SQL statement "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"; SQL statement:
+
+    alter table if exists items_pedido 
+       alter column estado_item set data type VARCHAR(30) DEFAULT 'PENDIENTE' [42000-224]
+2026-07-06 08:45:52.843235-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"
+Syntax error in SQL statement "\000d\000a    alter table if exists items_pedido \000d\000a       alter column estado_item set data type VARCHAR(30) [*]DEFAULT 'PENDIENTE'"; SQL statement:
+
+    alter table if exists items_pedido 
+       alter column estado_item set data type VARCHAR(30) DEFAULT 'PENDIENTE' [42000-224]
