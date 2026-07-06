@@ -1,28 +1,30 @@
 package pe.aspropa.mercadolink.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.aspropa.mercadolink.domain.Actor;
 import pe.aspropa.mercadolink.domain.Proveedor;
-import pe.aspropa.mercadolink.dto.ActualizarProveedorRequest;
+import pe.aspropa.mercadolink.domain.Rol;
 import pe.aspropa.mercadolink.dto.CrearProveedorRequest;
 import pe.aspropa.mercadolink.dto.ProveedorResponse;
 import pe.aspropa.mercadolink.exception.BusinessException;
+import pe.aspropa.mercadolink.repository.ActorRepository;
 import pe.aspropa.mercadolink.repository.ProveedorRepository;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ProveedorService {
 
-    private static final Logger log = LoggerFactory.getLogger(ProveedorService.class);
-
     private final ProveedorRepository proveedorRepository;
+    private final ActorRepository actorRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public ProveedorService(ProveedorRepository proveedorRepository) {
+    public ProveedorService(ProveedorRepository proveedorRepository,
+                            ActorRepository actorRepository,
+                            PasswordEncoder passwordEncoder) {
         this.proveedorRepository = proveedorRepository;
+        this.actorRepository = actorRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<ProveedorResponse> listarTodos() {
@@ -38,24 +40,50 @@ public class ProveedorService {
                 .orElseThrow(() -> BusinessException.notFound("PROV-001", "Proveedor no encontrado: " + id));
         return new ProveedorResponse(p);
     }
+        Actor actor = new Actor();
+        actor.setNombreComercial(req.getRazonSocial());
+        actor.setEmail(req.getEmail());
+        actor.setPasswordHash(passwordEncoder.encode(
+            req.getPassword() != null ? req.getPassword() : "password123"
+        ));
+        actor.setDocumento(req.getRuc());
+        actor.setRol(Rol.PROVEEDOR);
+        actor = actorRepository.save(actor);
+
+    
 
     @Transactional
-    public ProveedorResponse crear(CrearProveedorRequest req) {
-        log.info("[PROVEEDOR] Creando razonSocial={}, ruc={}", req.getRazonSocial(), req.getRuc());
-        if (proveedorRepository.existsByRuc(req.getRuc())) {
-            throw BusinessException.conflict("PROV-002", "Ya existe un proveedor con ese RUC");
+        public ProveedorResponse crear(CrearProveedorRequest req) {
+            if (proveedorRepository.existsByRuc(req.getRuc())) {
+                throw BusinessException.conflict("PROV-002", "Ya existe un proveedor con ese RUC");
+            }
+
+            // 1. Crear Actor (para autenticación y chat)
+            Actor actor = new Actor();
+            actor.setNombreComercial(req.getRazonSocial());
+            actor.setEmail(req.getEmail());
+            actor.setPasswordHash(passwordEncoder.encode(
+                req.getPassword() != null ? req.getPassword() : "password123"
+            ));
+            actor.setDocumento(req.getRuc());
+            actor.setRol(Rol.PROVEEDOR);
+            actor = actorRepository.save(actor);
+
+            // 2. Crear Proveedor vinculado
+            Proveedor p = new Proveedor();
+            p.setActor(actor);
+            p.setRazonSocial(req.getRazonSocial());
+            p.setRuc(req.getRuc());
+            p.setNombreContacto(req.getNombreContacto());
+            p.setTelefono(req.getTelefono());
+            p.setEmail(req.getEmail());
+            p.setDireccion(req.getDireccion());
+            p.setDistrito(req.getDistrito());
+            // estado ya tiene default "EN_EVALUACION"
+
+            Proveedor saved = proveedorRepository.save(p);
+            return new ProveedorResponse(saved);
         }
-        Proveedor p = new Proveedor();
-        p.setRazonSocial(req.getRazonSocial());
-        p.setRuc(req.getRuc());
-        p.setNombreContacto(req.getNombreContacto());
-        p.setTelefono(req.getTelefono());
-        p.setEmail(req.getEmail());
-        p.setDireccion(req.getDireccion());
-        p.setDistrito(req.getDistrito());
-        Proveedor saved = proveedorRepository.save(p);
-        log.info("[PROVEEDOR] Creado id={}", saved.getId());
-        return new ProveedorResponse(saved);
     }
 
     @Transactional

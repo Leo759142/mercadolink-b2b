@@ -19,7 +19,7 @@ export default function Proveedores() {
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({
     razonSocial: '', ruc: '', estado: 'EN_EVALUACION',
-    nombreContacto: '', telefono: '', email: '', direccion: '', distrito: '',
+    nombreContacto: '', telefono: '', email: '', direccion: '', distrito: '',password: '',
   });
   const [cotForm, setCotForm] = useState({ proveedorId: '', productoId: '', cantidad: '', dias: '' });
   const [evalForm, setEvalForm] = useState({ proveedorId: '', precio: 7, calidad: 8, puntual: 6 });
@@ -40,13 +40,13 @@ export default function Proveedores() {
 
   const abrirNuevo = () => {
     setEditId(null);
-    setForm({ razonSocial: '', ruc: '', estado: 'EN_EVALUACION', nombreContacto: '', telefono: '', email: '', direccion: '', distrito: '' });
+    setForm({ razonSocial: '', ruc: '', estado: 'EN_EVALUACION', nombreContacto: '', telefono: '', email: '', direccion: '', distrito: '', password: '' });
     setModal(true);
   };
 
   const abrirEditar = (p) => {
     setEditId(p.id);
-    setForm({ razonSocial: p.razonSocial, ruc: p.ruc, estado: p.estado, nombreContacto: p.nombreContacto || '', telefono: p.telefono || '', email: p.email || '', direccion: p.direccion || '', distrito: p.distrito || '' });
+    setForm({ razonSocial: p.razonSocial, ruc: p.ruc, estado: p.estado, nombreContacto: p.nombreContacto || '', telefono: p.telefono || '', email: p.email || '', direccion: p.direccion || '', distrito: p.distrito || '', password: '' });
     setModal(true);
   };
 
@@ -190,6 +190,14 @@ export default function Proveedores() {
             <span className="card-title">📝 Solicitar Cotización</span>
           </div>
           <div className="form-group">
+             <label>Contraseña temporal *</label>
+              <input 
+                type="password" 
+                value={form.password} 
+                onChange={(e) => handleChange('password', e.target.value)} 
+                required={!editId}
+                placeholder={editId ? 'Dejar en blanco para no cambiar' : 'Mín. 8 caracteres'}
+              />
             <label>Proveedor</label>
             <select
               value={cotForm.proveedorId}
